@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Plus Jakarta Sans', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: #111111;
+  background-color: #ffffff;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: theme('colors.veto-blue-gray');
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.pill-shadow {
+  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.05);
+}
+
+@layer components {
+  .btn {
+    @apply px-8 py-4 rounded-full font-bold transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+  }
+  .btn-yellow {
+    @apply bg-veto-yellow text-veto-black hover:bg-opacity-90;
+  }
+  .btn-black {
+    @apply bg-veto-black text-white hover:bg-opacity-90;
+  }
+  .btn-ghost {
+    @apply text-veto-black hover:bg-white/10;
+  }
+}
