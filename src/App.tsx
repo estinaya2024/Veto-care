@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar';
+import { Hero } from './components/sections/Hero';
 
 function App() {
   return (
@@ -16,10 +17,9 @@ function App() {
 
 function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-extrabold text-veto-black">Veto-Care</h1>
-      <p className="mt-4 text-veto-gray italic">Design en cours de réplication...</p>
-    </div>
+    <main>
+      <Hero />
+    </main>
   );
 }
 
