@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { OwnerDashboard } from '../components/dashboard/OwnerDashboard';
 import { VetDashboard } from '../components/dashboard/VetDashboard';
-import { Button } from '../components/ui/Button';
-import { LogOut, Heart } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/images/logo.png';
 
 export function Dashboard() {
   const [role, setRole] = useState<'owner' | 'vet'>('owner');
@@ -14,9 +14,7 @@ export function Dashboard() {
       {/* Dashboard Nav */}
       <nav className="px-8 md:px-16 py-6 border-b border-black/5 flex items-center justify-between mb-12 bg-white/50 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-          <div className="bg-veto-black p-1.5 rounded-lg">
-            <Heart className="text-white fill-white" size={18} />
-          </div>
+          <img src={logo} alt="VetoCare Logo" className="w-8 h-8 object-contain" />
           <span className="font-extrabold text-xl tracking-tighter">VetoCare</span>
         </div>
 

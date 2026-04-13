@@ -1,21 +1,21 @@
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
-import { Calendar, Syringe, FileText, ChevronRight } from 'lucide-react';
+import { Calendar, Syringe, ChevronRight } from 'lucide-react';
 
 export function OwnerDashboard() {
   const myPets = [
-    { name: 'Luna', species: 'Chien', lastVisit: '12 Mars 2026', nextVax: '20 Mai 2026', status: 'En forme' },
-    { name: 'Oscar', species: 'Chat', lastVisit: '05 Jan 2026', nextVax: '05 Juin 2026', status: 'Traitement en cours' },
+    { name: 'Luna', species: 'Dog', lastVisit: '12 Mar 2026', nextVax: '20 May 2026', status: 'Healthy' },
+    { name: 'Oscar', species: 'Cat', lastVisit: '05 Jan 2026', nextVax: '05 Jun 2026', status: 'Ongoing Treatment' },
   ];
 
   return (
     <div className="space-y-12">
       <div className="flex justify-between items-end">
         <div>
-          <Heading level={2}>Bonjour, Claire !</Heading>
-          <p className="text-veto-gray font-medium">Voici le suivi de vos compagnons.</p>
+          <Heading level={2}>Welcome, Claire!</Heading>
+          <p className="text-veto-gray font-medium">Here is the medical overview of your companions.</p>
         </div>
-        <Button variant="yellow">+ Ajouter un animal</Button>
+        <Button variant="yellow">+ Add Patient</Button>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
@@ -40,16 +40,19 @@ export function OwnerDashboard() {
               <div className="flex items-center gap-3 p-4 bg-veto-blue-gray rounded-2xl">
                 <Calendar size={20} className="text-veto-gray" />
                 <div className="text-sm">
-                  <p className="text-veto-gray font-medium">Dernière visite</p>
+                  <p className="text-veto-gray font-medium">Last Clinical Visit</p>
                   <p className="font-bold">{pet.lastVisit}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 bg-veto-light-blue rounded-2xl">
                 <Syringe size={20} className="text-veto-gray" />
                 <div className="text-sm">
-                  <p className="text-veto-gray font-medium">Prochain vaccin</p>
+                  <p className="text-veto-gray font-medium">Upcoming Vaccination</p>
                   <p className="font-bold">{pet.nextVax}</p>
                 </div>
+              </div>
+              <div className="pt-2">
+                <Button variant="outline" size="sm" className="w-full justify-center">View Health Records</Button>
               </div>
             </div>
           </div>

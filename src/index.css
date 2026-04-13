@@ -1,6 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap');
+
+@theme {
+  --color-veto-blue-gray: #E6E9F2;
+  --color-veto-light-blue: #DEE5F3;
+  --color-veto-yellow: #FFD500;
+  --color-veto-black: #111111;
+  --color-veto-gray: #6B7280;
+  
+  --font-sans: "Fredoka", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Fredoka", "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  --radius-4xl: 2rem;
+  --radius-5xl: 3rem;
+}
 
 :root {
   font-family: 'Plus Jakarta Sans', system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -20,7 +33,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: theme('colors.veto-blue-gray');
+  background-color: var(--color-veto-blue-gray);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -37,12 +50,91 @@ h1, h2, h3, h4, h5, h6 {
     @apply px-8 py-4 rounded-full font-bold transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
   }
   .btn-yellow {
-    @apply bg-veto-yellow text-veto-black hover:bg-opacity-90;
+    @apply bg-veto-yellow text-veto-black hover:bg-veto-yellow/90;
   }
   .btn-black {
-    @apply bg-veto-black text-white hover:bg-opacity-90;
+    @apply bg-veto-black text-white hover:bg-veto-black/90;
   }
   .btn-ghost {
     @apply text-veto-black hover:bg-white/10;
   }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translate3d(20px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes bounceInUp {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1000px, 0) scaleY(3);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(0, -20px, 0) scaleY(0.9);
+  }
+  75% {
+    transform: translate3d(0, 10px, 0) scaleY(0.95);
+  }
+  90% {
+    transform: translate3d(0, -5px, 0) scaleY(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes bounceInRight {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  from {
+    opacity: 0;
+    transform: translate3d(3000px, 0, 0) scaleX(3);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(-25px, 0, 0) scaleX(1);
+  }
+  75% {
+    transform: translate3d(10px, 0, 0) scaleX(0.98);
+  }
+  90% {
+    transform: translate3d(-5px, 0, 0) scaleX(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-fadeInRight {
+  animation: fadeInRight 1s both;
+}
+
+.animate-bounceInUp {
+  animation: bounceInUp 1s both;
+}
+
+.animate-bounceInRight {
+  animation: bounceInRight 1s both;
 }

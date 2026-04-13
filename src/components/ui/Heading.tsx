@@ -1,4 +1,4 @@
-import { HTMLAttributes, forwardRef } from 'react';
+import { type HTMLAttributes, forwardRef } from 'react';
 import { cn } from '../../lib/utils';
 
 interface HeadingProps extends HTMLAttributes<HTMLHeadingElement> {
@@ -20,7 +20,7 @@ const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
       <Component
         ref={ref}
         className={cn(
-          'font-extrabold text-veto-black tracking-tight',
+          'font-heading font-extrabold text-veto-black tracking-tight',
           sizes[level],
           className
         )}

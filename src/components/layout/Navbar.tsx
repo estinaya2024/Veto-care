@@ -1,6 +1,6 @@
-import { ChevronDown, Heart, Phone } from 'lucide-react';
+import { ChevronDown, Heart } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { cn } from '../../lib/utils';
+import logo from '../../assets/images/logo-icon-only.png';
 
 export function Navbar() {
   const navLinks = [
@@ -28,12 +28,10 @@ export function Navbar() {
 
       {/* Center Logo */}
       <div className="flex flex-col items-center">
-        <div className="flex items-center gap-2">
-          <div className="bg-veto-black p-1 rounded-lg">
-            <Heart className="text-white fill-white" size={20} />
-          </div>
-          <span className="font-extrabold text-2xl tracking-tighter">VetoCare</span>
-        </div>
+        <a href="/" className="flex flex-col items-center gap-1">
+          <img src={logo} alt="VetoCare Logo Mark" className="h-32 w-auto object-contain transition-transform hover:scale-105" />
+          <span className="font-extrabold text-4xl tracking-tighter hidden sm:block mt-1">VetoCare</span>
+        </a>
       </div>
 
       {/* Right Content */}
