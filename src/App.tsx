@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar';
 import { Hero } from './components/sections/Hero';
+import { PromiseSection } from './components/sections/Promise';
+import { Services } from './components/sections/Services';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function Home() {
   return (
     <main>
       <Hero />
+      <PromiseSection />
+      <Services />
     </main>
   );
 }
