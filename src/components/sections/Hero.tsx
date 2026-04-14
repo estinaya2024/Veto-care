@@ -1,86 +1,100 @@
 import { Button } from '../ui/Button';
 import { Heading } from '../ui/Heading';
 import { Star } from 'lucide-react';
-import medIllustration1 from '../../assets/images/illustration-medical-new.png';
-import medIllustration2 from '../../assets/images/illustration-medical-2.png';
+import medIllustration1 from '../../assets/images/illustration-1.svg';
+import medIllustration2 from '../../assets/images/illustration-2.svg';
 import heroMainImage from '../../assets/images/iStock-1143440918 (1).webp';
 import heroDog from '../../assets/images/hero_dog.png';
 
 export function Hero() {
   return (
-    <section className="relative w-full min-h-[90vh] bg-veto-blue-gray overflow-hidden">
+    <section className="relative w-full min-h-screen bg-[#E3EAF7] overflow-hidden flex flex-col justify-between">
       
-      {/* Background Dog Image - Placed on the far right */}
-      <div className="absolute right-0 bottom-40 inset-y-0 w-[50%] lg:w-[40%] flex items-end justify-end pointer-events-none z-0">
+      {/* Background Dog Image - Placed on the far right, slightly behind */}
+      <div className="absolute right-0 bottom-[10%] w-[50%] lg:w-[45%] flex items-end justify-end pointer-events-none z-0 translate-x-[5%] lg:translate-x-[10%]">
         <img 
           src={heroDog} 
-          alt="Large Dog holding a toy" 
-          className="w-[800px] max-w-none h-auto object-contain translate-x-20 md:translate-x-32"
+          alt="Large Dog" 
+          className="w-full max-w-[900px] h-auto object-contain opacity-90 animate-fadeInRight"
+          style={{ animationDelay: '400ms' }}
         />
       </div>
 
       {/* Main Content Area */}
-      <div className="relative z-20 max-w-[1400px] mx-auto w-full px-8 md:px-16 pt-24 pb-48 grid md:grid-cols-2 gap-12 items-start h-full">
+      <div className="flex-1 relative z-20 max-w-[1400px] mx-auto w-full px-8 md:px-16 pt-32 pb-64 lg:pb-32 flex flex-col justify-center">
         {/* Left Typography */}
-        <div className="max-w-xl animate-fadeInRight">
-          <Heading className="mb-10 text-6xl lg:text-[5.5rem] tracking-tighter leading-[1.05] font-black">
+        <div className="max-w-2xl animate-fadeInRight">
+          <Heading className="mb-12 text-[40px] lg:text-[7.5rem] tracking-tighter leading-[0.95] font-black text-veto-black drop-shadow-sm">
             Your pet, <br />
             our priority
           </Heading>
           
-          <div className="flex flex-wrap gap-4">
-            <Button variant="black" className="px-10 py-5 rounded-[2rem] hover:scale-105 transition-transform font-extrabold" onClick={() => window.location.href='#services'}>
+          <div className="flex flex-wrap gap-5">
+            <Button variant="black" className="px-12 py-5 rounded-full hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest shadow-xl" onClick={() => window.location.href='#services'}>
               Learn more
             </Button>
-            <Button variant="yellow" className="px-10 py-5 rounded-[2rem] shadow-[0_8px_20px_rgba(255,213,0,0.3)] hover:scale-105 transition-transform font-extrabold" onClick={() => window.location.href='/dashboard'}>
+            <Button variant="yellow" className="px-12 py-5 rounded-full shadow-[0_10px_30px_rgba(255,213,0,0.4)] hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest" onClick={() => window.location.href='#reservation'}>
               Make a reservation
             </Button>
           </div>
         </div>
       </div>
 
-      {/* The White Bottom Bar / Footer Banner */}
-      <div className="absolute bottom-0 w-full bg-white h-40 z-10 shadow-t-sm border-t border-gray-100 hidden md:block">
-        <div className="max-w-[1400px] mx-auto w-full px-16 h-full flex flex-col justify-center sm:w-1/2">
-          <h3 className="font-extrabold text-lg text-veto-black tracking-tight">Clinical Care & Veterinary Services</h3>
-          <p className="text-veto-gray font-medium text-sm">Throughout the Region</p>
-          <div className="flex items-center gap-1 mt-2">
-            <div className="flex gap-1">
-              {[1, 2, 3, 4].map((i) => (
-                <Star key={i} size={16} className="fill-[#F87171] text-[#F87171]" />
-              ))}
-              <Star size={16} className="fill-[#F87171]/50 text-[#F87171]" /> {/* Partial star effect */}
+      {/* Foreground Content Assembly: Cat and Groomers overlapping the bottom banner */}
+      <div className="relative z-30 w-full">
+        {/* Bottom Banner Area */}
+        <div className="bg-white py-12 px-8 md:px-16 border-t border-gray-100 shadow-2xl relative">
+          <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="max-w-md">
+              <h3 className="font-black text-2xl text-veto-black tracking-tight leading-tight mb-1">
+                Dog Walking & Pet Sitting Services
+              </h3>
+              <p className="text-veto-gray font-bold text-lg">
+                Throughout <span className="underline decoration-veto-yellow decoration-2 cursor-pointer">New York City</span>
+              </p>
             </div>
-            <span className="text-sm font-extrabold ml-2 text-veto-black">4.9 Patient reviews</span>
+            
+            <div className="flex items-center gap-4 bg-gray-50 px-6 py-4 rounded-3xl border border-gray-100 hover:border-veto-yellow transition-colors cursor-pointer group">
+              <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white scale-90 group-hover:scale-100 transition-transform">
+                <Star size={20} fill="currentColor" />
+              </div>
+              <div>
+                <span className="block text-lg font-black text-veto-black">4,9 reviews Yelp</span>
+                <div className="flex gap-0.5 text-veto-yellow">
+                   {[1,2,3,4,5].map(i => <Star key={i} size={14} fill="currentColor" />)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Overlapping Assembly Positioning Container */}
+          <div className="absolute top-0 right-[5%] lg:right-[15%] w-[400px] md:w-[600px] h-0 flex items-end justify-center pointer-events-none">
+            
+            {/* Groomer Left (smaller) */}
+            <img 
+              src={medIllustration1} 
+              alt="Groomer 1" 
+              className="absolute -left-12 bottom-0 w-[160px] md:w-[220px] object-contain drop-shadow-sm z-10 animate-bounceInUp transform translate-y-[20%]"
+              style={{ animationDelay: '300ms' }}
+            />
+
+            {/* The Cat (Center piece overlapping the white bar) */}
+            <img 
+              src={heroMainImage} 
+              alt="Cat" 
+              className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[260px] md:w-[400px] object-contain drop-shadow-xl z-20 animate-fadeInRight transform translate-y-[15%]"
+              style={{ animationDelay: '100ms' }}
+            />
+
+            {/* Groomer Right (larger/walking) */}
+            <img 
+              src={medIllustration2} 
+              alt="Groomer 2" 
+              className="absolute -right-8 bottom-0 w-[180px] md:w-[250px] object-contain drop-shadow-sm z-30 animate-bounceInRight transform translate-y-[45%]"
+              style={{ animationDelay: '500ms' }}
+            />
           </div>
         </div>
-      </div>
-
-      {/* Floating Foreground Assembly (Cat and Medics) */}
-      <div className="absolute bottom-24 md:bottom-28 right-[5%] lg:right-[15%] flex items-end justify-center z-30 pointer-events-none w-[500px] h-[300px]">
-        {/* Medic 1 (Left) */}
-        <img 
-          src={medIllustration1} 
-          alt="Veterinarian" 
-          className="absolute -left-16 md:-left-24 bottom-10 w-[160px] md:w-[220px] object-contain drop-shadow-xl animate-bounceInUp"
-          style={{ animationDelay: '300ms' }}
-        />
-
-        {/* The Cat (Center) Overlapping the white border */}
-        <img 
-          src={heroMainImage} 
-          alt="Patient Cat" 
-          className="absolute left-1/2 -translate-x-1/2 -bottom-16 md:-bottom-20 w-[420px] md:w-[500px] object-contain drop-shadow-2xl z-40 animate-fadeInRight"
-          style={{ animationDelay: '100ms' }}
-        />
-
-        {/* Medic 2 (Right) */}
-        <img 
-          src={medIllustration2} 
-          alt="Veterinarian with clipboard" 
-          className="absolute -right-8 md:-right-20 bottom-10 w-[150px] md:w-[200px] object-contain drop-shadow-xl animate-bounceInRight"
-          style={{ animationDelay: '400ms' }}
-        />
       </div>
     </section>
   );

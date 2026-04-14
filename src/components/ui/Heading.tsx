@@ -20,7 +20,7 @@ const Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
       <Component
         ref={ref}
         className={cn(
-          'font-heading font-extrabold text-veto-black tracking-tight',
+          'font-heading font-black text-veto-black tracking-tighter',
           sizes[level],
           className
         )}

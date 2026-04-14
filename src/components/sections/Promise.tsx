@@ -13,10 +13,23 @@ export function PromiseSection() {
       </div>
       
       <div>
-        <p className="text-veto-gray font-bold uppercase tracking-widest text-sm mb-4">
-          Notre promesse pour vous...
-        </p>
-        <Heading level={2} className="mb-6">
+        <div className="mb-4">
+          <svg height="80" viewBox="0 0 460 159" width="200" className="overflow-visible">
+            <path 
+              d="m0 158.998748c44.9294753-108.8160231 159.225605-158.88867702 237.913547-158.998748 78.687942-.10970482 189.412039 49.2439634 222.086453 158.998748" 
+              fill="none" 
+              stroke="transparent" 
+              transform="matrix(1 0 0 -1 0 158.999)" 
+              id="promisePath"
+            ></path>
+            <text className="font-bold uppercase tracking-widest text-2xl fill-veto-gray">
+              <textPath href="#promisePath" startOffset="0%">
+                Notre promesse pour vous...
+              </textPath>
+            </text>
+          </svg>
+        </div>
+        <Heading level={2} className="mb-6 -mt-10">
           Des animaux sains, <br />
           des humains sereins
         </Heading>

@@ -1,52 +1,101 @@
+import { useState, useEffect } from 'react';
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
-import { Search, User, Plus } from 'lucide-react';
+import { Search, User, FileText } from 'lucide-react';
+import { HealthRecord } from './HealthRecord';
+import { supabase } from '../../lib/supabase';
 
 export function VetDashboard() {
-  const patients = [
-    { id: 1, name: 'Luna', owner: 'Claire Martin', breed: 'Labrador', lastVisit: '12/03/2026' },
-    { id: 2, name: 'Oscar', owner: 'Marc Dupont', breed: 'Siamois', lastVisit: '05/01/2026' },
-    { id: 3, name: 'Bella', owner: 'Sophie Bernard', breed: 'Golden Retriever', lastVisit: '20/03/2026' },
-    { id: 4, name: 'Max', owner: 'Jean Petit', breed: 'Beagle', lastVisit: '15/02/2026' },
-  ];
+  const [selectedPet, setSelectedPet] = useState<any | null>(null);
+  const [patients, setPatients] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchPatients();
+  }, []);
+
+  const fetchPatients = async () => {
+    setLoading(true);
+    // Fetch Patients and join with Maitres (Owner name)
+    const { data } = await supabase
+      .from('patients')
+      .select('*, maitres(full_name)')
+      .order('name', { ascending: true });
+    
+    setPatients(data || []);
+    setLoading(false);
+  };
+
+  const filteredPatients = patients.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    p.maitres?.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (selectedPet) {
+    return <HealthRecord pet={selectedPet} onBack={() => setSelectedPet(null)} />;
+  }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <Heading level={2}>Gestion Patients</Heading>
-        <Button variant="black"><Plus size={20} /> Nouvelle Consultation</Button>
+    <div className="space-y-8 animate-fadeInUp">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <Heading level={2} className="text-2xl sm:text-3xl">Gestion Patients</Heading>
+          <p className="text-veto-gray font-medium tracking-tight">Accédez aux dossiers médicaux et consultations de la clinique.</p>
+        </div>
+        <Button variant="black" className="font-extrabold hover:scale-105 transition-transform" onClick={fetchPatients}>
+          Rafraîchir
+        </Button>
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-veto-gray" size={20} />
+      <div className="relative group">
+        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-veto-gray group-focus-within:text-veto-black transition-colors" size={20} />
         <input
           type="text"
-          placeholder="Rechercher un animal ou un propriétaire..."
-          className="w-full pl-16 pr-6 py-5 bg-white rounded-full border-none shadow-sm focus:ring-2 focus:ring-veto-black transition-all"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Rechercher un fichier de santé (animal ou propriétaire)..."
+          className="w-full pl-16 pr-6 py-5 bg-white rounded-full border border-transparent shadow-sm hover:shadow-md focus:border-black/10 focus:ring-4 focus:ring-black/5 outline-none transition-all font-medium text-veto-black placeholder:text-veto-gray"
         />
       </div>
 
-      <div className="bg-white rounded-[3rem] overflow-hidden shadow-sm">
-        <div className="grid grid-cols-4 p-8 border-b border-veto-blue-gray font-bold text-sm text-veto-gray">
-          <span>ANIMAL</span>
-          <span>PROPRIÉTAIRE</span>
-          <span>RACE</span>
-          <span>DERNIÈRE VISITE</span>
+      <div className="bg-white rounded-[3rem] overflow-hidden shadow-sm border border-black/5">
+        <div className="grid grid-cols-5 p-8 border-b border-black/5 font-extrabold text-xs tracking-wider text-veto-gray uppercase">
+          <span className="col-span-2">Animal (Fichier)</span>
+          <span>Propriétaire</span>
+          <span>Espèce</span>
+          <span>Dernière Visite</span>
         </div>
-        <div className="divide-y divide-veto-blue-gray">
-          {patients.map((p) => (
-            <div key={p.id} className="grid grid-cols-4 p-8 items-center hover:bg-veto-blue-gray/30 transition-colors cursor-pointer group">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-veto-light-blue rounded-full flex items-center justify-center">
-                  <User size={18} className="text-veto-black" />
+        <div className="divide-y divide-black/5">
+          {loading ? (
+            <div className="p-12 text-center text-veto-gray font-bold">Chargement...</div>
+          ) : filteredPatients.length === 0 ? (
+            <div className="p-12 text-center text-veto-gray font-bold">Aucun dossier trouvé.</div>
+          ) : (
+            filteredPatients.map((p) => (
+              <div 
+                key={p.id} 
+                onClick={() => setSelectedPet(p)}
+                className="grid grid-cols-5 px-8 py-6 items-center hover:bg-veto-blue-gray/50 transition-colors cursor-pointer group"
+              >
+                <div className="flex items-center gap-4 col-span-2">
+                  <div className="w-12 h-12 bg-veto-yellow/20 rounded-2xl flex items-center justify-center font-extrabold text-veto-black">
+                    {p.name[0]}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-extrabold text-lg text-veto-black group-hover:text-veto-yellow transition-colors">{p.name}</span>
+                    <span className="text-xs font-bold text-veto-gray flex items-center gap-1"><FileText size={12}/> Carnet de santé</span>
+                  </div>
                 </div>
-                <span className="font-bold">{p.name}</span>
+                <div className="flex items-center gap-2 text-veto-gray font-medium">
+                  <User size={16} />
+                  <span>{p.maitres?.full_name || 'Inconnu'}</span>
+                </div>
+                <span className="text-veto-gray font-medium">{p.species}</span>
+                <span className="font-extrabold text-veto-black">{p.last_visit ? new Date(p.last_visit).toLocaleDateString() : 'Aucune'}</span>
               </div>
-              <span className="text-veto-gray">{p.owner}</span>
-              <span className="text-veto-gray">{p.breed}</span>
-              <span className="font-medium">{p.lastVisit}</span>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
