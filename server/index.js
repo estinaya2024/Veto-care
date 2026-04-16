@@ -21,6 +21,21 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'VetoMedical API is clinical and ready.' });
 });
 
+/**
+ * GET PRIMARY VET
+ * Since this is a one-doctor clinic, we provide an endpoint to get the doctor's info
+ */
+app.get('/api/primary-vet', async (req, res) => {
+  const { data, error } = await supabase
+    .from('veterinaires')
+    .select('*')
+    .limit(1)
+    .single();
+    
+  if (error) return res.status(404).json({ message: 'Doctor not found. Please ensure the doctor profile is seeded.' });
+  res.json(data);
+});
+
 // Patients Route
 app.get('/api/patients', async (req, res) => {
   const { data, error } = await supabase.from('patients').select('*');
@@ -28,7 +43,7 @@ app.get('/api/patients', async (req, res) => {
   res.json(data);
 });
 
-// Appointments Route
+// Appointments Route (Basic)
 app.get('/api/appointments', async (req, res) => {
   const { data, error } = await supabase.from('rendez_vous').select('*, patients(*), veterinaires(*)');
   if (error) return res.status(400).json(error);
@@ -76,31 +91,52 @@ app.delete('/api/unavailability/:id', async (req, res) => {
 app.post('/api/appointments/check-conflict', async (req, res) => {
   const { vet_id, date_rdv } = req.body;
   
+  if (!vet_id || !date_rdv) {
+    return res.status(400).json({ message: 'Missing vet_id or date_rdv' });
+  }
+
+  // Use the same date string for comparison
+  const requestedDate = new Date(date_rdv).toISOString();
+
   // 1. Check existing appointments
+  // We check for any appointment that overlaps with the requested time (assuming 30min slots)
   const { data: apptData, error: apptError } = await supabase
     .from('rendez_vous')
-    .select('id')
+    .select('id, date_rdv')
     .eq('veterinaire_id', vet_id)
-    .eq('date_rdv', date_rdv)
     .neq('status', 'annulé');
   
   if (apptError) return res.status(400).json(apptError);
-  if (apptData.length > 0) return res.json({ conflict: true, reason: 'appointment' });
+
+  // Simple overlap check: exact match or within 29 minutes
+  const hasConflict = apptData.some(apt => {
+    const existingDate = new Date(apt.date_rdv);
+    const requestedDateObj = new Date(requestedDate);
+    const diff = Math.abs(existingDate.getTime() - requestedDateObj.getTime());
+    return diff < (29 * 60 * 1000); // Less than 29 mins difference
+  });
+
+  if (hasConflict) return res.json({ conflict: true, reason: 'appointment' });
 
   // 2. Check doctor unavailabilities (blocked slots)
-  // We check if the requested time falls between start_time and end_time
   const { data: unavailData, error: unavailError } = await supabase
     .from('indisponibilites_vet')
-    .select('id')
-    .eq('veterinaire_id', vet_id)
-    .lte('start_time', date_rdv)
-    .gte('end_time', date_rdv);
+    .select('id, start_time, end_time')
+    .eq('veterinaire_id', vet_id);
 
   if (unavailError) return res.status(400).json(unavailError);
+
+  const isBlocked = unavailData.some(un => {
+    const start = new Date(un.start_time).getTime();
+    const end = new Date(un.end_time).getTime();
+    const requested = new Date(requestedDate).getTime();
+    return (requested >= start && requested < end);
+  });
   
-  res.json({ conflict: unavailData.length > 0, reason: unavailData.length > 0 ? 'blocked' : null });
+  res.json({ conflict: isBlocked, reason: isBlocked ? 'blocked' : null });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 VetoMedical Server running on http://localhost:${PORT}`);
 });
+

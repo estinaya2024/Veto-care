@@ -22,6 +22,10 @@ export const api = {
     return this.post('/appointments/check-conflict', { vet_id: vetId, date_rdv: dateRdv });
   },
 
+  async getPrimaryVet() {
+    return this.get('/primary-vet');
+  },
+
   async getPatients() {
     return this.get('/patients');
   },
