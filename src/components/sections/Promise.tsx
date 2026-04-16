@@ -1,9 +1,19 @@
 import { Heading } from '../ui/Heading';
 import promiseImg from '../../assets/images/promise.png';
+import catPng from '../../assets/images/cat.png';
+import duckPng from '../../assets/images/duck.png';
 
 export function PromiseSection() {
   return (
-    <section className="px-8 md:px-16 py-24 grid md:grid-cols-2 gap-16 items-center bg-white">
+    <section className="px-8 md:px-16 py-24 grid md:grid-cols-2 gap-16 items-center bg-white relative overflow-hidden">
+      {/* Fixed Clinical Decor - Cat */}
+      <div className="absolute -left-16 bottom-0 w-80 h-80 pointer-events-none opacity-60 z-0">
+        <img src={catPng} alt="Clinic Cat" className="w-full h-full object-contain object-bottom grayscale group-hover:grayscale-0 transition-all duration-1000" />
+      </div>
+      <div className="absolute -right-8 top-0 w-32 h-32 pointer-events-none opacity-40 z-0">
+        <img src={duckPng} alt="Clinic Duck" className="w-full h-full object-contain" />
+      </div>
+
       <div className="relative">
         <div className="aspect-square rounded-[4rem] overflow-hidden rotate-3">
           <img src={promiseImg} alt="Happy human and pet" className="w-full h-full object-cover -rotate-3" />
@@ -30,13 +40,13 @@ export function PromiseSection() {
           </svg>
         </div>
         <Heading level={2} className="mb-6 -mt-10">
-          Des animaux sains, <br />
-          des humains sereins
+          L'excellence chirurgicale, <br />
+          la sérénité des propriétaires
         </Heading>
         <p className="text-veto-gray mb-8 max-w-lg leading-relaxed">
-          Parce que la santé de votre compagnon ne doit pas être une source de stress, 
-          nous avons conçu un espace fluide pour centraliser tout son suivi médical. 
-          Gérez ses vaccinations, ses soins et ses rendez-vous en quelques clics.
+          Au sein de notre centre hospitalier, chaque protocole est rigoureusement médicalisé. 
+          Nous offrons une plateforme de diagnostic avancée, centralisant les résultats de laboratoire, 
+          l'imagerie médicale et le suivi post-opératoire pour une prise en charge d'exception.
         </p>
         <a href="#" className="font-bold text-veto-black underline underline-offset-4 hover:text-veto-gray transition-colors">
           En savoir plus

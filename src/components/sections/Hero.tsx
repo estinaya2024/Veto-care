@@ -5,6 +5,8 @@ import medIllustration1 from '../../assets/images/illustration-1.svg';
 import medIllustration2 from '../../assets/images/illustration-2.svg';
 import heroMainImage from '../../assets/images/iStock-1143440918 (1).webp';
 import heroDog from '../../assets/images/hero_dog.png';
+import bunnyPng from '../../assets/images/bunny.png';
+import duckPng from '../../assets/images/duck.png';
 
 export function Hero() {
   return (
@@ -20,13 +22,23 @@ export function Hero() {
         />
       </div>
 
+      {/* Floating Bunny */}
+      <div className="absolute left-[10%] top-[20%] w-32 h-32 z-10 animate-float hidden lg:block">
+        <img src={bunnyPng} alt="Bunny" className="w-full h-full object-contain filter drop-shadow-2xl" />
+      </div>
+
+      {/* Floating Duck */}
+      <div className="absolute right-[20%] top-[40%] w-24 h-24 z-10 animate-float-slow hidden lg:block">
+        <img src={duckPng} alt="Duck" className="w-full h-full object-contain filter drop-shadow-xl" />
+      </div>
+
       {/* Main Content Area */}
       <div className="flex-1 relative z-20 max-w-[1400px] mx-auto w-full px-8 md:px-16 pt-32 pb-64 lg:pb-32 flex flex-col justify-center">
         {/* Left Typography */}
         <div className="max-w-2xl animate-fadeInRight">
           <Heading className="mb-12 text-[40px] lg:text-[7.5rem] tracking-tighter leading-[0.95] font-black text-veto-black drop-shadow-sm">
-            Your pet, <br />
-            our priority
+            Clinical <br />
+            Excellence
           </Heading>
           
           <div className="flex flex-wrap gap-5">
@@ -47,10 +59,10 @@ export function Hero() {
           <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div className="max-w-md">
               <h3 className="font-black text-2xl text-veto-black tracking-tight leading-tight mb-1">
-                Dog Walking & Pet Sitting Services
+                Chirurgie & Soins Intensifs 24/7
               </h3>
-              <p className="text-veto-gray font-bold text-lg">
-                Throughout <span className="underline decoration-veto-yellow decoration-2 cursor-pointer">New York City</span>
+              <p className="text-veto-gray font-bold text-lg uppercase tracking-widest text-[10px]">
+                Hôpital vétérinaire de pointe • <span className="underline decoration-veto-yellow decoration-2 cursor-pointer">Nous trouver</span>
               </p>
             </div>
             

@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  role: 'owner' | 'vet' | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -43,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = {
     user,
     session,
+    role: (user?.user_metadata?.role as 'owner' | 'vet') || null,
     loading,
     signOut,
   };

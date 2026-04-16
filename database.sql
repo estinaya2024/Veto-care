@@ -9,12 +9,27 @@ CREATE TABLE IF NOT EXISTS public.maitres (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Trigger pour créer automatiquement un profil à l'inscription
+-- Trigger pour créer automatiquement un profil ou un vétérinaire à l'inscription
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
+DECLARE
+  user_role TEXT;
 BEGIN
-  INSERT INTO public.maitres (id, full_name)
-  VALUES (new.id, COALESCE(new.raw_user_meta_data->>'full_name', 'Nouveau Maître'));
+  -- Explicit check for the Clinic specialized email
+  IF new.email = 'vetocareclinic001@gmail.com' THEN
+    user_role := 'owner';
+  ELSE
+    user_role := COALESCE(new.raw_user_meta_data->>'role', 'owner');
+  END IF;
+  
+  IF user_role = 'owner' THEN
+    INSERT INTO public.maitres (id, full_name)
+    VALUES (new.id, COALESCE(new.raw_user_meta_data->>'full_name', SPLIT_PART(new.email, '@', 1)));
+  ELSIF user_role = 'vet' THEN
+    INSERT INTO public.veterinaires (user_id, name, specialty)
+    VALUES (new.id, COALESCE(new.raw_user_meta_data->>'full_name', 'Dr. ' || SPLIT_PART(new.email, '@', 1)), 'Généraliste');
+  END IF;
+  
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -54,6 +69,7 @@ USING (auth.uid() = id);
 -- 2. Table B: Vétérinaires (Ressources)
 CREATE TABLE IF NOT EXISTS public.veterinaires (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     specialty TEXT,
     description TEXT,
@@ -87,6 +103,7 @@ CREATE TABLE IF NOT EXISTS public.rendez_vous (
     date_rdv TIMESTAMP WITH TIME ZONE NOT NULL,
     status TEXT DEFAULT 'en_attente',
     health_record_url TEXT,
+    medical_notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -104,7 +121,7 @@ ON public.rendez_vous FOR INSERT
 WITH CHECK (auth.uid() = maitre_id);
 
 -- 4. Storage Setup (Carnets de santé)
--- Note: Le bucket 'health-records' doit être créé manuellement dans l'interface Supabase.
+-- Note: Le bucket 'health-re  cords' doit être créé manuellement dans l'interface Supabase.
 -- Voici les politiques de sécurité pour le storage:
 
 -- INSERT: Un utilisateur ne peut uploader que dans son propre dossier/chemin

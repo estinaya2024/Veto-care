@@ -21,9 +21,9 @@ export function Social() {
             </div>
             <div>
               <Heading level={3} className="text-3xl lg:text-4xl text-veto-black">
-                Suivez PetMania
+                Suivez VetoMedical
               </Heading>
-              <p className="text-veto-gray font-bold">@petmania.vamtam</p>
+              <p className="text-veto-gray font-bold">@vetomedical.clinique</p>
             </div>
           </div>
           

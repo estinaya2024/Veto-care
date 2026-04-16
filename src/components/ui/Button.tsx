@@ -1,5 +1,6 @@
 import { type ButtonHTMLAttributes, forwardRef } from 'react';
 import { cn } from '../../lib/utils';
+import { motion } from 'framer-motion';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'yellow' | 'black' | 'ghost' | 'outline';
@@ -9,9 +10,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'yellow', size = 'md', ...props }, ref) => {
     const variants = {
-      yellow: 'btn-yellow',
-      black: 'btn-black',
-      ghost: 'btn-ghost',
+      yellow: 'btn-yellow focus:ring-4 focus:ring-veto-yellow/30',
+      black: 'btn-black focus:ring-4 focus:ring-veto-black/30',
+      ghost: 'btn-ghost hover:bg-black/5',
       outline: 'border-2 border-veto-black text-veto-black hover:bg-veto-black hover:text-white',
     };
 
@@ -22,15 +23,17 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     return (
-      <button
+      <motion.button
         ref={ref}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         className={cn(
-          'btn pill-shadow',
+          'btn pill-shadow outline-none',
           variants[variant],
           size !== 'md' && sizes[size],
           className
         )}
-        {...props}
+        {...props as any}
       />
     );
   }

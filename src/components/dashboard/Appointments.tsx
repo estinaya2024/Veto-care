@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Calendar, Clock, MapPin, User, ChevronRight, Upload, X, FileText } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../lib/api';
 
 export function Appointments() {
   const { user } = useAuth();
@@ -59,6 +60,23 @@ export function Appointments() {
     setUploading(true);
 
     try {
+      // Check if slot is already taken for this vet via Dedicated Backend API
+      const requestedTime = `${date}T${time}:00Z`;
+      const { conflict, reason } = await api.checkAppointmentConflict(selectedVet, requestedTime);
+
+      if (conflict) {
+        const reasonMsg = reason === 'blocked' 
+          ? 'Ce vétérinaire est indisponible à ce créneau (Indisponibilité ou absence prévue).' 
+          : 'Ce créneau horaire est déjà réservé par un autre client.';
+        throw new Error(reasonMsg);
+      }
+
+      // Check working hours (8:00 - 19:30)
+      const hour = parseInt(time.split(':')[0]);
+      if (hour < 8 || hour >= 20) {
+        throw new Error('La clinique est fermée à cette heure là (Ouvert de 08:00 à 20:00)');
+      }
+
       let fileUrl = '';
       if (file) {
         const fileExt = file.name.split('.').pop();
@@ -76,7 +94,7 @@ export function Appointments() {
           maitre_id: user.id,
           veterinaire_id: selectedVet,
           patient_id: selectedPatient,
-          date_rdv: `${date}T${time}:00Z`,
+          date_rdv: requestedTime,
           health_record_url: fileUrl,
         }]);
 
@@ -118,11 +136,17 @@ export function Appointments() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-lg rounded-[3rem] p-8 shadow-2xl animate-scaleIn relative">
-            <button onClick={() => setShowModal(false)} className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <div className="bg-white rounded-3xl p-8 relative max-w-xl w-full max-h-[90vh] overflow-y-auto overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-3 bg-veto-yellow"></div>
+            <button onClick={() => setShowModal(false)} className="absolute top-8 right-8 p-3 hover:bg-gray-100 rounded-full transition-colors z-10">
               <X size={24} />
             </button>
-            <h3 className="text-2xl font-black mb-6">Réserver une consultation</h3>
+            <div className="flex items-center gap-3 mb-8">
+               <div className="p-3 bg-veto-yellow/20 rounded-2xl">
+                  <Calendar size={28} className="text-veto-black" />
+               </div>
+               <h3 className="text-3xl font-black tracking-tight">Réserver une consultation</h3>
+            </div>
             
             <form onSubmit={handleCreateAppointment} className="space-y-4">
               <div className="space-y-2">

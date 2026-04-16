@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
-import { ArrowLeft, Activity, FileText, Weight, Heart, Clock } from 'lucide-react';
+import { ArrowLeft, Activity, FileText, Weight, Clock, ShieldCheck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface HealthRecordProps {
@@ -22,7 +22,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
     const { data } = await supabase
       .from('rendez_vous')
       .select('*, veterinaires(name)')
-      .eq('maitre_id', pet.maitre_id) // Ideally join with pet_id if we had it in Schema
+      .eq('patient_id', pet.id)
       .order('date_rdv', { ascending: false });
     
     setHistory(data || []);
@@ -35,7 +35,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
         <Button variant="ghost" onClick={onBack} className="p-2 rounded-full hover:bg-veto-blue-gray transition-colors">
           <ArrowLeft size={24} />
         </Button>
-        <Heading level={2} className="text-3xl">Carnet de Santé : {pet.name}</Heading>
+        <Heading level={2} className="text-3xl">Dossier Médical : {pet.name}</Heading>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
@@ -47,7 +47,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             </div>
             <div>
               <h3 className="font-extrabold text-2xl">{pet.name}</h3>
-              <p className="text-veto-gray font-medium">{pet.species} • {pet.status}</p>
+              <p className="text-veto-gray font-bold">{pet.species} • {pet.breed || 'Standard'}</p>
             </div>
           </div>
           
@@ -55,16 +55,20 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             <div className="p-4 bg-veto-blue-gray rounded-2xl flex flex-col items-center justify-center gap-2">
               <Weight size={24} className="text-veto-gray" />
               <span className="font-bold text-lg">{pet.weight || 'N/A'} kg</span>
-              <span className="text-xs text-veto-gray font-medium">Poids actuel</span>
+              <span className="text-xs text-veto-gray font-medium">Poids</span>
             </div>
             <div className="p-4 bg-veto-light-blue rounded-2xl flex flex-col items-center justify-center gap-2">
-              <Heart size={24} className="text-veto-gray" />
-              <span className="font-bold text-lg">{pet.status === 'En bonne santé' ? 'Normal' : 'Suivi'}</span>
-              <span className="text-xs text-veto-gray font-medium">État Général</span>
+              <Activity size={24} className="text-veto-gray" />
+              <span className="font-bold text-lg">{pet.status}</span>
+              <span className="text-xs text-veto-gray font-medium">État</span>
             </div>
           </div>
-          
-          <Button variant="black" className="w-full justify-center py-4 rounded-2xl">Mettre à jour le profil</Button>
+          <div className="space-y-2">
+            <div className="text-xs font-bold text-veto-gray uppercase ml-2 tracking-widest">Vaccination active</div>
+            <div className="px-4 py-3 bg-green-50 text-green-700 rounded-xl text-sm font-bold flex items-center gap-2">
+              <ShieldCheck size={16} /> Rapport à jour
+            </div>
+          </div>
         </div>
 
         {/* Middle/Right Column: Timeline & Records */}
@@ -72,7 +76,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
           <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-black/5">
             <div className="flex justify-between items-end mb-8">
               <h3 className="font-extrabold text-xl flex items-center gap-2">
-                <Activity className="text-veto-yellow" /> Historique Médical (Rendez-vous)
+                <Clock className="text-veto-yellow" /> Historique des Interventions
               </h3>
             </div>
 
@@ -81,25 +85,33 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             ) : history.length === 0 ? (
               <div className="py-12 text-center text-veto-gray font-medium">Aucun historique pour le moment.</div>
             ) : (
-              <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-black/10 before:to-transparent">
+              <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-black/5">
                 {history.map((record) => (
-                  <div key={record.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-veto-yellow text-veto-black font-bold shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                      <Clock size={18} />
+                  <div key={record.id} className="relative pl-12 group">
+                    <div className="absolute left-0 top-1 w-10 h-10 rounded-full border-4 border-white bg-veto-yellow text-veto-black flex items-center justify-center shadow-sm z-10 transition-transform group-hover:scale-110">
+                      <Activity size={16} />
                     </div>
-                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-2xl bg-veto-blue-gray/50 shadow-sm group-hover:shadow-md transition-all">
-                      <div className="flex items-center justify-between space-x-2 mb-1">
-                        <div className="font-bold text-veto-black">Consultation - {record.veterinaires?.name}</div>
-                        <time className="font-medium text-xs text-veto-gray">{new Date(record.date_rdv).toLocaleDateString()}</time>
+                    <div className="p-6 rounded-[2rem] bg-veto-blue-gray/30 border border-transparent hover:border-veto-yellow/20 hover:bg-white transition-all shadow-sm hover:shadow-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-black text-veto-black">RDV avec {record.veterinaires?.name}</div>
+                        <time className="font-bold text-xs text-veto-gray">{new Date(record.date_rdv).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</time>
                       </div>
-                      <div className="text-sm font-medium text-veto-gray">Statut : {record.status}</div>
+                      <div className="text-sm font-bold text-veto-gray mb-3 flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${record.status === 'terminé' ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
+                        {record.status.toUpperCase()}
+                      </div>
+                      {record.medical_notes && (
+                        <div className="mt-3 p-4 bg-white/50 rounded-xl text-sm font-medium italic text-veto-black border-l-4 border-veto-yellow">
+                          "{record.medical_notes}"
+                        </div>
+                      )}
                       {record.health_record_url && (
                         <a 
                           href={record.health_record_url} 
                           target="_blank" rel="noreferrer"
-                          className="mt-2 inline-flex items-center gap-2 text-xs font-bold text-veto-yellow hover:underline"
+                          className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-veto-black text-white rounded-full text-xs font-bold hover:scale-105 transition-transform"
                         >
-                          <FileText size={12} /> Voir Carnet de santé
+                          <FileText size={14} /> Consulter le document attaché
                         </a>
                       )}
                     </div>

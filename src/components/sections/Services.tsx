@@ -1,14 +1,14 @@
 import { Heading } from '../ui/Heading';
-import { Syringe, FileText, Stethoscope, ClipboardList, Calendar, PawPrint } from 'lucide-react';
+import { Syringe, FileText, Stethoscope, ClipboardList, Calendar, Heart } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const services = [
-  { name: 'Vaccinations', icon: Syringe },
-  { name: 'Dossier Médical', icon: FileText },
-  { name: 'Visites Vétos', icon: Stethoscope },
-  { name: 'Ordonnances', icon: ClipboardList },
-  { name: 'Rendez-vous', icon: Calendar },
-  { name: 'Profil Animal', icon: PawPrint },
+  { name: 'Chirurgie', icon: Stethoscope },
+  { name: 'Imagerie', icon: ClipboardList },
+  { name: 'Laboratoire', icon: FileText },
+  { name: 'Cardiologie', icon: Heart },
+  { name: 'Urgence 24/7', icon: Calendar },
+  { name: 'Pharmacie', icon: Syringe },
 ];
 
 export function Services() {
