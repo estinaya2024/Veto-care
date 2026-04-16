@@ -8,18 +8,13 @@
   --color-veto-black: #111111;
   --color-veto-gray: #6B7280;
   
-  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Fredoka", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Fredoka", "Inter", ui-sans-serif, system-ui, sans-serif;
   
   --radius-4xl: 2rem;
   --radius-5xl: 3rem;
   
   --font-black: 900;
-  
-  /* HSL Extended Palette for Depth */
-  --hsl-primary: 50 100% 50%; /* Veto Yellow */
-  --hsl-secondary: 228 20% 93%; /* Veto Blue Gray */
-  --hsl-accent: 222 100% 61%; /* Tech Blue */
 }
 
 :root {
@@ -27,7 +22,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light;
+  color-scheme: light dark;
   color: #111111;
   background-color: #ffffff;
 
@@ -40,14 +35,12 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #F8FAFC;
-  color: var(--color-veto-black);
+  background-color: var(--color-veto-blue-gray);
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
   font-weight: 900;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
 }
 
 .font-black {
@@ -55,109 +48,125 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .pill-shadow {
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.05);
 }
 
 @layer components {
   .btn {
-    @apply px-10 py-5 rounded-full font-black transition-all duration-500 active:scale-95 flex items-center justify-center gap-3 relative overflow-hidden;
+    @apply px-8 py-4 rounded-full font-black transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
   }
   .btn-yellow {
-    @apply bg-veto-yellow text-veto-black hover:shadow-2xl hover:shadow-veto-yellow/40 hover:-translate-y-1;
+    @apply bg-veto-yellow text-veto-black hover:bg-veto-yellow/90;
   }
   .btn-black {
-    @apply bg-veto-black text-white hover:shadow-2xl hover:shadow-black/20 hover:-translate-y-1;
+    @apply bg-veto-black text-white hover:bg-veto-black/90;
   }
   .btn-ghost {
-    @apply text-veto-black hover:bg-white/50 hover:shadow-md;
-  }
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+    @apply text-veto-black hover:bg-white/10;
   }
 }
 
 @keyframes fadeInRight {
   from {
     opacity: 0;
-    transform: translateX(40px);
+    transform: translate3d(20px, 0, 0);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
-@keyframes scaleIn {
+@keyframes bounceInUp {
+  from,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: translate3d(0, 1000px, 0) scaleY(3);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(0, -20px, 0) scaleY(0.9);
+  }
+  75% {
+    transform: translate3d(0, 10px, 0) scaleY(0.95);
+  }
+  90% {
+    transform: translate3d(0, -5px, 0) scaleY(0.985);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translate3d(0, 0, 0);
   }
 }
 
-@keyframes draw {
+@keyframes bounceInRight {
+  from,
+  60%,
+  75%,
+  90%,
   to {
-    stroke-dashoffset: 0;
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
   }
-}
-
-.animate-fadeInUp {
-  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  from {
+    opacity: 0;
+    transform: translate3d(3000px, 0, 0) scaleX(3);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(-25px, 0, 0) scaleX(1);
+  }
+  75% {
+    transform: translate3d(10px, 0, 0) scaleX(0.98);
+  }
+  90% {
+    transform: translate3d(-5px, 0, 0) scaleX(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 .animate-fadeInRight {
-  animation: fadeInRight 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeInRight 1s both;
 }
 
-.animate-scaleIn {
-  animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+.animate-bounceInUp {
+  animation: bounceInUp 1s both;
+}
+
+.animate-bounceInRight {
+  animation: bounceInRight 1s both;
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-25px) rotate(4deg); }
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
 }
 
 @keyframes float-slow {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-35px) rotate(-5deg); }
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(-3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
 }
 
 .animate-float {
-  animation: float 8s ease-in-out infinite;
+  animation: float 6s ease-in-out infinite;
 }
 
 .animate-float-slow {
-  animation: float-slow 12s ease-in-out infinite;
+  animation: float-slow 8s ease-in-out infinite;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-body {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
