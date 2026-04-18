@@ -78,7 +78,10 @@ export function VetDashboard() {
       </div>
 
       {activeTab === 'agenda' ? (
-        <VetCalendar vetId={user?.id || ''} />
+        <VetCalendar 
+          vetId={user?.id || ''} 
+          onSelectPatient={(patient) => setSelectedPet(patient)} 
+        />
       ) : (
         <>
           <div className="relative group">

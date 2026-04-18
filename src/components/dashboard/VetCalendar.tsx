@@ -13,9 +13,10 @@ import { fr } from 'date-fns/locale';
 
 interface VetCalendarProps {
   vetId: string;
+  onSelectPatient?: (patient: any) => void;
 }
 
-export function VetCalendar({ vetId }: VetCalendarProps) {
+export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBlockModal, setShowBlockModal] = useState(false);
@@ -33,7 +34,7 @@ export function VetCalendar({ vetId }: VetCalendarProps) {
       // Fetch Appointments
       const { data: aptData } = await supabase
         .from('rendez_vous')
-        .select('*, patients(name)')
+        .select('*, patients(*)')
         .eq('veterinaire_id', vetId)
         .neq('status', 'annulé');
 
@@ -164,8 +165,9 @@ export function VetCalendar({ vetId }: VetCalendarProps) {
           slotMaxTime="20:00:00"
           allDaySlot={false}
           eventClick={(info) => {
-            const { type } = info.event.extendedProps;
+            const { type, patients } = info.event.extendedProps;
             if (type === 'unavailability') handleDeleteEvent(info.event.id);
+            if (type === 'appointment' && onSelectPatient) onSelectPatient(patients);
           }}
           eventClassNames={(arg) => {
             return arg.event.extendedProps.type === 'appointment' ? 'cursor-default' : 'cursor-pointer hover:scale-[1.01] transition-transform';
