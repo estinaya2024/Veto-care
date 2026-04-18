@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar';
 import { Hero } from './components/sections/Hero';
-import { PromiseSection } from './components/sections/Promise';
 import { Services } from './components/sections/Services';
 import { Footer } from './components/layout/Footer';
 import { Login } from './pages/Login';
@@ -52,7 +51,6 @@ function Home() {
     <main>
       <Hero />
       <About />
-      <PromiseSection />
       <Services />
     </main>
   );
