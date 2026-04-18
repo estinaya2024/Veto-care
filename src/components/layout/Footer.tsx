@@ -57,7 +57,6 @@ export function Footer() {
             <ul className="flex flex-wrap justify-center gap-x-12 gap-y-6 font-black text-sm uppercase tracking-widest text-veto-black">
               <li><a href="#" className="hover:text-veto-yellow transition-colors relative group">Services <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-veto-yellow transition-all group-hover:w-full"></span></a></li>
               <li><a href="#" className="hover:text-veto-yellow transition-colors relative group">À Propos <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-veto-yellow transition-all group-hover:w-full"></span></a></li>
-              <li><a href="#" className="hover:text-veto-yellow transition-colors relative group">Localisations <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-veto-yellow transition-all group-hover:w-full"></span></a></li>
               <li><a href="#" className="hover:text-veto-yellow transition-colors relative group">Contact <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-veto-yellow transition-all group-hover:w-full"></span></a></li>
             </ul>
           </nav>
@@ -75,7 +74,7 @@ export function Footer() {
             </a>
 
             <div className="relative group">
-              <Button variant="yellow" className="px-16 py-6 text-xl rounded-full shadow-2xl shadow-veto-yellow/50 hover:-translate-y-2 transition-transform" onClick={() => window.location.href = '#reservation'}>
+              <Button variant="yellow" className="px-16 py-6 text-xl rounded-full shadow-2xl shadow-veto-yellow/50 hover:-translate-y-2 transition-transform" onClick={() => window.location.href = '/dashboard'}>
                 Prendre RDV
               </Button>
               <Sparkles className="absolute -right-8 -top-8 text-veto-yellow animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" size={40} />
