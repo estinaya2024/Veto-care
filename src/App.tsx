@@ -5,7 +5,6 @@ import { PromiseSection } from './components/sections/Promise';
 import { Services } from './components/sections/Services';
 import { WhyChooseUs } from './components/sections/WhyChooseUs';
 import { Testimonials } from './components/sections/Testimonials';
-import { Reservation } from './components/sections/Reservation';
 import { Footer } from './components/layout/Footer';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -61,7 +60,6 @@ function Home() {
       <Locations />
       <WhyChooseUs />
       <Testimonials />
-      <Reservation />
     </main>
   );
 }
