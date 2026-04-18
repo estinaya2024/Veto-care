@@ -108,41 +108,41 @@ export function VetCalendar({ vetId }: VetCalendarProps) {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-2xl rounded-[4rem] p-10 shadow-2xl border border-white animate-fadeInUp relative overflow-hidden group">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-veto-yellow/5 rounded-full blur-[120px] -mr-48 -mt-48 pointer-events-none"></div>
+    <div className="bg-white/60 backdrop-blur-3xl rounded-[3rem] p-6 shadow-xl border border-white/50 animate-fadeInUp relative overflow-hidden group">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-veto-yellow/5 rounded-full blur-[90px] -mr-32 -mt-32 pointer-events-none"></div>
       
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 relative z-10 gap-6">
-        <div className="flex items-center gap-5">
-          <div className="p-4 bg-veto-yellow/20 rounded-3xl shadow-inner group-hover:rotate-3 transition-transform">
-            <CalendarIcon size={32} className="text-veto-black" />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-veto-yellow/10 rounded-2xl shadow-inner group-hover:rotate-2 transition-transform">
+            <CalendarIcon size={24} className="text-veto-black/70" />
           </div>
           <div>
-            <h3 className="text-3xl font-black tracking-tighter">Agenda Dynamique</h3>
-            <div className="flex items-center gap-2 text-veto-gray font-black uppercase tracking-widest text-[9px] opacity-60">
-               <Zap size={10} className="text-veto-yellow" /> Sélection Tactile • Blocage Intelligent
+            <h3 className="text-2xl font-black tracking-tight text-veto-black/90">Agenda Clinic</h3>
+            <div className="flex items-center gap-2 text-veto-gray font-bold uppercase tracking-widest text-[8px] opacity-40">
+               <Zap size={8} className="text-veto-yellow" /> Mode Minimaliste • Haute Précision
             </div>
           </div>
         </div>
         
-        <div className="flex p-1.5 bg-veto-blue-gray/50 rounded-full border border-black/5 backdrop-blur-xl">
+        <div className="flex p-1 bg-black/5 rounded-full border border-black/5 backdrop-blur-md">
           <button 
             onClick={() => calendarRef.current.getApi().changeView('dayGridMonth')}
-            className="px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white/50 transition-all active:scale-95"
+            className="px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-white/40 transition-all active:scale-95"
           >
             Mois
           </button>
           <button 
             onClick={() => calendarRef.current.getApi().changeView('timeGridWeek')}
-            className="px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-white/50 transition-all active:scale-95"
+            className="px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/60 shadow-sm transition-all active:scale-95"
           >
             Semaine
           </button>
-          <div className="w-[1px] h-6 bg-black/5 mx-2 self-center"></div>
+          <div className="w-[1px] h-4 bg-black/5 mx-1 self-center"></div>
           <Button 
             variant="yellow" 
             size="sm" 
             onClick={fetchData}
-            className="rounded-full px-6 py-2.5 h-auto text-[10px] font-black uppercase tracking-widest shadow-lg shadow-veto-yellow/10"
+            className="rounded-full px-4 py-2 h-auto text-[9px] font-black uppercase tracking-widest shadow-md shadow-veto-yellow/10 border-none"
           >
             Sync
           </Button>
@@ -168,68 +168,70 @@ export function VetCalendar({ vetId }: VetCalendarProps) {
             if (type === 'unavailability') handleDeleteEvent(info.event.id);
           }}
           eventClassNames={(arg) => {
-            return arg.event.extendedProps.type === 'appointment' ? 'cursor-default' : 'cursor-pointer hover:scale-[1.02] transition-transform';
+            return arg.event.extendedProps.type === 'appointment' ? 'cursor-default' : 'cursor-pointer hover:scale-[1.01] transition-transform';
           }}
-          eventContent={(arg) => (
-            <div className="p-3 w-full h-full flex flex-col justify-center">
-              <div className="font-black text-[10px] uppercase tracking-wider truncate mb-1">
-                {arg.event.title}
+          eventContent={(arg) => {
+            const isApt = arg.event.extendedProps.type === 'appointment';
+            return (
+              <div className={cn(
+                "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-all",
+                isApt ? "border-veto-yellow bg-veto-yellow/10" : "border-gray-300 bg-gray-50/50"
+              )}>
+                <div className="font-bold text-[9px] uppercase tracking-tight truncate">
+                  {arg.event.title}
+                </div>
+                {isApt && (
+                  <div className="text-[7px] font-medium opacity-50 uppercase tracking-widest">
+                    Patient
+                  </div>
+                )}
+                {!isApt && (
+                  <div className="text-[7px] font-black text-red-300 absolute top-1 right-1">
+                     <Trash2 size={8} />
+                  </div>
+                )}
               </div>
-              {arg.event.extendedProps.type === 'appointment' && (
-                <div className="text-[8px] font-bold opacity-60">
-                   Check-in requis
-                </div>
-              )}
-              {arg.event.extendedProps.type === 'unavailability' && (
-                <div className="text-[8px] font-black text-red-400 absolute top-2 right-2">
-                   <Trash2 size={10} />
-                </div>
-              )}
-            </div>
-          )}
+            );
+          }}
         />
       </div>
 
       {showBlockModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-lg rounded-[4rem] p-12 shadow-3xl animate-scaleIn relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-full h-3 bg-veto-yellow"></div>
-             <button onClick={() => setShowBlockModal(false)} className="absolute top-10 right-10 p-4 hover:bg-gray-100 rounded-full transition-colors">
-              <X size={28} className="text-veto-gray" />
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-sm rounded-[3rem] p-8 shadow-3xl animate-scaleIn relative overflow-hidden">
+             <div className="absolute top-0 left-0 w-full h-2 bg-veto-yellow"></div>
+             <button onClick={() => setShowBlockModal(false)} className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <X size={20} className="text-veto-gray" />
             </button>
-            <div className="mb-10">
-               <h3 className="text-4xl font-black tracking-tight mb-2">Bloquer un Créneau</h3>
-               <p className="font-bold text-veto-gray opacity-60 uppercase text-[10px] tracking-widest">Indisponibilité Interventionnelle</p>
+            <div className="mb-6">
+               <h3 className="text-2xl font-black tracking-tight mb-1">Bloquer un Créneau</h3>
+               <p className="font-bold text-veto-gray opacity-50 uppercase text-[8px] tracking-widest">Indisponibilité Vétérinaire</p>
             </div>
             
-            <div className="space-y-8">
-              <div className="p-8 bg-veto-blue-gray/40 rounded-[2.5rem] border border-white space-y-4">
-                 <div className="flex items-center gap-4 text-veto-black font-black">
-                    <div className="p-3 bg-white rounded-2xl shadow-sm">
-                      <CalendarIcon size={20} className="text-veto-yellow" />
-                    </div>
-                    <span className="text-lg">{format(new Date(selectedRange!.start), 'EEEE d MMMM', { locale: fr })}</span>
+            <div className="space-y-6">
+              <div className="p-6 bg-gray-50/80 rounded-3xl border border-gray-100 space-y-3">
+                 <div className="flex items-center gap-3 text-veto-black font-extrabold">
+                    <CalendarIcon size={16} className="text-veto-yellow" />
+                    <span className="text-sm">{format(new Date(selectedRange!.start), 'EEEE d MMMM', { locale: fr })}</span>
                  </div>
-                 <div className="flex items-center gap-4 text-veto-black font-black">
-                    <div className="p-3 bg-white rounded-2xl shadow-sm">
-                      <Clock size={20} className="text-veto-yellow" />
-                    </div>
-                    <span className="text-lg">De {format(new Date(selectedRange!.start), 'HH:mm')} à {format(new Date(selectedRange!.end), 'HH:mm')}</span>
+                 <div className="flex items-center gap-3 text-veto-black font-extrabold">
+                    <Clock size={16} className="text-veto-yellow" />
+                    <span className="text-sm">De {format(new Date(selectedRange!.start), 'HH:mm')} à {format(new Date(selectedRange!.end), 'HH:mm')}</span>
                  </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="text-xs font-black ml-6 text-veto-gray uppercase tracking-widest">Motif du blocage (Optionnel)</label>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black ml-4 text-veto-gray uppercase tracking-widest">Motif (Optionnel)</label>
                 <input 
                   type="text" 
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="Ex: Chirurgie urgente, Conférence..."
-                  className="w-full px-8 py-5 bg-veto-blue-gray/30 rounded-full border-none focus:ring-4 focus:ring-veto-yellow/20 outline-none transition-all shadow-inner font-bold"
+                  placeholder="Ex: Chirurgie..."
+                  className="w-full px-6 py-4 bg-gray-50 rounded-full border-none focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all font-bold text-sm"
                 />
               </div>
 
-              <Button onClick={handleBlockSlot} className="w-full py-6 text-xl font-black shadow-2xl shadow-veto-yellow/30" variant="yellow">
+              <Button onClick={handleBlockSlot} className="w-full py-4 text-sm font-black shadow-xl shadow-veto-yellow/20" variant="yellow">
                  Confirmer le Blocage
               </Button>
             </div>

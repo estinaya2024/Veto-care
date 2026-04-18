@@ -5,6 +5,8 @@ import { Calendar, Syringe, ChevronRight } from 'lucide-react';
 import { HealthRecord } from './HealthRecord';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { cn } from '../../lib/utils';
+import { BookingCalendar } from './BookingCalendar';
 
 export function OwnerDashboard() {
   const { user } = useAuth();
@@ -13,6 +15,7 @@ export function OwnerDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedPet, setSelectedPet] = useState<any | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'pets' | 'agenda'>('pets');
 
   // New Patient Form State
   const [newName, setNewName] = useState('');
@@ -76,20 +79,46 @@ export function OwnerDashboard() {
 
   return (
     <div className="space-y-12 animate-fadeInUp">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
         <div>
           <Heading level={2} className="text-2xl sm:text-3xl">
             Bienvenue, {profile?.full_name.split(' ')[0] || 'Maître'} !
           </Heading>
-          <p className="text-veto-gray font-medium tracking-tight">Voici un aperçu médical de vos compagnons.</p>
+          <div className="flex items-center gap-2 text-veto-gray font-bold uppercase tracking-widest text-[10px] opacity-60 mt-1">
+             VetoCare Premium Extranet • Dashboard
+          </div>
         </div>
-        <Button 
-          variant="yellow" 
-          className="font-extrabold shadow-sm hover:shadow-md transition-shadow"
-          onClick={() => setShowModal(true)}
-        >
-          + Ajouter Patient
-        </Button>
+        
+        <div className="flex items-center gap-3">
+          <div className="flex p-1 bg-black/5 rounded-full border border-black/5 backdrop-blur-md">
+            <button 
+              onClick={() => setActiveTab('pets')}
+              className={cn(
+                "px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
+                activeTab === 'pets' ? "bg-white shadow-sm text-veto-black" : "text-veto-gray hover:text-veto-black"
+              )}
+            >
+              Animaux
+            </button>
+            <button 
+              onClick={() => setActiveTab('agenda')}
+              className={cn(
+                "px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
+                activeTab === 'agenda' ? "bg-white shadow-sm text-veto-black" : "text-veto-gray hover:text-veto-black"
+              )}
+            >
+              Agenda
+            </button>
+          </div>
+          <Button 
+            variant="yellow" 
+            size="sm"
+            className="font-black h-10 px-6 rounded-full shadow-lg shadow-veto-yellow/10 border-none text-[10px] uppercase tracking-widest"
+            onClick={() => setShowModal(true)}
+          >
+            + Patient
+          </Button>
+        </div>
       </div>
 
       {showModal && (
@@ -123,7 +152,9 @@ export function OwnerDashboard() {
       )}
 
       {loading ? (
-        <div className="text-center py-24 text-veto-gray font-bold">Chargement de vos compagnons...</div>
+        <div className="text-center py-24 text-veto-gray font-bold">Chargement...</div>
+      ) : activeTab === 'agenda' ? (
+        <BookingCalendar maitreId={user?.id || ''} />
       ) : pets.length === 0 ? (
         <div className="bg-white p-16 rounded-[3rem] text-center border-2 border-dashed border-black/5">
           <p className="text-veto-gray font-bold text-lg mb-6">Vous n'avez pas encore enregistré d'animaux.</p>
