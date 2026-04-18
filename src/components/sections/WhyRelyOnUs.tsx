@@ -32,15 +32,7 @@ export function WhyRelyOnUs() {
   return (
     <section className="px-8 md:px-16 py-24 bg-white relative overflow-hidden">
       {/* Decorative Wing/Feather Doodle */}
-      <div className="absolute left-[-50px] top-1/2 -translate-y-1/2 opacity-20 pointer-events-none hidden lg:block">
-        <svg width="400" height="600" viewBox="0 0 400 600" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-veto-black">
-           <path d="M10 300C50 250 150 200 250 250C350 300 380 400 350 500C320 600 200 600 100 550C0 500 -20 350 10 300Z" stroke="currentColor" strokeWidth="8" strokeLinecap="round"/>
-           <path d="M50 350C80 320 120 300 160 310" stroke="#FFD500" strokeWidth="12" strokeLinecap="round"/>
-           <path d="M60 380C90 350 130 330 170 340" stroke="#FFD500" strokeWidth="12" strokeLinecap="round"/>
-           <path d="M30 280L60 250" stroke="#FFD500" strokeWidth="12" strokeLinecap="round"/>
-           <path d="M40 260L70 230" stroke="#FFD500" strokeWidth="12" strokeLinecap="round"/>
-        </svg>
-      </div>
+      
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-20">
