@@ -7,7 +7,6 @@ export function Navbar() {
     { name: 'ACCUEIL', href: '#', hasDropdown: false },
     { name: 'À PROPOS', href: '#about', hasDropdown: false },
     { name: 'SERVICES', href: '#services', hasDropdown: false },
-    { name: 'LOCALISATIONS', href: '#locations', hasDropdown: false },
     { name: 'URGENCES', href: 'tel:+1-800-VET-PRO', hasDropdown: false },
   ];
 
@@ -40,7 +39,7 @@ export function Navbar() {
         <Button variant="outline" className="hidden sm:flex font-black px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest border-2 border-veto-black text-veto-black hover:bg-veto-black hover:text-white transition-all" onClick={() => window.location.href = '/login'}>
           CONNEXION / COMPTE
         </Button>
-        <Button variant="yellow" className="hidden sm:flex font-black px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest shadow-lg shadow-veto-yellow/20" onClick={() => window.location.href = '#reservation'}>
+        <Button variant="yellow" className="hidden sm:flex font-black px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest shadow-lg shadow-veto-yellow/20" onClick={() => window.location.href = '/dashboard'}>
           PRENDRE RDV
         </Button>
       </div>
