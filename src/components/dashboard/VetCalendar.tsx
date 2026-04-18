@@ -110,12 +110,12 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   };
 
   return (
-    <div className="bg-white/60 backdrop-blur-3xl rounded-[3rem] p-6 shadow-xl border border-white/50 animate-fadeInUp relative overflow-hidden group">
+    <div className="bg-white/60 backdrop-blur-3xl rounded-[3rem] p-6 shadow-xl border border-white/50 animate-fadeInUp relative overflow-hidden group/calendar">
       <div className="absolute top-0 right-0 w-64 h-64 bg-veto-yellow/5 rounded-full blur-[90px] -mr-32 -mt-32 pointer-events-none"></div>
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 gap-4">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-veto-yellow/10 rounded-2xl shadow-inner group-hover:rotate-2 transition-transform">
+          <div className="p-3 bg-veto-yellow/10 rounded-2xl shadow-inner">
             <CalendarIcon size={24} className="text-veto-black/70" />
           </div>
           <div>
@@ -141,10 +141,10 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
           </button>
           <div className="w-[1px] h-4 bg-black/5 mx-1 self-center"></div>
           <Button 
-            variant="yellow" 
+            variant="ghost" 
             size="sm" 
             onClick={fetchData}
-            className="rounded-full px-4 py-2 h-auto text-[9px] font-black uppercase tracking-widest shadow-md shadow-veto-yellow/10 border-none"
+            className="rounded-full px-4 py-2 h-auto text-[9px] font-black uppercase tracking-widest"
           >
             Sync
           </Button>
@@ -170,29 +170,16 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             if (type === 'unavailability') handleDeleteEvent(info.event.id);
             if (type === 'appointment' && onSelectPatient) onSelectPatient(patients);
           }}
-          eventClassNames={(arg) => {
-            return arg.event.extendedProps.type === 'appointment' ? 'cursor-default' : 'cursor-pointer hover:scale-[1.01] transition-transform';
-          }}
           eventContent={(arg) => {
             const isApt = arg.event.extendedProps.type === 'appointment';
             return (
               <div className={cn(
                 "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-all",
-                isApt ? "border-veto-yellow bg-veto-yellow/10" : "border-gray-300 bg-gray-50/50"
+                isApt ? "border-veto-yellow bg-veto-yellow/10" : "border-gray-200 bg-gray-100/50"
               )}>
                 <div className="font-bold text-[9px] uppercase tracking-tight truncate">
                   {arg.event.title}
                 </div>
-                {isApt && (
-                  <div className="text-[7px] font-medium opacity-50 uppercase tracking-widest">
-                    Patient
-                  </div>
-                )}
-                {!isApt && (
-                  <div className="text-[7px] font-black text-red-300 absolute top-1 right-1">
-                     <Trash2 size={8} />
-                  </div>
-                )}
               </div>
             );
           }}
@@ -230,7 +217,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Ex: Chirurgie..."
-                  className="w-full px-6 py-4 bg-gray-50 rounded-full border-none focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all font-bold text-sm"
+                  className="w-full px-6 py-4 bg-gray-50 rounded-full border-none focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all font-extrabold text-sm appearance-none"
                 />
               </div>
 
@@ -244,48 +231,18 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
 
       {loading && (
         <div className="absolute inset-0 bg-white/40 backdrop-blur-[4px] z-20 flex items-center justify-center">
-            <div className="w-12 h-12 border-8 border-veto-yellow border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-8 h-8 border-4 border-veto-yellow border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
 
       <style>{`
-        .premium-calendar .fc {
-          border: none !important;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .premium-calendar .fc-col-header-cell {
-          padding: 2rem 0;
-          font-weight: 900;
-          text-transform: uppercase;
-          font-size: 0.65rem;
-          letter-spacing: 0.2em;
-          color: #9CA3AF;
-          border-left: none !important;
-          border-right: none !important;
-        }
         .premium-calendar .fc-timegrid-slot {
-          height: 5rem !important;
-          border-top: 1px dashed rgba(0,0,0,0.02) !important;
+          height: 4rem !important;
         }
         .premium-calendar .fc-event {
-          border-radius: 20px;
-          border: 4px solid white !important;
-          box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
-        }
-        .premium-calendar .fc-timegrid-now-indicator-line {
-          border-color: #FFD500;
-          border-width: 2px;
-        }
-        .premium-calendar .fc-scrollgrid {
-          border: none !important;
-        }
-        .premium-calendar .fc-theme-standard td, .premium-calendar .fc-theme-standard th {
-          border-color: rgba(0,0,0,0.03) !important;
-        }
-        .premium-calendar .fc-timegrid-axis {
-          font-weight: 800;
-          font-size: 10px;
-          color: #9CA3AF;
+          border-radius: 12px;
+          border: 2px solid white !important;
+          box-shadow: none;
         }
       `}</style>
     </div>
