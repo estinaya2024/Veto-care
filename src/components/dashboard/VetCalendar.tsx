@@ -71,7 +71,15 @@ export function VetCalendar({ vetId }: VetCalendarProps) {
   };
 
   const handleSelect = (info: any) => {
-    setSelectedRange({ start: info.startStr, end: info.endStr });
+    let { startStr, endStr } = info;
+    
+    // If start and end are the same (simple click), set 30 min duration
+    if (startStr === endStr || new Date(startStr).getTime() === new Date(endStr).getTime()) {
+      const endDate = new Date(new Date(startStr).getTime() + 30 * 60000);
+      endStr = endDate.toISOString();
+    }
+
+    setSelectedRange({ start: startStr, end: endStr });
     setShowBlockModal(true);
   };
 
