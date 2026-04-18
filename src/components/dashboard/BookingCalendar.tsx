@@ -30,12 +30,16 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
   }, [maitreId]);
 
   const fetchPets = async () => {
-    const { data } = await supabase
-      .from('patients')
-      .select('id, name')
-      .eq('maitre_id', maitreId);
-    setPets(data || []);
-    if (data && data.length > 0) setSelectedPet(data[0].id);
+    try {
+      const { data } = await supabase
+        .from('patients')
+        .select('id, name')
+        .eq('maitre_id', maitreId);
+      setPets(data || []);
+      if (data && data.length > 0) setSelectedPet(data[0].id);
+    } catch (err) {
+      console.error('Error fetching pets:', err);
+    }
   };
 
   const fetchData = async () => {
