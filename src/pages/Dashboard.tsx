@@ -14,6 +14,14 @@ export function Dashboard() {
   const navigate = useNavigate();
   const { signOut, role } = useAuth();
 
+  useEffect(() => {
+    if (role === 'vet') {
+      setActiveTab('vet');
+    } else if (role === 'owner') {
+      setActiveTab('owner');
+    }
+  }, [role]);
+
   const handleLogout = async () => {
     await signOut();
     navigate('/login');

@@ -174,10 +174,11 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             const isApt = arg.event.extendedProps.type === 'appointment';
             return (
               <div className={cn(
-                "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-all",
+                "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg relative overflow-hidden group/event",
                 isApt ? "border-veto-yellow bg-veto-yellow/10" : "border-gray-200 bg-gray-100/50"
               )}>
-                <div className="font-bold text-[9px] uppercase tracking-tight truncate">
+                {isApt && <div className="absolute inset-0 bg-gradient-to-r from-veto-yellow/5 to-transparent pointer-events-none"></div>}
+                <div className="font-bold text-[9px] uppercase tracking-tight truncate relative z-10">
                   {arg.event.title}
                 </div>
               </div>
