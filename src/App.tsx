@@ -46,7 +46,6 @@ function App() {
 }
 
 import { About } from './components/sections/About';
-import { Locations } from './components/sections/Locations';
 
 function Home() {
   return (
@@ -55,7 +54,6 @@ function Home() {
       <About />
       <PromiseSection />
       <Services />
-      <Locations />
     </main>
   );
 }
