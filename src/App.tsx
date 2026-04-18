@@ -3,7 +3,6 @@ import { Navbar } from './components/layout/Navbar';
 import { Hero } from './components/sections/Hero';
 import { PromiseSection } from './components/sections/Promise';
 import { Services } from './components/sections/Services';
-import { WhyChooseUs } from './components/sections/WhyChooseUs';
 import { Footer } from './components/layout/Footer';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -57,7 +56,6 @@ function Home() {
       <PromiseSection />
       <Services />
       <Locations />
-      <WhyChooseUs />
     </main>
   );
 }
