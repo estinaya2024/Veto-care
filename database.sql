@@ -81,17 +81,23 @@ CREATE TABLE IF NOT EXISTS public.veterinaires (
 ALTER TABLE public.veterinaires ENABLE ROW LEVEL SECURITY;
 
 -- Tout le monde (connecté) peut voir les vétérinaires
+DROP POLICY IF EXISTS "Tout le monde peut voir les vétérinaires" ON public.veterinaires;
 CREATE POLICY "Tout le monde peut voir les vétérinaires" 
 ON public.veterinaires FOR SELECT 
 TO authenticated 
 USING (true);
 
+-- Policies pour Patients
+DROP POLICY IF EXISTS "Les maîtres voient uniquement leurs patients" ON public.patients;
 CREATE POLICY "Les maîtres voient uniquement leurs patients" 
 ON public.patients FOR SELECT 
+TO authenticated
 USING (auth.uid() = maitre_id);
 
+DROP POLICY IF EXISTS "Les maîtres créent leurs propres patients" ON public.patients;
 CREATE POLICY "Les maîtres créent leurs propres patients" 
 ON public.patients FOR INSERT 
+TO authenticated
 WITH CHECK (auth.uid() = maitre_id);
 
 -- 3. Table C: Rendez-vous (Interactions)
@@ -107,17 +113,21 @@ CREATE TABLE IF NOT EXISTS public.rendez_vous (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- Active RLS (CRITÈRE ÉLIMINATOIRE)
+-- Active RLS
 ALTER TABLE public.rendez_vous ENABLE ROW LEVEL SECURITY;
 
 -- Un maître ne peut voir QUE ses propres rendez-vous
+DROP POLICY IF EXISTS "Les maîtres voient uniquement leurs rendez-vous" ON public.rendez_vous;
 CREATE POLICY "Les maîtres voient uniquement leurs rendez-vous" 
 ON public.rendez_vous FOR SELECT 
+TO authenticated
 USING (auth.uid() = maitre_id);
 
 -- Un maître peut créer ses propres rendez-vous
+DROP POLICY IF EXISTS "Les maîtres créent leurs propres rendez-vous" ON public.rendez_vous;
 CREATE POLICY "Les maîtres créent leurs propres rendez-vous" 
 ON public.rendez_vous FOR INSERT 
+TO authenticated
 WITH CHECK (auth.uid() = maitre_id);
 
 -- 4. Storage Setup (Carnets de santé)
