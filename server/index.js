@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Health Check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'VetoMedical API is clinical and ready.' });
+  res.json({ status: 'ok', message: 'VetoCare API is clinical and ready.' });
 });
 
 /**
@@ -31,7 +31,7 @@ app.get('/api/primary-vet', async (req, res) => {
     .select('*')
     .limit(1)
     .single();
-    
+
   if (error) return res.status(404).json({ message: 'Doctor not found. Please ensure the doctor profile is seeded.' });
   res.json(data);
 });
@@ -90,7 +90,7 @@ app.delete('/api/unavailability/:id', async (req, res) => {
 // Appointment Conflict Check (Server-side logic)
 app.post('/api/appointments/check-conflict', async (req, res) => {
   const { vet_id, date_rdv } = req.body;
-  
+
   if (!vet_id || !date_rdv) {
     return res.status(400).json({ message: 'Missing vet_id or date_rdv' });
   }
@@ -105,7 +105,7 @@ app.post('/api/appointments/check-conflict', async (req, res) => {
     .select('id, date_rdv')
     .eq('veterinaire_id', vet_id)
     .neq('status', 'annulé');
-  
+
   if (apptError) return res.status(400).json(apptError);
 
   // Simple overlap check: exact match or within 29 minutes
@@ -132,11 +132,11 @@ app.post('/api/appointments/check-conflict', async (req, res) => {
     const requested = new Date(requestedDate).getTime();
     return (requested >= start && requested < end);
   });
-  
+
   res.json({ conflict: isBlocked, reason: isBlocked ? 'blocked' : null });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 VetoMedical Server running on http://localhost:${PORT}`);
+  console.log(`🚀 VetoCare Server running on http://localhost:${PORT}`);
 });
 

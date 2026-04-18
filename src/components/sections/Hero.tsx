@@ -1,51 +1,39 @@
 import { Button } from '../ui/Button';
 import { Heading } from '../ui/Heading';
-import { Star } from 'lucide-react';
+
 import medIllustration1 from '../../assets/images/illustration-1.svg';
 import medIllustration2 from '../../assets/images/illustration-2.svg';
 import heroMainImage from '../../assets/images/iStock-1143440918 (1).webp';
 import heroDog from '../../assets/images/hero_dog.png';
-import bunnyPng from '../../assets/images/bunny.png';
-import duckPng from '../../assets/images/duck.png';
 
 export function Hero() {
   return (
     <section className="relative w-full min-h-screen bg-[#E3EAF7] overflow-hidden flex flex-col justify-between">
-      
+
       {/* Background Dog Image - Placed on the far right, slightly behind */}
       <div className="absolute right-0 bottom-[10%] w-[50%] lg:w-[45%] flex items-end justify-end pointer-events-none z-0 translate-x-[5%] lg:translate-x-[10%]">
-        <img 
-          src={heroDog} 
-          alt="Large Dog" 
+        <img
+          src={heroDog}
+          alt="Large Dog"
           className="w-full max-w-[900px] h-auto object-contain opacity-90 animate-fadeInRight"
           style={{ animationDelay: '400ms' }}
         />
       </div>
 
-      {/* Floating Bunny */}
-      <div className="absolute left-[10%] top-[20%] w-32 h-32 z-10 animate-float hidden lg:block">
-        <img src={bunnyPng} alt="Bunny" className="w-full h-full object-contain filter drop-shadow-2xl" />
-      </div>
-
-      {/* Floating Duck */}
-      <div className="absolute right-[20%] top-[40%] w-24 h-24 z-10 animate-float-slow hidden lg:block">
-        <img src={duckPng} alt="Duck" className="w-full h-full object-contain filter drop-shadow-xl" />
-      </div>
-
       {/* Main Content Area */}
-      <div className="flex-1 relative z-20 max-w-[1400px] mx-auto w-full px-8 md:px-16 pt-32 pb-64 lg:pb-32 flex flex-col justify-center">
+      <div className="flex-1 relative z-20 max-w-[1400px] mx-auto w-full px-8 md:px-16 pt-[160px] pb-64 lg:pb-32 flex flex-col">
         {/* Left Typography */}
         <div className="max-w-2xl animate-fadeInRight">
           <Heading className="mb-12 text-[40px] lg:text-[7.5rem] tracking-tighter leading-[0.95] font-black text-veto-black drop-shadow-sm">
-            Clinical <br />
-            Excellence
+            Your pet, <br />
+            our priority
           </Heading>
-          
+
           <div className="flex flex-wrap gap-5">
-            <Button variant="black" className="px-12 py-5 rounded-full hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest shadow-xl" onClick={() => window.location.href='#services'}>
+            <Button variant="black" className="px-12 py-5 rounded-full hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest shadow-xl" onClick={() => window.location.href = '#services'}>
               Learn more
             </Button>
-            <Button variant="yellow" className="px-12 py-5 rounded-full shadow-[0_10px_30px_rgba(255,213,0,0.4)] hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest" onClick={() => window.location.href='#reservation'}>
+            <Button variant="yellow" className="px-12 py-5 rounded-full shadow-[0_10px_30px_rgba(255,213,0,0.4)] hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest" onClick={() => window.location.href = '#reservation'}>
               Make a reservation
             </Button>
           </div>
@@ -59,53 +47,44 @@ export function Hero() {
           <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div className="max-w-md">
               <h3 className="font-black text-2xl text-veto-black tracking-tight leading-tight mb-1">
-                Chirurgie & Soins Intensifs 24/7
+                Dog Walking & Pet Sitting Services
               </h3>
-              <p className="text-veto-gray font-bold text-lg uppercase tracking-widest text-[10px]">
-                Hôpital vétérinaire de pointe • <span className="underline decoration-veto-yellow decoration-2 cursor-pointer">Nous trouver</span>
+              <p className="text-veto-gray font-bold text-lg">
+                Throughout <span className="underline decoration-veto-yellow decoration-2 cursor-pointer">New York City</span>
               </p>
             </div>
-            
-            <div className="flex items-center gap-4 bg-gray-50 px-6 py-4 rounded-3xl border border-gray-100 hover:border-veto-yellow transition-colors cursor-pointer group">
-              <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white scale-90 group-hover:scale-100 transition-transform">
-                <Star size={20} fill="currentColor" />
-              </div>
-              <div>
-                <span className="block text-lg font-black text-veto-black">4,9 reviews Yelp</span>
-                <div className="flex gap-0.5 text-veto-yellow">
-                   {[1,2,3,4,5].map(i => <Star key={i} size={14} fill="currentColor" />)}
-                </div>
-              </div>
-            </div>
+
+
+
           </div>
+        </div>
 
-          {/* Overlapping Assembly Positioning Container */}
-          <div className="absolute top-0 right-[5%] lg:right-[15%] w-[400px] md:w-[600px] h-0 flex items-end justify-center pointer-events-none">
-            
-            {/* Groomer Left (smaller) */}
-            <img 
-              src={medIllustration1} 
-              alt="Groomer 1" 
-              className="absolute -left-12 bottom-0 w-[160px] md:w-[220px] object-contain drop-shadow-sm z-10 animate-bounceInUp transform translate-y-[20%]"
-              style={{ animationDelay: '300ms' }}
-            />
+        {/* Overlapping Assembly Positioning Container */}
+        <div className="absolute top-0 right-[5%] lg:right-[15%] w-[400px] md:w-[600px] h-0 flex items-end justify-center pointer-events-none">
 
-            {/* The Cat (Center piece overlapping the white bar) */}
-            <img 
-              src={heroMainImage} 
-              alt="Cat" 
-              className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[260px] md:w-[400px] object-contain drop-shadow-xl z-20 animate-fadeInRight transform translate-y-[15%]"
-              style={{ animationDelay: '100ms' }}
-            />
+          {/* Groomer Left (smaller) */}
+          <img
+            src={medIllustration1}
+            alt="Groomer 1"
+            className="absolute -left-12 bottom-0 w-[160px] md:w-[220px] object-contain drop-shadow-sm z-10 animate-bounceInUp transform translate-y-[20%]"
+            style={{ animationDelay: '300ms' }}
+          />
 
-            {/* Groomer Right (larger/walking) */}
-            <img 
-              src={medIllustration2} 
-              alt="Groomer 2" 
-              className="absolute -right-8 bottom-0 w-[180px] md:w-[250px] object-contain drop-shadow-sm z-30 animate-bounceInRight transform translate-y-[45%]"
-              style={{ animationDelay: '500ms' }}
-            />
-          </div>
+          {/* The Cat (Center piece overlapping the white bar) */}
+          <img
+            src={heroMainImage}
+            alt="Cat"
+            className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[260px] md:w-[400px] object-contain drop-shadow-xl z-20 animate-fadeInRight transform translate-y-[15%]"
+            style={{ animationDelay: '100ms' }}
+          />
+
+          {/* Groomer Right (larger/walking) */}
+          <img
+            src={medIllustration2}
+            alt="Groomer 2"
+            className="absolute -right-8 bottom-0 w-[180px] md:w-[250px] object-contain drop-shadow-sm z-30 animate-bounceInRight transform translate-y-[45%]"
+            style={{ animationDelay: '500ms' }}
+          />
         </div>
       </div>
     </section>

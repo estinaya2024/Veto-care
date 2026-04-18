@@ -1,50 +1,43 @@
 import { Heading } from '../ui/Heading';
-import { ShieldCheck, Search, Clock, Users, Activity } from 'lucide-react';
+import { Heart, Clock, UserCheck, ShieldCheck, Search, Users } from 'lucide-react';
 
 const reasons = [
   {
-    title: 'Expertise Chirurgicale',
-    description: "Nos chirurgiens sont spécialisés dans les interventions complexes et les soins d'urgence vitale.",
+    title: 'Nous aimons les animaux',
+    description: "Nous comprenons que votre compagnon est un membre précieux de votre famille et mérite la meilleure attention.",
+    icon: Heart,
+  },
+  {
+    title: 'Sérénité',
+    description: "Vous voulez vous assurer qu'ils reçoivent les meilleurs soins en votre absence. Laissez-nous faire.",
     icon: ShieldCheck,
   },
   {
-    title: 'Imagerie de Pointe',
-    description: "Équipements de radiologie de dernière génération pour un diagnostic clinique immédiat et précis.",
-    icon: Search,
-  },
-  {
-    title: 'Urgences 24h/24',
-    description: "Une équipe médicale de garde prête à prendre en charge les patients critiques sans interruption.",
+    title: 'Pratique',
+    description: "En plus de nos horaires flexibles, nous offrons la réservation en ligne pour une planification simplifiée.",
     icon: Clock,
   },
   {
-    title: 'Laboratoire Médical',
-    description: "Analyses de sang et examens de laboratoire effectués sur place pour une réactivité hospitalière.",
-    icon: Activity,
+    title: 'Transparence',
+    description: "Nous voulons que vous ayez une confiance totale dans les soins que nous prodiguons à votre compagnon.",
+    icon: Search,
   },
   {
-    title: 'Hospitalisation Sécurisée',
-    description: "Unités de soins surveillées en permanence pour une convalescence optimale sous monitoring.",
-    icon: ShieldCheck,
+    title: 'Soins personnalisés',
+    description: "Notre équipe de professionnels qualifiés s'engage à fournir des soins sur mesure pour chaque animal.",
+    icon: UserCheck,
   },
   {
-    title: 'Parcours Thérapeutique',
-    description: "Suivi médical rigoureux et plans de traitement personnalisés pour chaque patient cliniquement suivi.",
+    title: 'Travail d\'équipe',
+    description: "Vétérinaires, techniciens et spécialistes travaillent ensemble pour garantir des soins optimaux.",
     icon: Users,
   },
 ];
 
-import cowPng from '../../assets/images/cow.png';
-
 export function WhyChooseUs() {
   return (
-    <section className="px-8 md:px-16 py-24 bg-veto-light-blue relative overflow-hidden">
-      {/* Static Cow Decor */}
-      <div className="absolute -right-24 bottom-0 w-96 h-96 z-0 opacity-20 pointer-events-none">
-        <img src={cowPng} alt="Cow Background" className="w-full h-full object-contain object-bottom grayscale" />
-      </div>
-
-      <div className="max-w-7xl mx-auto relative z-10">
+    <section className="px-8 md:px-16 py-24 bg-veto-light-blue">
+      <div className="max-w-7xl mx-auto">
         <Heading level={2} className="text-center mb-16">
           Pourquoi nous faire confiance ?
         </Heading>

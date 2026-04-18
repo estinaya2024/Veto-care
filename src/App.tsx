@@ -6,7 +6,6 @@ import { Services } from './components/sections/Services';
 import { WhyChooseUs } from './components/sections/WhyChooseUs';
 import { Testimonials } from './components/sections/Testimonials';
 import { Reservation } from './components/sections/Reservation';
-import { Social } from './components/sections/Social';
 import { Footer } from './components/layout/Footer';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -49,16 +48,20 @@ function App() {
   );
 }
 
+import { About } from './components/sections/About';
+import { Locations } from './components/sections/Locations';
+
 function Home() {
   return (
     <main>
       <Hero />
+      <About />
       <PromiseSection />
       <Services />
+      <Locations />
       <WhyChooseUs />
       <Testimonials />
       <Reservation />
-      <Social />
     </main>
   );
 }

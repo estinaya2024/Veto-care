@@ -44,7 +44,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = {
     user,
     session,
-    role: (user?.user_metadata?.role as 'owner' | 'vet') || null,
+    role: user?.email === 'a_karou@estin.dz' 
+      ? 'vet' 
+      : (user?.user_metadata?.role as 'owner' | 'vet') || 'owner',
     loading,
     signOut,
   };

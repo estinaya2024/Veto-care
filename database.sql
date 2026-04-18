@@ -16,8 +16,8 @@ DECLARE
   user_role TEXT;
 BEGIN
   -- Explicit check for the Clinic specialized email
-  IF new.email = 'vetocareclinic001@gmail.com' THEN
-    user_role := 'owner';
+  IF new.email = 'a_karou@estin.dz' THEN
+    user_role := 'vet';
   ELSE
     user_role := COALESCE(new.raw_user_meta_data->>'role', 'owner');
   END IF;

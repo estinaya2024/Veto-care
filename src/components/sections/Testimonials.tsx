@@ -4,12 +4,12 @@ import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 
 const testimonials = [
   {
-    pet: "Hurley, patient du Dr. Martin",
-    text: "La chirurgie de Hurley a été un succès total. L\\'équipement de monitoring et le suivi post-opératoire sont d\\'un niveau hospitalier impressionnant. Merci à toute l\\'équipe médicale !",
+    pet: "Hurley, chien de Vikki",
+    text: "Merci à l\\'équipe pour le travail fantastique avec notre Hurley ! D\\'excellents soins qui nous ont vraiment rassurés. Merci !",
   },
   {
-    pet: "Jame, suivi en cardiologie",
-    text: "Une clinique ultra-moderne avec des spécialistes qui prennent le temps d\\'expliquer le diagnostic. Jame a retrouvé une vie normale grâce à leur expertise en médecine interne.",
+    pet: "Jame, chien de Susan",
+    text: "Une équipe gentille, amicale et professionnelle. Et le meilleur de tout, Jame les a adorés. Je recommande vivement cette clinique !",
   }
 ];
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -7,7 +7,7 @@ import frLocale from '@fullcalendar/core/locales/fr';
 import { supabase } from '../../lib/supabase';
 import { api } from '../../lib/api';
 import { Button } from '../ui/Button';
-import { X, Calendar as CalendarIcon, Clock, AlertCircle, Trash2, Zap } from 'lucide-react';
+import { X, Calendar as CalendarIcon, Clock, Trash2, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 

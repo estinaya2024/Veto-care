@@ -1,7 +1,7 @@
 {
-  "name": "vetomedical-server",
+  "name": "VetoCare-server",
   "version": "1.0.0",
-  "description": "Professional Backend for VetoMedical Clinic",
+  "description": "Professional Backend for VetoCare Clinic",
   "main": "index.js",
   "type": "module",
   "scripts": {
