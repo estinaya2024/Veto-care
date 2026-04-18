@@ -117,7 +117,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
   };
 
   return (
-    <div className="bg-white/60 backdrop-blur-3xl rounded-[3rem] p-6 shadow-xl border border-white/50 animate-fadeInUp relative overflow-hidden group/calendar">
+    <div className="bg-white/60 backdrop-blur-3xl rounded-[3rem] p-6 shadow-xl border border-white/50 animate-fadeInUp relative overflow-hidden group/calendar min-h-[700px]">
       <div className="absolute top-0 right-0 w-64 h-64 bg-veto-yellow/5 rounded-full blur-[90px] -mr-32 -mt-32 pointer-events-none"></div>
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 gap-4">
@@ -143,7 +143,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
         </div>
       </div>
 
-      <div className="premium-calendar owner-view relative z-10">
+      <div className="premium-calendar owner-view relative z-10 min-h-[600px]">
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
