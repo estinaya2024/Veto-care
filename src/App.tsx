@@ -44,6 +44,7 @@ function App() {
   );
 }
 
+import { About } from './components/sections/About';
 import { WhyRelyOnUs } from './components/sections/WhyRelyOnUs';
 
 function Home() {
