@@ -4,7 +4,6 @@ import { Hero } from './components/sections/Hero';
 import { PromiseSection } from './components/sections/Promise';
 import { Services } from './components/sections/Services';
 import { WhyChooseUs } from './components/sections/WhyChooseUs';
-import { Testimonials } from './components/sections/Testimonials';
 import { Footer } from './components/layout/Footer';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -59,7 +58,6 @@ function Home() {
       <Services />
       <Locations />
       <WhyChooseUs />
-      <Testimonials />
     </main>
   );
 }
