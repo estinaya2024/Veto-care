@@ -16,6 +16,7 @@ import {
 import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useAuth } from '../../context/AuthContext';
 
 interface HealthRecordProps {
   pet: any;
@@ -26,6 +27,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'history' | 'folder'>('history');
+  const { role } = useAuth();
 
   useEffect(() => {
     fetchHistory();
@@ -41,6 +43,17 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
     
     setHistory(data || []);
     setLoading(false);
+  };
+
+  const handleUpdateStatus = async (id: string, status: string) => {
+    const { error } = await supabase
+      .from('rendez_vous')
+      .update({ status })
+      .eq('id', id);
+
+    if (!error) {
+      fetchHistory();
+    }
   };
 
   return (
@@ -206,6 +219,19 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                             </div>
                           ) : (
                             <p className="text-veto-gray italic font-bold text-sm opacity-40">Pas de notes additionnelles pour cette séance.</p>
+                          )}
+
+                          {role === 'vet' && record.status === 'confirmé' && (
+                             <div className="mt-6 flex justify-end">
+                                <Button 
+                                  size="sm" 
+                                  variant="yellow" 
+                                  onClick={() => handleUpdateStatus(record.id, 'terminé')}
+                                  className="text-[10px] font-black uppercase tracking-widest"
+                                >
+                                  Clôturer la visite
+                                </Button>
+                             </div>
                           )}
 
                           {record.health_record_url && (

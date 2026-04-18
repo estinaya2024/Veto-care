@@ -99,24 +99,43 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
   const handleConfirmBooking = async () => {
     if (!selectedSlot || !selectedPet) return;
     
-    // In a real app, we'd fetch the primary vet ID. Here we assume one vet.
-    const { data: vet } = await supabase.from('veterinaires').select('id').limit(1).single();
+    setLoading(true);
+    try {
+      // 1. Fetch Primary Vet
+      const vet = await api.getPrimaryVet();
 
-    const { error } = await supabase
-      .from('rendez_vous')
-      .insert([{
-        maitre_id: maitreId,
-        patient_id: selectedPet,
-        veterinaire_id: vet?.id,
-        date_rdv: selectedSlot.start,
-        status: 'en_attente'
-      }]);
+      // 2. Check for Conflicts via Server
+      const conflictCheck = await api.checkAppointmentConflict(vet.id, selectedSlot.start);
+      
+      if (conflictCheck.conflict) {
+        alert('Désolé, ce créneau vient d\'être réservé ou bloqué. Veuillez en choisir un autre.');
+        fetchData();
+        setShowBookingModal(false);
+        return;
+      }
 
-    if (!error) {
-      setShowBookingModal(false);
-      fetchData();
-    } else {
-      alert('Impossible de réserver ce créneau. Il est peut-être déjà pris.');
+      // 3. Final Insertion
+      const { error } = await supabase
+        .from('rendez_vous')
+        .insert([{
+          maitre_id: maitreId,
+          patient_id: selectedPet,
+          veterinaire_id: vet.id,
+          date_rdv: selectedSlot.start,
+          status: 'confirmé' // We now confirm immediately if no conflict
+        }]);
+
+      if (!error) {
+        setShowBookingModal(false);
+        fetchData();
+      } else {
+        throw error;
+      }
+    } catch (err) {
+      console.error('Booking error:', err);
+      alert('Erreur lors de la réservation. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
     }
   };
 

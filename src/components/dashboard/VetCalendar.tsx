@@ -10,6 +10,7 @@ import { Button } from '../ui/Button';
 import { X, Calendar as CalendarIcon, Clock, Trash2, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { cn } from '../../lib/utils';
 
 interface VetCalendarProps {
   vetId: string;
