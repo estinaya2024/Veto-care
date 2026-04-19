@@ -3,7 +3,7 @@ import { Button } from '../ui/Button';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'react-hot-toast';
 import { Plus, Trash2 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 interface Medication {
   name: string;
@@ -14,11 +14,12 @@ interface Medication {
 
 interface ConsultationModalProps {
   pet: any;
+  appointmentId?: string | null;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export function ConsultationModal({ pet, onClose, onSuccess }: ConsultationModalProps) {
+export function ConsultationModal({ pet, appointmentId, onClose, onSuccess }: ConsultationModalProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   
@@ -62,7 +63,8 @@ export function ConsultationModal({ pet, onClose, onSuccess }: ConsultationModal
           symptoms: formData.symptoms,
           diagnosis: formData.diagnosis,
           treatment: formData.treatment,
-          notes: formData.notes
+          notes: formData.notes,
+          appointment_id: appointmentId
         }])
         .select()
         .single();
@@ -91,6 +93,14 @@ export function ConsultationModal({ pet, onClose, onSuccess }: ConsultationModal
           last_visit: new Date().toISOString()
         })
         .eq('id', pet.id);
+
+      // 4. Update Appointment Status if linked
+      if (appointmentId) {
+        await supabase
+          .from('rendez_vous')
+          .update({ status: 'terminé' })
+          .eq('id', appointmentId);
+      }
 
       toast.success('Rapport de consultation et ordonnance enregistrés !');
       onSuccess();

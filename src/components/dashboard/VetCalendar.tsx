@@ -7,7 +7,7 @@ import frLocale from '@fullcalendar/core/locales/fr';
 import { supabase } from '../../lib/supabase';
 import { api } from '../../lib/api';
 import { Button } from '../ui/Button';
-import { X, Calendar as CalendarIcon, Clock, Trash2, Zap } from 'lucide-react';
+import { X, Calendar as CalendarIcon, Clock, Zap, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '../../lib/utils';
@@ -26,7 +26,10 @@ interface CalendarEvent {
   backgroundColor: string;
   borderColor: string;
   textColor: string;
-  extendedProps: any;
+  extendedProps: {
+    type: 'mine' | 'reserved' | 'blocked';
+    [key: string]: any;
+  };
 }
 
 export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
@@ -35,9 +38,13 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [selectedRange, setSelectedRange] = useState<{ start: string; end: string } | null>(null);
   const [reason, setReason] = useState('');
-  const calendarRef = useRef<any>(null);
+  const calendarRef = useRef<FullCalendar>(null);
 
-  const fetchData = useCallback(async () => {
+  useEffect(() => {
+    if (vetId) fetchData();
+  }, [vetId]);
+
+  const fetchData = async () => {
     setLoading(true);
     try {
       // Fetch Appointments
@@ -50,7 +57,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
       // Fetch Unavailabilities
       const unavailData = await api.getUnavailability(vetId);
 
-      const formattedApts: CalendarEvent[] = (aptData || []).map((apt: any) => ({
+      const formattedApts = (aptData || []).map((apt: any) => ({
         id: `apt-${apt.id}`,
         title: `RDV: ${apt.patients?.name}`,
         start: apt.date_rdv,
@@ -61,7 +68,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
         extendedProps: { type: 'appointment', ...apt }
       }));
 
-      const formattedUnavail: CalendarEvent[] = (unavailData || []).map((un: any) => ({
+      const formattedUnavail = (unavailData || []).map((un: any) => ({
         id: `un-${un.id}`,
         title: un.motif || 'Indisponible',
         start: un.start_time,
@@ -78,14 +85,11 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
     } finally {
       setLoading(false);
     }
-  }, [vetId]);
+  };
 
-  useEffect(() => {
-    if (vetId) fetchData();
-  }, [vetId, fetchData]);
-
-  const handleSelect = (info: { startStr: string; endStr: string }) => {
-    let { startStr, endStr } = info;
+  const handleSelect = (info: any) => {
+    const startStr = info.startStr;
+    let endStr = info.endStr;
     
     // If start and end are the same (simple click), set 30 min duration
     if (startStr === endStr || new Date(startStr).getTime() === new Date(endStr).getTime()) {
@@ -110,7 +114,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
       setReason('');
       fetchData();
       toast.success('Créneau bloqué avec succès');
-    } catch (err) {
+    } catch {
       toast.error('Erreur lors du blocage du créneau');
     }
   };
@@ -142,13 +146,13 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
         
         <div className="flex p-1 bg-black/5 rounded-full border border-black/5 backdrop-blur-md">
           <button 
-            onClick={() => calendarRef.current.getApi().changeView('dayGridMonth')}
+            onClick={() => calendarRef.current?.getApi().changeView('dayGridMonth')}
             className="px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-white/40 transition-all active:scale-95"
           >
             Mois
           </button>
           <button 
-            onClick={() => calendarRef.current.getApi().changeView('timeGridWeek')}
+            onClick={() => calendarRef.current?.getApi().changeView('timeGridWeek')}
             className="px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/60 shadow-sm transition-all active:scale-95"
           >
             Semaine
@@ -158,9 +162,9 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             variant="ghost" 
             size="sm" 
             onClick={fetchData}
-            className="rounded-full px-4 py-2 h-auto text-[9px] font-black uppercase tracking-widest"
+            className="rounded-full px-4 py-2 h-auto text-[9px] font-black uppercase tracking-widest text-veto-black hover:bg-veto-yellow transition-all"
           >
-            Sync
+            Rafraîchir Flux
           </Button>
         </div>
       </div>
@@ -185,16 +189,29 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             if (type === 'appointment' && onSelectPatient) onSelectPatient(patients);
           }}
           eventContent={(arg) => {
-            const isApt = arg.event.extendedProps.type === 'appointment';
+            const type = arg.event.extendedProps.type;
+            const isApt = type === 'appointment';
+            const isBlock = type === 'unavailability';
+            
             return (
               <div className={cn(
-                "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg relative overflow-hidden group/event",
-                isApt ? "border-veto-yellow bg-veto-yellow/10" : "border-gray-200 bg-gray-100/50"
+                "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg relative overflow-hidden group/event shadow-sm",
+                isApt ? "border-veto-yellow bg-white" : "border-red-400 bg-red-50/30"
               )}>
                 {isApt && <div className="absolute inset-0 bg-gradient-to-r from-veto-yellow/5 to-transparent pointer-events-none"></div>}
-                <div className="font-bold text-[9px] uppercase tracking-tight truncate relative z-10">
-                  {arg.event.title}
+                {isBlock && <div className="absolute inset-0 bg-red-400/5 pointer-events-none"></div>}
+                
+                <div className="flex items-center gap-2 relative z-10">
+                   {isApt ? <User size={10} className="text-veto-yellow" /> : <X size={10} className="text-red-400" />}
+                   <div className="font-black text-[9px] uppercase tracking-tight truncate">
+                     {arg.event.title}
+                   </div>
                 </div>
+                {isBlock && (
+                  <div className="text-[7px] font-black text-red-400/60 uppercase tracking-widest mt-1">
+                    HORS SERVICE
+                  </div>
+                )}
               </div>
             );
           }}

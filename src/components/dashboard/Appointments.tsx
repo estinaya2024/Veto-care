@@ -3,7 +3,7 @@ import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
 import { Calendar, Clock, MapPin, User, ChevronRight, Upload, X, FileText } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-hot-toast';
 
 export function Appointments() {

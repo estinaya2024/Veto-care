@@ -5,19 +5,18 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import { supabase } from '../../lib/supabase';
-import { Calendar as CalendarIcon, Clock, X, Zap, CheckCircle2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, X, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
 import { toast } from 'react-hot-toast';
 import { api } from '../../lib/api';
-
 interface BookingCalendarProps {
   maitreId: string;
 }
 
-interface CalendarEvent {
+interface BookingEvent {
   id: string;
   title: string;
   start: string;
@@ -25,25 +24,29 @@ interface CalendarEvent {
   backgroundColor: string;
   borderColor: string;
   textColor: string;
-  extendedProps: { type: 'mine' | 'reserved' | 'blocked' };
-}
-
-interface Pet {
-  id: string;
-  name: string;
+  extendedProps: {
+    type: 'mine' | 'reserved' | 'blocked';
+    [key: string]: any;
+  };
 }
 
 export function BookingCalendar({ maitreId }: BookingCalendarProps) {
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [events, setEvents] = useState<BookingEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
   const [selectedPet, setSelectedPet] = useState<string>('');
-  const [pets, setPets] = useState<Pet[]>([]);
+  const [pets, setPets] = useState<any[]>([]);
   const [appointmentToCancel, setAppointmentToCancel] = useState<{ id: string; date: string } | null>(null);
-  const calendarRef = useRef<any>(null);
+  const calendarRef = useRef<FullCalendar>(null);
+  const [bookingStep, setBookingStep] = useState('');
 
-  const fetchPets = useCallback(async () => {
+  useEffect(() => {
+    fetchData();
+    fetchPets();
+  }, [maitreId]);
+
+  const fetchPets = async () => {
     try {
       const { data } = await supabase
         .from('patients')
@@ -54,15 +57,15 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
     } catch (err) {
       console.error('Error fetching pets:', err);
     }
-  }, [maitreId]);
+  };
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
       // 1. Fetch All Appointments (for this clinic)
       const { data: allApts } = await supabase
         .from('rendez_vous')
-        .select('*')
+        .select('*, patients(name)')
         .neq('status', 'annulé');
 
       // 2. Fetch Doctor Blocks
@@ -70,21 +73,22 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
         .from('indisponibilites_vet')
         .select('*');
 
-      const formattedApts: CalendarEvent[] = (allApts || []).map((apt: any) => {
+      const formattedApts: BookingEvent[] = (allApts || []).map((apt: any) => {
         const isMine = apt.maitre_id === maitreId;
+        const petName = apt.patients?.name || 'Animal';
         return {
           id: `apt-${apt.id}`,
-          title: isMine ? 'Mon RDV' : 'Réservé',
+          title: isMine ? `RDV: ${petName}` : 'Réservé',
           start: apt.date_rdv,
           end: new Date(new Date(apt.date_rdv).getTime() + 30 * 60000).toISOString(),
           backgroundColor: isMine ? '#FFD500' : '#f3f4f6',
           borderColor: 'transparent',
           textColor: isMine ? '#000000' : '#9ca3af',
-          extendedProps: { type: isMine ? 'mine' : 'reserved' }
+          extendedProps: { type: isMine ? 'mine' : 'reserved', petName }
         };
       });
 
-      const formattedBlocks: CalendarEvent[] = (blocks || []).map((block: any) => ({
+      const formattedBlocks: BookingEvent[] = (blocks || []).map((block: any) => ({
         id: `block-${block.id}`,
         title: 'Indisponible',
         start: block.start_time,
@@ -101,14 +105,11 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
     } finally {
       setLoading(false);
     }
-  }, [maitreId]);
+  };
 
-  useEffect(() => {
-    fetchData();
-    fetchPets();
-  }, [fetchData, fetchPets]);
-
-  const handleSelect = (info: { startStr: string; endStr: string }) => {
+  const handleSelect = (info: any) => {
+    // Check if selecting an overlapping area (FullCalendar might allow it depending on config)
+    // For simplicity, we open the modal and the server will reject if conflict exists
     setSelectedSlot({ start: info.startStr, end: info.endStr });
     setShowBookingModal(true);
   };
@@ -117,11 +118,11 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
     if (!selectedSlot || !selectedPet) return;
     
     setLoading(true);
-    let step = 'Fetching Vet';
+    setBookingStep('Fetching Vet');
     try {
       const vet = await api.getPrimaryVet();
 
-      step = 'Booking Appointment';
+      setBookingStep('Booking Appointment');
       const { data: bookingData, error: bookingError } = await supabase.rpc('book_appointment', {
         p_maitre_id: maitreId,
         p_patient_id: selectedPet,
@@ -131,8 +132,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
 
       if (bookingError) throw bookingError;
 
-      const result = bookingData as { success: boolean };
-      if (!result.success) {
+      if (!bookingData.success) {
         toast.error('Désolé, ce créneau vient d\'être réservé ou bloqué. Veuillez en choisir un autre.');
         fetchData();
         setShowBookingModal(false);
@@ -142,16 +142,15 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
       setShowBookingModal(false);
       fetchData();
       toast.success('Rendez-vous confirmé !');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Booking error:', err);
-      const error = err as any;
-      toast.error(`Étape: ${step} - ${error.message || 'Veuillez réessayer.'}`);
+      toast.error(`Étape: ${bookingStep} - ${err.message || 'Veuillez réessayer.'}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEventClick = (info: { event: { id: string; extendedProps: { type: string }; startStr: string } }) => {
+  const handleEventClick = (info: any) => {
     const type = info.event.extendedProps.type;
     if (type === 'mine') {
       const dbId = info.event.id.replace('apt-', '');
@@ -176,10 +175,9 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
       toast.success('Rendez-vous annulé avec succès.');
       setAppointmentToCancel(null);
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Cancel error:', err);
-      const error = err as any;
-      toast.error(error.message || 'Erreur lors de l’annulation.');
+      toast.error("Erreur lors de l'annulation.");
     } finally {
       setLoading(false);
     }
@@ -220,20 +218,15 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
           headerToolbar={false}
           events={events}
           selectable={true}
-          select={(info) => handleSelect({ startStr: info.startStr, endStr: info.endStr })}
-          eventClick={(info) => handleEventClick({ 
-            event: { 
-              id: info.event.id, 
-              extendedProps: info.event.extendedProps as { type: string }, 
-              startStr: info.event.startStr 
-            } 
-          })}
+          select={handleSelect}
+          eventClick={handleEventClick}
           locale={frLocale}
           height="auto"
           slotMinTime="08:00:00"
           slotMaxTime="20:00:00"
           allDaySlot={false}
           selectAllow={(selectInfo) => {
+            // Check if ANY event overlaps with the selection
             return !events.some(event => {
               const eStart = new Date(event.start).getTime();
               const eEnd = new Date(event.end).getTime();
@@ -245,14 +238,42 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
           eventContent={(arg) => {
             const type = arg.event.extendedProps.type;
             const isMine = type === 'mine';
+            const isBlocked = type === 'blocked';
+            const isReserved = type === 'reserved';
+            
             return (
               <div className={cn(
-                "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-all",
-                isMine ? "border-veto-yellow bg-veto-yellow/10" : "border-gray-200 bg-gray-100/50"
+                "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-all relative overflow-hidden group/event",
+                isMine ? "border-veto-yellow bg-white shadow-md z-20" : 
+                isBlocked ? "border-gray-500 bg-gray-50/80" : 
+                "border-gray-300 bg-gray-50/40 opacity-70"
               )}>
-                <div className="font-bold text-[9px] uppercase tracking-tight truncate">
-                  {arg.event.title}
+                {isMine && <div className="absolute inset-0 bg-veto-yellow/10 pointer-events-none animate-pulse"></div>}
+                {(isBlocked || isReserved) && (
+                  <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:6px_6px] opacity-40 pointer-events-none"></div>
+                )}
+                
+                <div className="flex items-center gap-2 relative z-10">
+                   {isMine ? (
+                     <div className="w-1.5 h-1.5 rounded-full bg-veto-yellow animate-bounce"></div>
+                   ) : isBlocked ? (
+                     <X size={8} className="text-gray-400" />
+                   ) : (
+                     <div className="w-1 h-1 rounded-full bg-gray-300"></div>
+                   )}
+                   <div className={cn(
+                     "font-black text-[9px] uppercase tracking-tight truncate",
+                     isMine ? "text-veto-black" : "text-gray-400"
+                   )}>
+                     {arg.event.title}
+                   </div>
                 </div>
+                
+                {isMine && (
+                   <div className="text-[7px] font-black text-veto-gray/40 uppercase tracking-widest mt-0.5">
+                     {format(new Date(arg.event.start!), 'HH:mm')}
+                   </div>
+                )}
               </div>
             );
           }}

@@ -15,17 +15,23 @@ import {
   AlertCircle,
   Image as ImageIcon,
   FileCheck,
-  Download
+  Download,
+  Mail,
+  User
 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+ 
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import { EditPatientModal } from './EditPatientModal';
 import { ConsultationModal } from './ConsultationModal';
 import { PrescriptionViewer } from './PrescriptionViewer';
 import { PetAvatar } from './PetAvatar';
+
+import { cn } from '../../lib/utils';
+import { api } from '../../lib/api';
+import { supabase } from '../../lib/supabase';
 
 interface HealthRecordProps {
   pet: any;
@@ -37,35 +43,48 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   const [consultations, setConsultations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'folder' | 'imagerie'>('history');
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showConsultModal, setShowConsultModal] = useState(false);
+  const [selectedAptId, setSelectedAptId] = useState<string | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
   const [prescribingVet, setPrescribingVet] = useState('');
-  const { role, user } = useAuth();
+  const { role } = useAuth();
 
   useEffect(() => {
-    fetchHistory();
+    fetchData();
+
+    // REAL-TIME SUBSCRIPTION FOR MEDICAL UPDATES
+    const channel = supabase
+      .channel(`pet_health_${pet.id}`)
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'consultations',
+        filter: `patient_id=eq.${pet.id}`
+      }, () => {
+        fetchData();
+      })
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'rendez_vous',
+        filter: `patient_id=eq.${pet.id}`
+      }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [pet.id]);
 
-  const fetchHistory = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      // 1. Fetch Appointments
-      const { data: aptData } = await supabase
-        .from('rendez_vous')
-        .select('*, veterinaires(name)')
-        .eq('patient_id', pet.id)
-        .order('date_rdv', { ascending: false });
-      
-      // 2. Fetch Detailed Consultations
-      const { data: consultData } = await supabase
-        .from('consultations')
-        .select('*, prescriptions(*), veterinaires(name)')
-        .eq('patient_id', pet.id)
-        .order('date_consultation', { ascending: false });
-
-      setHistory(aptData || []);
-      setConsultations(consultData || []);
+      const { appointments, consultations } = await api.getPetClinicalHistory(pet.id);
+      setHistory(appointments);
+      setConsultations(consultations);
     } catch (err) {
       console.error('Error fetching clinical data:', err);
       toast.error('Erreur lors de la récupération des données');
@@ -74,19 +93,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
     }
   };
 
-  const handleUpdateStatus = async (id: string, status: string) => {
-    const { error } = await supabase
-      .from('rendez_vous')
-      .update({ status })
-      .eq('id', id);
 
-    if (!error) {
-      toast.success(`Statut mis à jour : ${status}`);
-      fetchHistory();
-    } else {
-      toast.error('Erreur lors de la mise à jour');
-    }
-  };
 
   return (
     <div className="space-y-10 animate-fadeInRight max-w-7xl mx-auto">
@@ -225,45 +232,76 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                 {loading ? (
                   <div className="py-24 text-center">
                      <div className="w-12 h-12 border-4 border-veto-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                     <span className="font-black text-xs text-veto-gray uppercase tracking-widest">Récupération...</span>
+                     <span className="font-black text-xs text-veto-gray uppercase tracking-widest">Récupération du flux...</span>
                   </div>
                 ) : history.length === 0 ? (
                   <div className="py-40 text-center flex flex-col items-center gap-6">
                      <Calendar className="text-veto-gray/20" size={64} />
-                     <p className="text-veto-gray font-black text-xl opacity-40 tracking-tighter uppercase">Aucun historique RDV.</p>
+                     <p className="text-veto-gray font-black text-xl opacity-40 tracking-tighter uppercase">Aucun historique de visite.</p>
                   </div>
                 ) : (
-                  <div className="space-y-12 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-1 before:bg-veto-blue-gray before:rounded-full">
+                  <div className="space-y-12 relative before:absolute before:inset-0 before:left-[23px] before:h-full before:w-[2px] before:bg-gradient-to-b before:from-veto-yellow before:to-transparent before:opacity-20">
                     {history.map((record) => (
-                      <div key={record.id} className="relative pl-16 group">
-                        <div className="absolute left-0 top-1 w-12 h-12 rounded-[1.2rem] border-4 border-white bg-veto-yellow text-veto-black flex items-center justify-center shadow-lg z-10 transition-all group-hover:scale-110 group-hover:rotate-6">
-                          <Activity size={20} />
+                      <div key={record.id} className="relative pl-20 group">
+                        <div className={cn(
+                          "absolute left-0 top-1 w-12 h-12 rounded-2xl border-4 border-white flex items-center justify-center shadow-lg z-10 transition-all group-hover:scale-110 group-hover:rotate-6",
+                          record.status === 'terminé' ? "bg-green-500 text-white" : "bg-veto-yellow text-veto-black"
+                        )}>
+                          {record.status === 'terminé' ? <FileCheck size={20} /> : <Clock size={20} />}
                         </div>
-                        <div className="p-8 rounded-[3rem] bg-veto-blue-gray/20 border border-transparent hover:border-veto-yellow/20 hover:bg-white transition-all shadow-sm hover:shadow-xl relative overflow-hidden">
-                          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+                        <div className="p-10 rounded-[3rem] bg-white border border-black/5 hover:border-veto-yellow/30 transition-all shadow-sm hover:shadow-2xl relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-veto-yellow/5 rounded-full blur-3xl -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          
+                          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 relative z-10">
                             <div>
-                               <div className="text-[10px] font-black text-veto-gray uppercase tracking-widest opacity-60 mb-1">Passage Clinique</div>
-                               <h4 className="font-black text-xl text-veto-black">RDV avec Dr. {record.veterinaires?.name}</h4>
+                               <div className="text-[10px] font-black text-veto-gray uppercase tracking-widest opacity-40 mb-2">Visite Clinique</div>
+                               <h4 className="font-black text-2xl text-veto-black tracking-tight">Dr. {record.veterinaires?.name}</h4>
                             </div>
-                            <time className="font-black text-xs px-5 py-2 bg-white rounded-full shadow-sm text-veto-black border border-black/5">
-                               {format(new Date(record.date_rdv), 'EEEE dd MMMM yyyy', { locale: fr })}
-                            </time>
+                            <div className="flex flex-col items-end">
+                              <time className="font-black text-xs px-6 py-2.5 bg-veto-blue-gray rounded-full text-veto-black border border-black/5 mb-2">
+                                 {format(new Date(record.date_rdv), 'EEEE dd MMMM yyyy', { locale: fr })}
+                              </time>
+                              <span className="text-[10px] font-black text-veto-gray uppercase tracking-[0.2em] opacity-40">
+                                 à {format(new Date(record.date_rdv), 'HH:mm')}
+                              </span>
+                            </div>
                           </div>
                           
-                          <div className="flex items-center gap-3 mb-6">
-                            <span className={`w-3 h-3 rounded-full ${record.status === 'terminé' ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
-                            <span className="text-[10px] font-black text-veto-black uppercase tracking-widest">{record.status}</span>
+                          <div className="flex items-center gap-4 relative z-10">
+                             <div className={cn(
+                               "px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest",
+                               record.status === 'terminé' ? "bg-green-50 text-green-600" : "bg-yellow-50 text-yellow-600"
+                             )}>
+                               {record.status}
+                             </div>
+                             <div className="h-px flex-1 bg-black/5"></div>
                           </div>
  
-                          {role === 'vet' && record.status === 'confirmé' && (
-                             <div className="mt-6 flex justify-end">
+                          {role === 'vet' && record.status !== 'terminé' && (
+                             <div className="mt-8 flex justify-end relative z-10">
                                 <Button 
-                                  size="sm" 
                                   variant="yellow" 
-                                  onClick={() => handleUpdateStatus(record.id, 'terminé')}
-                                  className="text-[10px] font-black uppercase tracking-widest"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedAptId(record.id);
+                                    setShowConsultModal(true);
+                                  }}
+                                  className="text-[9px] font-black uppercase tracking-[0.2em] px-6"
                                 >
-                                  Clôturer la visite
+                                  COMMENCER LA CONSULTATION
+                                </Button>
+                             </div>
+                          )}
+
+                          {record.status === 'terminé' && (
+                             <div className="mt-8 flex justify-end relative z-10">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => setActiveTab('consultations')}
+                                  className="text-[9px] font-black uppercase tracking-[0.2em] text-veto-gray hover:text-veto-black"
+                                >
+                                  VOIR LE COMPTE-RENDU
                                 </Button>
                              </div>
                           )}
@@ -344,9 +382,9 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
 
                  <div className="grid sm:grid-cols-2 gap-6">
                     {/* Mock Image 1: X-Ray */}
-                    <div className="group bg-veto-blue-gray/20 rounded-[2.5rem] p-3 border border-black/5 hover:bg-white transition-colors cursor-pointer hover:shadow-xl shadow-sm">
+                    <div className="group bg-veto-blue-gray/20 rounded-[2.5rem] p-3 border border-black/5 hover:bg-white transition-colors cursor-pointer shadow-sm">
                        <div className="w-full h-48 bg-black rounded-[2rem] overflow-hidden relative mb-4">
-                          <img src="https://images.unsplash.com/photo-1559595089-98e3d8108a8a?q=80&w=800&auto=format&fit=crop" alt="X-Ray" className="w-full h-full object-cover opacity-80 mix-blend-screen group-hover:scale-105 transition-transform duration-700" />
+                          <img src="https://images.unsplash.com/photo-1559595089-98e3d8108a8a?q=80&w=800&auto=format&fit=crop" alt="X-Ray" className="w-full h-full object-cover opacity-80 mix-blend-screen transition-transform duration-700" />
                           <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-[9px] font-black uppercase text-white tracking-widest flex items-center gap-2">
                              <ImageIcon size={10} /> Radiographie
                           </div>
@@ -363,7 +401,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                     </div>
 
                     {/* Mock Image 2: Blood Test */}
-                    <div className="group bg-veto-blue-gray/20 rounded-[2.5rem] p-3 border border-black/5 hover:bg-white transition-colors cursor-pointer hover:shadow-xl shadow-sm">
+                    <div className="group bg-veto-blue-gray/20 rounded-[2.5rem] p-3 border border-black/5 hover:bg-white transition-colors cursor-pointer shadow-sm">
                        <div className="w-full h-48 bg-white rounded-[2rem] overflow-hidden relative mb-4 border border-black/5 flex items-center justify-center p-8">
                           <div className="text-center">
                              <div className="w-20 h-20 bg-red-50 rounded-[1.5rem] flex items-center justify-center mx-auto mb-4 border border-red-100">
@@ -414,6 +452,30 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                        Toutes les observations majeures sont centralisées ici.
                     </p>
                  </div>
+
+                 {role === 'vet' && pet.maitres && (
+                    <div className="p-8 bg-veto-yellow/10 rounded-[3rem] border border-black/5 space-y-6 md:col-span-2">
+                       <div className="flex items-center gap-3 mb-2">
+                          <div className="p-3 bg-veto-yellow/20 rounded-2xl">
+                             <User size={20} className="text-veto-black" />
+                          </div>
+                          <h4 className="font-black text-lg opacity-40 uppercase tracking-widest">Propriétaire</h4>
+                       </div>
+                       <div className="grid sm:grid-cols-2 gap-8">
+                          <div className="space-y-1">
+                             <p className="text-[10px] font-black text-veto-gray uppercase tracking-widest">Nom Complet</p>
+                             <p className="font-black text-xl">{pet.maitres.full_name}</p>
+                          </div>
+                          <div className="space-y-1">
+                             <p className="text-[10px] font-black text-veto-gray uppercase tracking-widest">Adresse Email</p>
+                             <div className="flex items-center gap-2 group/email">
+                                <Mail size={14} className="text-veto-yellow/60 group-hover/email:text-veto-yellow transition-colors" />
+                                <p className="font-black text-lg underline underline-offset-4 decoration-veto-yellow/30">{pet.maitres.email || 'Non renseigné'}</p>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                 )}
               </div>
             )}
           </div>
@@ -434,10 +496,15 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
       {showConsultModal && (
         <ConsultationModal 
           pet={pet}
-          onClose={() => setShowConsultModal(false)}
+          appointmentId={selectedAptId}
+          onClose={() => {
+            setShowConsultModal(false);
+            setSelectedAptId(null);
+          }}
           onSuccess={() => {
             setShowConsultModal(false);
-            fetchHistory(); // Refresh consultations
+            setSelectedAptId(null);
+            fetchData();
           }}
         />
       )}

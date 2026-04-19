@@ -1,19 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { OwnerDashboard } from '../components/dashboard/OwnerDashboard';
 import { VetDashboard } from '../components/dashboard/VetDashboard';
-import { Appointments } from '../components/dashboard/Appointments';
 import { Settings } from '../components/dashboard/Settings';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { Sidebar } from '../components/layout/Sidebar';
-import { SecureChat } from '../components/dashboard/SecureChat';
+
 
 type DashboardTab = 'dashboard' | 'owner' | 'vet' | 'appointments' | 'settings';
 
 export function Dashboard() {
   const { signOut, role } = useAuth();
-  const [activeTab, setActiveTab] = useState<DashboardTab>(role === 'vet' ? 'vet' : 'dashboard');
   const navigate = useNavigate();
+  
+  // Use a derived initial state to avoid useEffect + setState
+  const [activeTab, setActiveTab] = useState<DashboardTab>(role === 'vet' ? 'vet' : 'dashboard');
+
+  // Synchronize tab if role arrives later (async)
+  useEffect(() => {
+    if (role === 'vet' && activeTab === 'dashboard') {
+      setActiveTab('vet');
+    }
+    if (role === 'owner' && activeTab === 'vet') {
+      setActiveTab('dashboard');
+    }
+  }, [role, activeTab]);
 
   const handleLogout = async () => {
     await signOut();
@@ -34,12 +45,10 @@ export function Dashboard() {
           {activeTab === 'dashboard' && <OwnerDashboard />}
           {activeTab === 'owner' && <OwnerDashboard />}
           {activeTab === 'vet' && <VetDashboard />}
-          {activeTab === 'appointments' && <Appointments />}
           {activeTab === 'settings' && <Settings />}
         </div>
       </main>
 
-      <SecureChat />
     </div>
   );
 }

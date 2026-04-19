@@ -1,14 +1,25 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar';
+import { Hero } from './components/sections/Hero';
+import { Services } from './components/sections/Services';
+import { WhyRelyOnUs } from './components/sections/WhyRelyOnUs';
 import { Footer } from './components/layout/Footer';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { About } from './pages/About';
-
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './context/AuthProvider';
 
-import { Home } from './pages/Home';
+function Home() {
+  return (
+    <main>
+      <Hero />
+      <WhyRelyOnUs />
+      <Services />
+    </main>
+  );
+}
 
 function AppContent() {
   const location = useLocation();
@@ -36,9 +47,7 @@ function AppContent() {
   );
 }
 
-import { AuthProvider } from './context/AuthContext';
-
-function App() {
+export default function App() {
   return (
     <Router>
       <AuthProvider>
@@ -48,4 +57,3 @@ function App() {
   );
 }
 
-export default App;

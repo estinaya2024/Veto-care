@@ -8,98 +8,76 @@ export function Footer() {
   };
 
   return (
-export function Footer() {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  return (
-    <footer className="w-full bg-white text-veto-black px-8 md:px-16 pt-24 pb-12 border-t border-gray-100 transition-colors relative overflow-hidden">
-      {/* Background Decorative Element */}
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-veto-blue-gray/30 rounded-full blur-[120px] -mr-64 -mb-64 pointer-events-none"></div>
+    <footer className="w-full bg-[#E3EAF7] text-veto-black min-h-[400px] lg:h-[400px] px-8 md:px-16 pt-16 pb-8 border-t-[12px] border-veto-yellow transition-colors flex flex-col justify-between relative overflow-hidden">
+      {/* Decorative background element */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/50 rounded-full blur-[100px] -mr-40 -mt-40 pointer-events-none"></div>
       
-      <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 relative z-10">
-        {/* Left: Brand & Statement */}
-        <div className="lg:col-span-4 flex flex-col gap-8">
+      <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-8 relative z-10 flex-1 content-center">
+        {/* Left: Brand & Info */}
+        <div className="md:col-span-4 flex flex-col gap-6">
           <div className="flex items-center group cursor-pointer" onClick={() => window.location.href = '/'}>
-            <div className="w-12 h-12 bg-veto-yellow rounded-2xl flex items-center justify-center p-2 shadow-lg shadow-veto-yellow/20">
-              <img src={logo} alt="VetoCare Logo" className="w-full h-auto object-contain" />
-            </div>
-            <span className="font-heading font-black text-3xl tracking-tighter uppercase ml-3">VETOCARE</span>
+            <img src={logo} alt="VetoMedical Logo" className="h-14 w-auto object-contain transition-transform group-hover:scale-105" />
+            <span className="font-heading font-black text-3xl tracking-tighter uppercase ml-2 text-veto-black">VETOCARE</span>
           </div>
-          <p className="text-veto-gray font-bold text-base leading-relaxed max-w-sm">
-            L'excellence clinique au service de vos compagnons. <br />
-            Réservez, discutez et suivez la santé de vos animaux en quelques clics.
+          <p className="text-veto-gray font-bold text-sm leading-snug max-w-sm">
+            Services Professionnels de Soins pour Animaux <br />
+            Béjaïa, Algérie
           </p>
-          <div className="flex gap-4">
-            <a href="#" className="w-12 h-12 rounded-2xl bg-veto-blue-gray text-veto-black flex items-center justify-center hover:bg-veto-yellow transition-all hover:-translate-y-1 shadow-sm">
-              <Instagram size={20} />
+          <div className="flex gap-3">
+            <a href="#" className="w-10 h-10 rounded-full bg-white text-veto-black flex items-center justify-center hover:bg-veto-yellow transition-all hover:scale-110 shadow-sm border border-black/5">
+              <Instagram size={18} />
             </a>
-            <a href="#" className="w-12 h-12 rounded-2xl bg-veto-blue-gray text-veto-black flex items-center justify-center hover:bg-veto-yellow transition-all hover:-translate-y-1 shadow-sm">
-              <Facebook size={20} />
+            <a href="#" className="w-10 h-10 rounded-full bg-white text-veto-black flex items-center justify-center hover:bg-veto-yellow transition-all hover:scale-110 shadow-sm border border-black/5">
+              <Facebook size={18} />
             </a>
           </div>
         </div>
 
-        {/* Middle: Navigation Links */}
-        <div className="lg:col-span-2 flex flex-col gap-8">
-          <h4 className="font-black text-xs tracking-widest uppercase text-veto-black border-l-4 border-veto-yellow pl-4">Menu</h4>
-          <ul className="flex flex-col gap-4 font-bold text-sm text-veto-gray">
-            <li><a href="/" className="hover:text-veto-yellow transition-colors">Accueil</a></li>
-            <li><a href="/about" className="hover:text-veto-yellow transition-colors">Notre Clinique</a></li>
-            <li><a href="#services" className="hover:text-veto-yellow transition-colors">Services</a></li>
-            <li><a href="#testimonials" className="hover:text-veto-yellow transition-colors">Avis Clients</a></li>
+        {/* Middle: Navigation */}
+        <div className="md:col-span-3 flex flex-col gap-6 mt-4 md:mt-0">
+          <h4 className="font-black text-lg tracking-widest uppercase text-veto-black">Menu</h4>
+          <ul className="flex flex-col gap-3 font-bold text-sm text-veto-gray">
+            <li><a href="/#services" className="hover:text-veto-black transition-colors">Services</a></li>
+            <li><a href="/about" className="hover:text-veto-black transition-colors">À Propos</a></li>
+            <li><a href="#contact" className="hover:text-veto-black transition-colors">Contact</a></li>
           </ul>
         </div>
 
-        {/* Middle: Quick Help */}
-        <div className="lg:col-span-2 flex flex-col gap-8">
-          <h4 className="font-black text-xs tracking-widest uppercase text-veto-black border-l-4 border-veto-yellow pl-4">Support</h4>
-          <ul className="flex flex-col gap-4 font-bold text-sm text-veto-gray">
-            <li><a href="#contact" className="hover:text-veto-yellow transition-colors">Contact</a></li>
-            <li><a href="/login" className="hover:text-veto-yellow transition-colors">Espace Client</a></li>
-            <li><a href="#faq" className="hover:text-veto-yellow transition-colors">FAQ</a></li>
-            <li><a href="tel:+21334000000" className="hover:text-veto-yellow transition-colors text-veto-black">Urgences 24/7</a></li>
-          </ul>
-        </div>
-
-        {/* Right: Newsletter/CTA */}
-        <div className="lg:col-span-4 flex flex-col gap-8">
-          <h4 className="font-black text-xs tracking-widest uppercase text-veto-black border-l-4 border-veto-yellow pl-4">Newsletter</h4>
-          <p className="text-veto-gray font-bold text-sm">Recevez nos conseils santé et actualités.</p>
-          <div className="flex bg-veto-blue-gray p-2 rounded-2xl border border-black/5 focus-within:border-veto-yellow transition-all">
-            <input 
-              type="email" 
-              placeholder="votre@email.com" 
-              className="bg-transparent border-none outline-none flex-1 px-4 font-bold text-sm"
-            />
-            <Button variant="black" className="rounded-xl px-6 py-3 text-[10px] uppercase font-black tracking-widest">OK</Button>
+        {/* Right: CTA & Contacts */}
+        <div className="md:col-span-5 flex flex-col gap-4 items-start md:items-end text-left md:text-right mt-4 md:mt-0">
+          <h2 className="text-3xl font-black tracking-tighter text-veto-black">
+            Prêt à commencer ?
+          </h2>
+          <div className="flex flex-col gap-1 text-veto-gray font-bold mb-2">
+            <a href="mailto:hi@vetomedical.com" className="hover:text-veto-black transition-colors">hi@vetomedical.com</a>
+            <a href="tel:+1-800-VET-PRO" className="hover:text-veto-black transition-colors">+1-800-VET-PRO</a>
+          </div>
+          <div className="relative group">
+            <Button variant="yellow" className="px-8 py-3 text-sm rounded-full shadow-lg shadow-veto-yellow/20 hover:-translate-y-1 transition-transform" onClick={() => window.location.href = '/dashboard'}>
+              Prendre RDV
+            </Button>
+            <Sparkles className="absolute -right-4 -top-4 text-veto-yellow animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" size={20} />
           </div>
         </div>
       </div>
 
-      {/* Bottom: Legal */}
-      <div className="max-w-[1400px] w-full mx-auto mt-24 pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] font-bold uppercase tracking-[0.3em] text-veto-gray relative z-10">
-        <div className="flex items-center gap-2">
-          <span className="text-veto-black">© 2026 VetoCare Béjaïa</span>
-          <span className="hidden md:inline">|</span>
-          <span>Tous droits réservés.</span>
+      {/* Bottom: Copyright & Top Button */}
+      <div className="max-w-[1400px] w-full mx-auto pt-6 border-t border-black/10 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] font-bold uppercase tracking-[0.2em] text-veto-gray relative z-10 mt-8">
+        <div>
+          © 2026 &nbsp;|&nbsp; <span className="text-veto-black">VETOMEDICAL. Tous droits réservés.</span>
         </div>
-        <ul className="flex flex-wrap justify-center gap-10">
-          <li><a href="#" className="hover:text-veto-black lg:hover:tracking-[0.4em] transition-all">Confidentialité</a></li>
-          <li><a href="#" className="hover:text-veto-black lg:hover:tracking-[0.4em] transition-all">Conditions</a></li>
+        <ul className="flex flex-wrap justify-center gap-8">
+          <li><a href="#" className="hover:text-veto-black transition-colors">Confidentialité</a></li>
+          <li><a href="#" className="hover:text-veto-black transition-colors">Conditions</a></li>
         </ul>
         <button
           onClick={scrollToTop}
-          className="w-12 h-12 bg-veto-black text-white rounded-full flex items-center justify-center hover:bg-veto-yellow hover:text-veto-black transition-all hover:-translate-y-2 shadow-xl shadow-black/10 group"
+          className="bg-white text-veto-black w-10 h-10 rounded-full flex items-center justify-center hover:bg-veto-yellow hover:scale-110 transition-all shadow-sm border border-black/5"
           title="Retour en haut"
         >
-          <ArrowUp size={20} className="group-hover:animate-bounce" />
+          <ArrowUp size={18} />
         </button>
       </div>
-    </footer>
-  );
-}
     </footer>
   );
 }

@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
 import { User, Phone, Mail, Shield } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'react-hot-toast';
 
 export function Settings() {
   const { user, role } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -16,13 +15,8 @@ export function Settings() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
 
-  useEffect(() => {
-    if (user && role) {
-      fetchProfile();
-    }
-  }, [user, role]);
-
   const fetchProfile = async () => {
+    if (!user || !role) return;
     setLoading(true);
     const table = role === 'vet' ? 'veterinaires' : 'maitres';
     const nameField = role === 'vet' ? 'name' : 'full_name';
@@ -30,16 +24,21 @@ export function Settings() {
     const { data, error } = await supabase
       .from(table)
       .select('*')
-      .eq('id', user?.id)
+      .eq('id', user.id)
       .single();
 
     if (!error && data) {
-      setProfile(data);
       setFullName(data[nameField] || '');
       setPhone(data.phone || '');
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (user && role) {
+      fetchProfile();
+    }
+  }, [user, role]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

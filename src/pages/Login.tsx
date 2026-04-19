@@ -3,7 +3,7 @@ import { Button } from '../components/ui/Button';
 import { Heading } from '../components/ui/Heading';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import logo from '../assets/images/logo-icon-only.png';
 
@@ -52,8 +52,8 @@ export function Login() {
 
       navigate('/');
     } catch (err) {
-      const error = err as any;
-      setError(error.message || 'Une erreur est survenue');
+      const message = err instanceof Error ? err.message : 'Une erreur est survenue';
+      setError(message);
     } finally {
       setLoading(false);
     }

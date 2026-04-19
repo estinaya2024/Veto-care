@@ -1,20 +1,6 @@
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace(/\/+$/, '');
 import { supabase } from './supabase';
 
-interface UnavailabilityData {
-  veterinaire_id: string;
-  start_time: string;
-  end_time: string;
-  motif?: string;
-}
-
-interface OwnerUpdates {
-  full_name?: string;
-  phone?: string;
-  address?: string;
-  avatar_url?: string;
-}
-
 export const api = {
   async get(endpoint: string) {
     const response = await fetch(`${API_URL}${endpoint}`);
@@ -57,7 +43,7 @@ export const api = {
     return this.get(`/unavailability/${vetId}`);
   },
 
-  async createUnavailability(data: UnavailabilityData) {
+  async createUnavailability(data: { veterinaire_id: string; start_time: string; end_time: string; motif?: string }) {
     return this.post('/unavailability', data);
   },
 
@@ -78,7 +64,7 @@ export const api = {
     return data;
   },
 
-  async updateOwnerProfile(userId: string, updates: OwnerUpdates) {
+  async updateOwnerProfile(userId: string, updates: Record<string, unknown>) {
     const { data, error } = await supabase
       .from('maitres')
       .update(updates)
@@ -116,5 +102,84 @@ export const api = {
       .order('name', { ascending: true });
     if (error) throw error;
     return data || [];
+  },
+
+  async getTodayAppointments(vetId: string) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const { data, error } = await supabase
+      .from('rendez_vous')
+      .select('*, patients(*), maitres(full_name)')
+      .eq('veterinaire_id', vetId)
+      .neq('status', 'annulé')
+      .gte('date_rdv', today.toISOString())
+      .lt('date_rdv', tomorrow.toISOString())
+      .order('date_rdv', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getNextAppointment(ownerId: string) {
+    const { data, error } = await supabase
+      .from('rendez_vous')
+      .select('*, veterinaires(name)')
+      .eq('maitre_id', ownerId)
+      .neq('status', 'annulé')
+      .gte('date_rdv', new Date().toISOString())
+      .order('date_rdv', { ascending: true })
+      .limit(1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "no rows found"
+    return data || null;
+  },
+
+  async getPetClinicalHistory(petId: string) {
+    const [apts, consults] = await Promise.all([
+      supabase
+        .from('rendez_vous')
+        .select('*, veterinaires(name)')
+        .eq('patient_id', petId)
+        .order('date_rdv', { ascending: false }),
+      supabase
+        .from('consultations')
+        .select('*, prescriptions(*), veterinaires(name)')
+        .eq('patient_id', petId)
+        .order('date_consultation', { ascending: false })
+    ]);
+
+    if (apts.error) throw apts.error;
+    if (consults.error) throw consults.error;
+
+    return {
+      appointments: apts.data || [],
+      consultations: consults.data || []
+    };
+  },
+
+  async setPatientArchiveStatus(patientId: string, status: boolean) {
+    const { data, error } = await supabase
+      .from('patients')
+      .update({ is_archived: status })
+      .eq('id', patientId)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async updateAppointmentStatus(appointmentId: string, status: string) {
+    const { data, error } = await supabase
+      .from('rendez_vous')
+      .update({ status })
+      .eq('id', appointmentId)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   }
 };

@@ -1,7 +1,7 @@
 import { ChevronDown } from 'lucide-react';
 import { Button } from '../ui/Button';
 import logo from '../../assets/images/logo-icon-only.png';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 export function Navbar() {
   const { user } = useAuth();

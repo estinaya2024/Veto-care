@@ -17,10 +17,6 @@
   --font-black: 900;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 :root {
   font-family: 'Plus Jakarta Sans', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -34,30 +30,6 @@ html {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-::selection {
-  background-color: var(--color-veto-yellow);
-  color: var(--color-veto-black);
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-veto-blue-gray);
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 20px;
-  border: 3px solid var(--color-veto-blue-gray);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
 }
 
 body {
@@ -81,7 +53,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @layer components {
   .btn {
-    @apply px-8 py-4 rounded-full font-black transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+    @apply px-8 py-4 rounded-full font-black transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2;
   }
   .btn-yellow {
     @apply bg-veto-yellow text-veto-black hover:bg-veto-yellow/90;
@@ -159,36 +131,6 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 40px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-fadeInUp {
-  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.animate-scaleIn {
-  animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-fadeInRight {
