@@ -51,8 +51,9 @@ export function Login() {
       }
 
       navigate('/');
-    } catch (err: any) {
-      setError(err.message || 'Une erreur est survenue');
+    } catch (err) {
+      const error = err as any;
+      setError(error.message || 'Une erreur est survenue');
     } finally {
       setLoading(false);
     }
