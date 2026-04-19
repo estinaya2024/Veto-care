@@ -1,8 +1,11 @@
 import { ChevronDown } from 'lucide-react';
 import { Button } from '../ui/Button';
 import logo from '../../assets/images/logo-icon-only.png';
+import { useAuth } from '../../context/AuthContext';
 
 export function Navbar() {
+  const { user } = useAuth();
+
   const navLinks = [
     { name: 'ACCUEIL', href: '#', hasDropdown: false },
     { name: 'À PROPOS', href: '#about', hasDropdown: false },
@@ -36,10 +39,10 @@ export function Navbar() {
 
       {/* Right Content */}
       <div className="flex flex-1 items-center justify-end gap-3 xl:gap-6">
-        <Button variant="outline" className="hidden sm:flex font-black px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest border-2 border-veto-black text-veto-black hover:bg-veto-black hover:text-white transition-all" onClick={() => window.location.href = '/login'}>
-          CONNEXION / COMPTE
+        <Button variant="outline" className="hidden sm:flex font-black px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest border-2 border-veto-black text-veto-black hover:bg-veto-black hover:text-white transition-all" onClick={() => window.location.href = user ? '/dashboard' : '/login'}>
+          {user ? 'MON COMPTE' : 'CONNEXION / COMPTE'}
         </Button>
-        <Button variant="yellow" className="hidden sm:flex font-black px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest shadow-lg shadow-veto-yellow/20" onClick={() => window.location.href = '/dashboard'}>
+        <Button variant="yellow" className="hidden sm:flex font-black px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest shadow-lg shadow-veto-yellow/20" onClick={() => window.location.href = user ? '/dashboard' : '/login'}>
           PRENDRE RDV
         </Button>
       </div>

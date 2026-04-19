@@ -18,7 +18,7 @@ export function Login() {
 
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate('/');
     }
   }, [user, navigate]);
 
@@ -49,7 +49,7 @@ export function Login() {
         if (loginError) throw loginError;
       }
       
-      navigate('/dashboard');
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue');
     } finally {
@@ -138,7 +138,7 @@ export function Login() {
               const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                  redirectTo: window.location.origin + '/dashboard'
+                  redirectTo: window.location.origin + '/'
                 }
               });
               if (error) setError(error.message);
