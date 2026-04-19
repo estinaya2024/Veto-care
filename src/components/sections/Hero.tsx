@@ -5,10 +5,19 @@ import medIllustration1 from '../../assets/images/med-illu-1.svg';
 import medIllustration2 from '../../assets/images/med-illu-2.svg';
 import heroMainImage from '../../assets/images/hero-cat.webp';
 import heroDog from '../../assets/images/hero_dog.png';
+import heroPaw from '../../assets/images/paw.png';
 
 export function Hero() {
   return (
     <section className="relative w-full min-h-screen bg-[#E3EAF7] overflow-hidden flex flex-col justify-between">
+
+      {/* Paw reaching from the left */}
+      <img
+        src={heroPaw}
+        alt="Cat Paw"
+        className="absolute left-0 bottom-0 w-[200px] object-contain z-30 animate-fadeInLeft drop-shadow-2xl -translate-x-[20%]"
+        style={{ animationDelay: '600ms' }}
+      />
 
       {/* Background Dog Image - Placed on the far right, slightly behind */}
       <div className="absolute right-0 bottom-[10%] w-[50%] lg:w-[45%] flex items-end justify-end pointer-events-none z-0 translate-x-[5%] lg:translate-x-[10%]">
