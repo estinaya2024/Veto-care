@@ -1,5 +1,5 @@
 import { Heading } from '../components/ui/Heading';
-import { Heart, Stethoscope, ShieldCheck, Clock, Award } from 'lucide-react';
+import { Stethoscope, ShieldCheck, Clock, Award } from 'lucide-react';
 import aboutImg from '../assets/images/about-clinic.png';
 
 export function About() {

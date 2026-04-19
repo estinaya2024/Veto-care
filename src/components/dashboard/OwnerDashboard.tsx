@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
-import { Calendar, Syringe, ChevronRight } from 'lucide-react';
 import { HealthRecord } from './HealthRecord';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -10,14 +9,30 @@ import { BookingCalendar } from './BookingCalendar';
 import { toast } from 'react-hot-toast';
 import { CardSkeleton } from '../ui/Skeleton';
 import { PetAvatar } from './PetAvatar';
-import { AlertCircle, BellRing } from 'lucide-react';
+import { AlertCircle, BellRing, Calendar, Syringe, ChevronRight } from 'lucide-react';
+
+interface Pet {
+  id: string;
+  name: string;
+  species: string;
+  weight?: string;
+  status: string;
+  next_vax?: string;
+  last_visit?: string;
+  maitre_id: string;
+}
+
+interface Profile {
+  full_name: string;
+  id: string;
+}
 
 export function OwnerDashboard() {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
-  const [pets, setPets] = useState<any[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPet, setSelectedPet] = useState<any | null>(null);
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'pets' | 'agenda'>('pets');
 
@@ -181,7 +196,8 @@ export function OwnerDashboard() {
           <p className="text-veto-gray font-bold text-lg mb-6">Vous n'avez pas encore enregistré d'animaux.</p>
           <Button variant="outline" onClick={() => setShowModal(true)}>Ajouter mon premier animal</Button>
         </div>
-      ) : (
+      ) : 
+      (
         <div className="space-y-8">
           {/* Alerts Section */}
           {urgentAlerts.length > 0 && (
@@ -216,17 +232,17 @@ export function OwnerDashboard() {
                 <div className="flex justify-between items-start mb-6">
                   <div className="flex items-center gap-4">
                     <PetAvatar species={pet.species || 'Inconnu'} name={pet.name} size="lg" />
-                  <div>
-                    <h3 className="font-extrabold text-xl">{pet.name}</h3>
-                    <p className="text-veto-gray text-sm font-medium">{pet.species} • {pet.status}</p>
+                    <div>
+                      <h3 className="font-extrabold text-xl">{pet.name}</h3>
+                      <p className="text-veto-gray text-sm font-medium">{pet.species} • {pet.status}</p>
+                    </div>
                   </div>
+                  <Button variant="ghost" size="sm" className="p-2" onClick={() => setSelectedPet(pet)}>
+                    <ChevronRight />
+                  </Button>
                 </div>
-                <Button variant="ghost" size="sm" className="p-2" onClick={() => setSelectedPet(pet)}>
-                  <ChevronRight />
-                </Button>
-              </div>
 
-              <div className="space-y-4">
+                <div className="space-y-4">
                 <div className="flex items-center gap-3 p-4 bg-veto-blue-gray rounded-2xl">
                   <Calendar size={20} className="text-veto-gray" />
                   <div className="text-sm">
@@ -255,7 +271,9 @@ export function OwnerDashboard() {
             </div>
           ))}
         </div>
+        </div>
       )}
+    
     </div>
   );
 }

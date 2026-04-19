@@ -17,21 +17,33 @@ interface BookingCalendarProps {
   maitreId: string;
 }
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  backgroundColor: string;
+  borderColor: string;
+  textColor: string;
+  extendedProps: { type: 'mine' | 'reserved' | 'blocked' };
+}
+
+interface Pet {
+  id: string;
+  name: string;
+}
+
 export function BookingCalendar({ maitreId }: BookingCalendarProps) {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{ start: string; end: string } | null>(null);
   const [selectedPet, setSelectedPet] = useState<string>('');
-  const [pets, setPets] = useState<any[]>([]);
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [appointmentToCancel, setAppointmentToCancel] = useState<{ id: string; date: string } | null>(null);
   const calendarRef = useRef<any>(null);
 
-  useEffect(() => {
-    fetchData();
-    fetchPets();
-  }, [maitreId]);
-
-  const fetchPets = async () => {
+  const fetchPets = useCallback(async () => {
     try {
       const { data } = await supabase
         .from('patients')
@@ -42,9 +54,9 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
     } catch (err) {
       console.error('Error fetching pets:', err);
     }
-  };
+  }, [maitreId]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       // 1. Fetch All Appointments (for this clinic)
@@ -58,7 +70,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
         .from('indisponibilites_vet')
         .select('*');
 
-      const formattedApts = (allApts || []).map((apt: any) => {
+      const formattedApts: CalendarEvent[] = (allApts || []).map((apt: any) => {
         const isMine = apt.maitre_id === maitreId;
         return {
           id: `apt-${apt.id}`,
@@ -72,7 +84,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
         };
       });
 
-      const formattedBlocks = (blocks || []).map((block: any) => ({
+      const formattedBlocks: CalendarEvent[] = (blocks || []).map((block: any) => ({
         id: `block-${block.id}`,
         title: 'Indisponible',
         start: block.start_time,
@@ -89,11 +101,14 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [maitreId]);
 
-  const handleSelect = (info: any) => {
-    // Check if selecting an overlapping area (FullCalendar might allow it depending on config)
-    // For simplicity, we open the modal and the server will reject if conflict exists
+  useEffect(() => {
+    fetchData();
+    fetchPets();
+  }, [fetchData, fetchPets]);
+
+  const handleSelect = (info: { startStr: string; endStr: string }) => {
     setSelectedSlot({ start: info.startStr, end: info.endStr });
     setShowBookingModal(true);
   };
@@ -102,41 +117,69 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
     if (!selectedSlot || !selectedPet) return;
     
     setLoading(true);
+    let step = 'Fetching Vet';
     try {
-      // 1. Fetch Primary Vet
       const vet = await api.getPrimaryVet();
 
-      // 2. Check for Conflicts via Server
-      const conflictCheck = await api.checkAppointmentConflict(vet.id, selectedSlot.start);
-      
-      if (conflictCheck.conflict) {
+      step = 'Booking Appointment';
+      const { data: bookingData, error: bookingError } = await supabase.rpc('book_appointment', {
+        p_maitre_id: maitreId,
+        p_patient_id: selectedPet,
+        p_veterinaire_id: vet.id,
+        p_date_rdv: selectedSlot.start
+      });
+
+      if (bookingError) throw bookingError;
+
+      const result = bookingData as { success: boolean };
+      if (!result.success) {
         toast.error('Désolé, ce créneau vient d\'être réservé ou bloqué. Veuillez en choisir un autre.');
         fetchData();
         setShowBookingModal(false);
         return;
       }
 
-      // 3. Final Insertion
-      const { error } = await supabase
-        .from('rendez_vous')
-        .insert([{
-          maitre_id: maitreId,
-          patient_id: selectedPet,
-          veterinaire_id: vet.id,
-          date_rdv: selectedSlot.start,
-          status: 'confirmé' // We now confirm immediately if no conflict
-        }]);
-
-      if (!error) {
-        setShowBookingModal(false);
-        fetchData();
-        toast.success('Rendez-vous confirmé !');
-      } else {
-        throw error;
-      }
+      setShowBookingModal(false);
+      fetchData();
+      toast.success('Rendez-vous confirmé !');
     } catch (err) {
       console.error('Booking error:', err);
-      toast.error('Erreur lors de la réservation. Veuillez réessayer.');
+      const error = err as any;
+      toast.error(`Étape: ${step} - ${error.message || 'Veuillez réessayer.'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEventClick = (info: { event: { id: string; extendedProps: { type: string }; startStr: string } }) => {
+    const type = info.event.extendedProps.type;
+    if (type === 'mine') {
+      const dbId = info.event.id.replace('apt-', '');
+      setAppointmentToCancel({ id: dbId, date: info.event.startStr });
+    } else {
+      toast("Ce créneau est réservé.", { icon: '🔒', duration: 2000 });
+    }
+  };
+
+  const handleCancelAppointment = async () => {
+    if (!appointmentToCancel) return;
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('rendez_vous')
+        .delete()
+        .eq('id', appointmentToCancel.id)
+        .eq('maitre_id', maitreId);
+        
+      if (error) throw error;
+      
+      toast.success('Rendez-vous annulé avec succès.');
+      setAppointmentToCancel(null);
+      fetchData();
+    } catch (err) {
+      console.error('Cancel error:', err);
+      const error = err as any;
+      toast.error(error.message || 'Erreur lors de l’annulation.');
     } finally {
       setLoading(false);
     }
@@ -177,14 +220,20 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
           headerToolbar={false}
           events={events}
           selectable={true}
-          select={handleSelect}
+          select={(info) => handleSelect({ startStr: info.startStr, endStr: info.endStr })}
+          eventClick={(info) => handleEventClick({ 
+            event: { 
+              id: info.event.id, 
+              extendedProps: info.event.extendedProps as { type: string }, 
+              startStr: info.event.startStr 
+            } 
+          })}
           locale={frLocale}
           height="auto"
           slotMinTime="08:00:00"
           slotMaxTime="20:00:00"
           allDaySlot={false}
           selectAllow={(selectInfo) => {
-            // Check if ANY event overlaps with the selection
             return !events.some(event => {
               const eStart = new Date(event.start).getTime();
               const eEnd = new Date(event.end).getTime();
@@ -245,6 +294,29 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
 
               <Button onClick={handleConfirmBooking} className="w-full py-4 text-sm font-black shadow-xl shadow-veto-yellow/20" variant="yellow">
                  Réserver maintenant
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {appointmentToCancel && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-sm rounded-[3rem] p-8 shadow-3xl animate-scaleIn relative overflow-hidden text-center">
+            <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
+            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+               <X size={32} />
+            </div>
+            <h3 className="text-2xl font-black tracking-tight mb-2">Annuler ce RDV ?</h3>
+            <p className="text-sm text-gray-500 font-medium mb-6">
+               Le {format(new Date(appointmentToCancel.date), 'EEEE d MMMM à HH:mm', { locale: fr })}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button onClick={() => setAppointmentToCancel(null)} variant="outline" className="py-3 font-bold border-gray-200">
+                Garder
+              </Button>
+              <Button onClick={handleCancelAppointment} className="py-3 font-bold bg-red-500 text-white hover:bg-red-600 border-none">
+                Confirmer
               </Button>
             </div>
           </div>

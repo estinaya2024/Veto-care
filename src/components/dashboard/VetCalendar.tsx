@@ -18,19 +18,26 @@ interface VetCalendarProps {
   onSelectPatient?: (patient: any) => void;
 }
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: string;
+  end: string;
+  backgroundColor: string;
+  borderColor: string;
+  textColor: string;
+  extendedProps: any;
+}
+
 export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [selectedRange, setSelectedRange] = useState<{ start: string; end: string } | null>(null);
   const [reason, setReason] = useState('');
   const calendarRef = useRef<any>(null);
 
-  useEffect(() => {
-    if (vetId) fetchData();
-  }, [vetId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       // Fetch Appointments
@@ -43,7 +50,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
       // Fetch Unavailabilities
       const unavailData = await api.getUnavailability(vetId);
 
-      const formattedApts = (aptData || []).map((apt: any) => ({
+      const formattedApts: CalendarEvent[] = (aptData || []).map((apt: any) => ({
         id: `apt-${apt.id}`,
         title: `RDV: ${apt.patients?.name}`,
         start: apt.date_rdv,
@@ -54,7 +61,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
         extendedProps: { type: 'appointment', ...apt }
       }));
 
-      const formattedUnavail = (unavailData || []).map((un: any) => ({
+      const formattedUnavail: CalendarEvent[] = (unavailData || []).map((un: any) => ({
         id: `un-${un.id}`,
         title: un.motif || 'Indisponible',
         start: un.start_time,
@@ -71,9 +78,13 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [vetId]);
 
-  const handleSelect = (info: any) => {
+  useEffect(() => {
+    if (vetId) fetchData();
+  }, [vetId, fetchData]);
+
+  const handleSelect = (info: { startStr: string; endStr: string }) => {
     let { startStr, endStr } = info;
     
     // If start and end are the same (simple click), set 30 min duration

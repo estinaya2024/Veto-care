@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { OwnerDashboard } from '../components/dashboard/OwnerDashboard';
 import { VetDashboard } from '../components/dashboard/VetDashboard';
 import { Appointments } from '../components/dashboard/Appointments';

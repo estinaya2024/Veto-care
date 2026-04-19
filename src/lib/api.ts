@@ -1,6 +1,20 @@
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace(/\/+$/, '');
 import { supabase } from './supabase';
 
+interface UnavailabilityData {
+  veterinaire_id: string;
+  start_time: string;
+  end_time: string;
+  motif?: string;
+}
+
+interface OwnerUpdates {
+  full_name?: string;
+  phone?: string;
+  address?: string;
+  avatar_url?: string;
+}
+
 export const api = {
   async get(endpoint: string) {
     const response = await fetch(`${API_URL}${endpoint}`);
@@ -8,7 +22,7 @@ export const api = {
     return response.json();
   },
 
-  async post(endpoint: string, data: any) {
+  async post(endpoint: string, data: unknown) {
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -20,11 +34,19 @@ export const api = {
 
   // Example Medical Methods
   async checkAppointmentConflict(vetId: string, dateRdv: string) {
-    return this.post('/appointments/check-conflict', { vet_id: vetId, date_rdv: dateRdv });
+    const { data, error } = await supabase.rpc('check_conflict', { v_id: vetId, rdv_date: dateRdv });
+    if (error) throw error;
+    return { conflict: data === true };
   },
 
   async getPrimaryVet() {
-    return this.get('/primary-vet');
+    const { data, error } = await supabase
+      .from('veterinaires')
+      .select('*')
+      .limit(1)
+      .single();
+    if (error) throw new Error('Aucun vétérinaire trouvé');
+    return data;
   },
 
   async getPatients() {
@@ -35,7 +57,7 @@ export const api = {
     return this.get(`/unavailability/${vetId}`);
   },
 
-  async createUnavailability(data: { veterinaire_id: string; start_time: string; end_time: string; motif?: string }) {
+  async createUnavailability(data: UnavailabilityData) {
     return this.post('/unavailability', data);
   },
 
@@ -56,7 +78,7 @@ export const api = {
     return data;
   },
 
-  async updateOwnerProfile(userId: string, updates: any) {
+  async updateOwnerProfile(userId: string, updates: OwnerUpdates) {
     const { data, error } = await supabase
       .from('maitres')
       .update(updates)
