@@ -19,7 +19,7 @@ export function Services() {
       <img
         src={heroPaw}
         alt="Cat Paw"
-        className="absolute left-0 top-0 w-[160px] md:w-[220px] object-contain z-10 drop-shadow-xl -translate-x-[15%] md:-translate-x-[20%] -translate-y-[20%] md:-translate-y-[30%] -rotate-12 animate-fadeInLeft"
+        className="absolute left-0 top-20 md:top-32 w-[160px] md:w-[220px] object-contain z-10 drop-shadow-xl -translate-x-[15%] md:-translate-x-[20%] -rotate-12 animate-fadeInLeft"
       />
       <div className="relative inline-block mb-16">
         <Heading level={2}>Nous excellons en :</Heading>
