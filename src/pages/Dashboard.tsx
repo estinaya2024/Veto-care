@@ -6,6 +6,7 @@ import { Settings } from '../components/dashboard/Settings';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Sidebar } from '../components/layout/Sidebar';
+import { SecureChat } from '../components/dashboard/SecureChat';
 
 type DashboardTab = 'dashboard' | 'owner' | 'vet' | 'appointments' | 'settings';
 
@@ -46,6 +47,8 @@ export function Dashboard() {
           {activeTab === 'settings' && <Settings />}
         </div>
       </main>
+
+      <SecureChat />
     </div>
   );
 }

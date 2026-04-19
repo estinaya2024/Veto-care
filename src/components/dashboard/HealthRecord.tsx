@@ -12,7 +12,10 @@ import {
   FolderHeart,
   Calendar,
   ClipboardList,
-  AlertCircle
+  AlertCircle,
+  Image as ImageIcon,
+  FileCheck,
+  Download
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
@@ -33,7 +36,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   const [history, setHistory] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'folder'>('history');
+  const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'folder' | 'imagerie'>('history');
   const [showEditModal, setShowEditModal] = useState(false);
   const [showConsultModal, setShowConsultModal] = useState(false);
   const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
@@ -127,6 +130,14 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             >
               Fiche Info
             </button>
+            <button 
+              onClick={() => setActiveTab('imagerie')}
+              className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                activeTab === 'imagerie' ? 'bg-white text-veto-black shadow-lg scale-105' : 'text-veto-gray hover:text-veto-black'
+              }`}
+            >
+              Imagerie
+            </button>
         </div>
       </div>
 
@@ -200,6 +211,8 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                   <><Clock className="text-veto-yellow" /> Chronologie des RDV</>
                 ) : activeTab === 'consultations' ? (
                   <><Stethoscope className="text-veto-yellow" /> Historique Médical</>
+                ) : activeTab === 'imagerie' ? (
+                  <><ImageIcon className="text-veto-yellow" /> Galerie d'Imagerie & Docs</>
                 ) : (
                   <><ClipboardList className="text-veto-yellow" /> Fiche Signalétique</>
                 )}
@@ -320,6 +333,59 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                     ))}
                   </div>
                 )}
+              </div>
+            ) : activeTab === 'imagerie' ? (
+              <div className="relative z-10 flex-1 space-y-8">
+                 {role === 'vet' && (
+                    <Button variant="outline" className="mb-4 font-black uppercase text-[10px] tracking-widest w-full py-4 rounded-3xl border-2 border-dashed border-veto-gray/20 text-veto-gray bg-transparent flex items-center justify-center gap-2 hover:border-veto-yellow hover:text-veto-black transition-colors">
+                      <ImageIcon size={16} /> + Télécharger Numérisation (X-Ray, Bilan...)
+                    </Button>
+                 )}
+
+                 <div className="grid sm:grid-cols-2 gap-6">
+                    {/* Mock Image 1: X-Ray */}
+                    <div className="group bg-veto-blue-gray/20 rounded-[2.5rem] p-3 border border-black/5 hover:bg-white transition-colors cursor-pointer hover:shadow-xl shadow-sm">
+                       <div className="w-full h-48 bg-black rounded-[2rem] overflow-hidden relative mb-4">
+                          <img src="https://images.unsplash.com/photo-1559595089-98e3d8108a8a?q=80&w=800&auto=format&fit=crop" alt="X-Ray" className="w-full h-full object-cover opacity-80 mix-blend-screen group-hover:scale-105 transition-transform duration-700" />
+                          <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-[9px] font-black uppercase text-white tracking-widest flex items-center gap-2">
+                             <ImageIcon size={10} /> Radiographie
+                          </div>
+                       </div>
+                       <div className="px-3 pb-2 flex justify-between items-end">
+                          <div>
+                             <h4 className="font-extrabold text-base text-veto-black leading-tight mb-1">Radio Thoracique P.</h4>
+                             <p className="text-[10px] font-black text-veto-gray tracking-widest uppercase">14 Mars 2026</p>
+                          </div>
+                          <button className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-veto-yellow transition-colors group-hover:block">
+                             <Download size={16} className="text-veto-black" />
+                          </button>
+                       </div>
+                    </div>
+
+                    {/* Mock Image 2: Blood Test */}
+                    <div className="group bg-veto-blue-gray/20 rounded-[2.5rem] p-3 border border-black/5 hover:bg-white transition-colors cursor-pointer hover:shadow-xl shadow-sm">
+                       <div className="w-full h-48 bg-white rounded-[2rem] overflow-hidden relative mb-4 border border-black/5 flex items-center justify-center p-8">
+                          <div className="text-center">
+                             <div className="w-20 h-20 bg-red-50 rounded-[1.5rem] flex items-center justify-center mx-auto mb-4 border border-red-100">
+                                <FileCheck size={32} className="text-red-500" />
+                             </div>
+                             <p className="font-black text-xs text-veto-gray uppercase tracking-widest px-4 py-2 bg-gray-50 rounded-lg">PDF Document</p>
+                          </div>
+                          <div className="absolute top-4 left-4 bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-black/10 text-[9px] font-black uppercase text-veto-black tracking-widest flex items-center gap-2">
+                             <FileCheck size={10} className="text-red-500" /> Bilan Sanguin
+                          </div>
+                       </div>
+                       <div className="px-3 pb-2 flex justify-between items-end">
+                          <div>
+                             <h4 className="font-extrabold text-base text-veto-black leading-tight mb-1">Hémogramme Complet</h4>
+                             <p className="text-[10px] font-black text-veto-gray tracking-widest uppercase">02 Fév 2026</p>
+                          </div>
+                          <button className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-veto-yellow transition-colors group-hover:block">
+                             <Download size={16} className="text-veto-black" />
+                          </button>
+                       </div>
+                    </div>
+                 </div>
               </div>
             ) : (
               <div className="relative z-10 flex-1 grid md:grid-cols-2 gap-8">
