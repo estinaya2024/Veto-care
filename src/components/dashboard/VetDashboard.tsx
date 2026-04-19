@@ -6,6 +6,7 @@ import { HealthRecord } from './HealthRecord';
 import { VetCalendar } from './VetCalendar';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { TableRowSkeleton } from '../ui/Skeleton';
 
 export function VetDashboard() {
   const [selectedPet, setSelectedPet] = useState<any | null>(null);
@@ -104,7 +105,11 @@ export function VetDashboard() {
             </div>
             <div className="divide-y divide-black/5">
               {loading ? (
-                <div className="p-12 text-center text-veto-gray font-bold">Chargement...</div>
+                <>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <TableRowSkeleton key={i} />
+                  ))}
+                </>
               ) : filteredPatients.length === 0 ? (
                 <div className="p-12 text-center text-veto-gray font-bold">Aucun dossier trouvé.</div>
               ) : (

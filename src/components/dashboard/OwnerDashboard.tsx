@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase';
 import { cn } from '../../lib/utils';
 import { BookingCalendar } from './BookingCalendar';
 import { toast } from 'react-hot-toast';
+import { CardSkeleton } from '../ui/Skeleton';
 
 export function OwnerDashboard() {
   const { user } = useAuth();
@@ -154,7 +155,11 @@ export function OwnerDashboard() {
       )}
 
       {loading ? (
-        <div className="text-center py-24 text-veto-gray font-bold">Chargement...</div>
+        <div className="grid md:grid-cols-2 gap-8">
+          {[1, 2, 3, 4].map((i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
       ) : activeTab === 'agenda' ? (
         <BookingCalendar maitreId={user?.id || ''} />
       ) : pets.length === 0 ? (
