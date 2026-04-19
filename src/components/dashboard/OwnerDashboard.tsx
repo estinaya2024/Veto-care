@@ -129,18 +129,18 @@ export function OwnerDashboard() {
   return (
     <div className="space-y-12 pb-20">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 border-b border-black/5 pb-8">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 border-b border-black/5 pb-8">
         <div>
-           <Heading level={2} className="text-4xl sm:text-5xl tracking-tighter">Mon Espace Santé</Heading>
+           <Heading level={2} className="text-3xl sm:text-4xl lg:text-5xl tracking-tighter">Mon Espace Santé</Heading>
            <p className="text-veto-gray font-bold uppercase tracking-widest text-[9px] mt-2 opacity-50">Gestion de vos compagnons et rendez-vous</p>
         </div>
         
-        <div className="flex items-center gap-3">
-          <div className="flex p-1 bg-black/5 rounded-full border border-black/5 backdrop-blur-md">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+          <div className="flex p-1 bg-black/5 rounded-full border border-black/5 backdrop-blur-md w-full sm:w-auto">
             <button 
               onClick={() => setActiveTab('pets')}
               className={cn(
-                "px-6 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
+                "flex-1 sm:flex-none px-6 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
                 activeTab === 'pets' ? "bg-white shadow-sm text-veto-black" : "text-veto-gray hover:text-veto-black"
               )}
             >
@@ -149,7 +149,7 @@ export function OwnerDashboard() {
             <button 
               onClick={() => setActiveTab('agenda')}
               className={cn(
-                "px-6 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
+                "flex-1 sm:flex-none px-6 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
                 activeTab === 'agenda' ? "bg-white shadow-sm text-veto-black" : "text-veto-gray hover:text-veto-black"
               )}
             >
@@ -159,7 +159,7 @@ export function OwnerDashboard() {
           <Button 
             variant="black" 
             size="sm"
-            className="font-black h-10 px-6 rounded-full text-[9px] uppercase tracking-widest"
+            className="w-full sm:w-auto font-black h-10 px-6 rounded-full text-[9px] uppercase tracking-widest"
             onClick={() => setShowAddModal(true)}
           >
             + Inscrire
@@ -174,10 +174,10 @@ export function OwnerDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Hero Card: Next Appointment */}
             <div className="lg:col-span-2">
-               <div className="bg-veto-black rounded-[3.5rem] p-12 text-white relative overflow-hidden h-full flex flex-col justify-between group">
+               <div className="bg-veto-black rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12 text-white relative overflow-hidden h-full flex flex-col justify-between group">
                   <div className="absolute top-0 right-0 w-80 h-80 bg-veto-yellow/5 rounded-full blur-[100px] -mr-40 -mt-40 transition-all duration-700"></div>
                   <div className="relative z-10">
-                     <div className="flex items-center gap-3 mb-10">
+                     <div className="flex items-center gap-3 mb-8 md:mb-10">
                         <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
                            <Calendar size={20} className="text-veto-yellow" />
                         </div>
@@ -188,17 +188,17 @@ export function OwnerDashboard() {
                        <div className="space-y-6">
                           <div>
                              <p className="text-veto-yellow font-black text-xs uppercase tracking-widest opacity-80 mb-2">Prochain Rendez-vous</p>
-                             <h3 className="text-4xl sm:text-5xl font-black tracking-tighter leading-none mb-4">
+                             <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tighter leading-none mb-4">
                                {format(new Date(nextAppointment.date_rdv), 'EEEE d MMMM', { locale: fr })}
                              </h3>
-                             <div className="flex items-center gap-4 text-white/60 font-bold">
+                             <div className="flex flex-wrap items-center gap-4 text-white/60 font-bold">
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-lg">
                                    <Clock size={14} />
-                                   <span>{format(new Date(nextAppointment.date_rdv), 'HH:mm')}</span>
+                                   <span className="text-xs">{format(new Date(nextAppointment.date_rdv), 'HH:mm')}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-lg">
                                    <Stethoscope size={14} />
-                                   <span>Dr. {nextAppointment.veterinaires?.name}</span>
+                                   <span className="text-xs">Dr. {nextAppointment.veterinaires?.name}</span>
                                 </div>
                              </div>
                           </div>
@@ -207,7 +207,7 @@ export function OwnerDashboard() {
                             <Button 
                               onClick={() => handleCheckIn(nextAppointment.id)} 
                               variant="yellow" 
-                              className="px-8 py-4 font-black uppercase tracking-widest text-[10px] shadow-xl shadow-veto-yellow/20 animate-pulse"
+                              className="w-full sm:w-auto px-8 py-4 font-black uppercase tracking-widest text-[10px] shadow-xl shadow-veto-yellow/20 animate-pulse"
                             >
                               JE SUIS ARRIVÉ AU CABINET
                             </Button>
@@ -221,8 +221,8 @@ export function OwnerDashboard() {
                        </div>
                      ) : (
                        <div className="py-4">
-                          <h3 className="text-4xl font-black tracking-tight opacity-20">Aucun soin planifié</h3>
-                          <button onClick={() => setActiveTab('agenda')} className="mt-4 text-veto-yellow text-sm font-black uppercase tracking-widest hover:underline">Vérifier les disponibilités →</button>
+                          <h3 className="text-3xl md:text-4xl font-black tracking-tight opacity-20">Aucun soin planifié</h3>
+                          <button onClick={() => setActiveTab('agenda')} className="mt-4 text-veto-yellow text-xs md:text-sm font-black uppercase tracking-widest hover:underline">Vérifier les disponibilités →</button>
                        </div>
                      )}
                   </div>
@@ -230,7 +230,7 @@ export function OwnerDashboard() {
                   <div className="mt-12 flex items-center gap-6 relative z-10">
                      <div className="flex -space-x-3">
                         {activePets.slice(0, 3).map((p, i) => (
-                          <div key={p.id} className="w-12 h-12 rounded-full border-4 border-veto-black overflow-hidden bg-white shadow-xl" style={{ zIndex: 10 - i }}>
+                          <div key={p.id} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-4 border-veto-black overflow-hidden bg-white shadow-xl" style={{ zIndex: 10 - i }}>
                              <PetAvatar species={p.species} name={p.name} size="md" />
                           </div>
                         ))}
@@ -243,7 +243,7 @@ export function OwnerDashboard() {
             </div>
 
             {/* Clinic Info Card */}
-            <div className="bg-white rounded-[3.5rem] p-12 border border-black/5 flex flex-col justify-between shadow-sm">
+            <div className="bg-white rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12 border border-black/5 flex flex-col justify-between shadow-sm">
                <div className="space-y-8">
                   <div className="flex items-center gap-3">
                      <div className="bg-veto-blue-gray p-3 rounded-2xl">
@@ -270,7 +270,7 @@ export function OwnerDashboard() {
                      <div className="pt-4">
                         <div className="flex items-center gap-3 px-6 py-4 bg-red-50 text-red-500 rounded-3xl w-full border border-red-100/50 group hover:bg-red-500 hover:text-white transition-all cursor-pointer">
                            <Activity size={18} className="animate-pulse" />
-                           <span className="font-black text-[11px] uppercase tracking-[0.15em] shrink-0">Urgence: 0541 22 33 44</span>
+                           <span className="font-black text-[10px] uppercase tracking-[0.15em] shrink-0">Urgence: 0541 22 33 44</span>
                         </div>
                      </div>
                   </div>
@@ -289,13 +289,13 @@ export function OwnerDashboard() {
               {loading ? (
                 <CardSkeleton />
               ) : activePets.length === 0 ? (
-                <div className="col-span-full p-24 text-center bg-white rounded-[3.5rem] border border-dashed border-black/10">
-                   <p className="text-veto-gray font-bold text-lg">Aucun animal n'est encore associé à votre compte.</p>
+                <div className="col-span-full p-12 md:p-24 text-center bg-white rounded-[2.5rem] md:rounded-[3.5rem] border border-dashed border-black/10">
+                   <p className="text-veto-gray font-bold text-base md:text-lg">Aucun animal n'est encore associé à votre compte.</p>
                    <Button variant="outline" className="mt-8 rounded-full px-8 py-5" onClick={() => setShowAddModal(true)}>Commencer l'inscription</Button>
                 </div>
               ) : (
                 activePets.map((p) => (
-                  <div key={p.id} className="group bg-white p-10 rounded-[3.5rem] border border-black/5 shadow-sm hover:border-veto-yellow/30 transition-all duration-500 relative overflow-hidden flex flex-col justify-between min-h-[400px]">
+                  <div key={p.id} className="group bg-white p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border border-black/5 shadow-sm hover:border-veto-yellow/30 transition-all duration-500 relative overflow-hidden flex flex-col justify-between min-h-[350px] md:min-h-[400px]">
 
                     
                     <div className="flex items-start justify-between mb-8">

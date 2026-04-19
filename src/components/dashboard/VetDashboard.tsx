@@ -167,7 +167,7 @@ export function VetDashboard() {
           )}
 
           {/* Minimalist KPIs Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-6 rounded-[2.5rem] border border-black/5 flex flex-col justify-between h-32">
                <Users size={16} className="text-veto-gray opacity-40" />
                <div>
@@ -211,45 +211,49 @@ export function VetDashboard() {
             />
           </div>
 
-          <div className="bg-white rounded-[3rem] overflow-hidden shadow-sm border border-black/5 group/table">
-            <div className="grid grid-cols-5 p-10 border-b border-black/5 font-black text-[10px] tracking-[0.2em] text-veto-gray uppercase opacity-50">
-              <span className="col-span-2">Dossier Médical</span>
-              <span>Propriétaire</span>
-              <span>Catégorie</span>
-              <span>Dernier Soin</span>
-            </div>
-            <div className="divide-y divide-black/5">
-              {loading ? (
-                <>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <TableRowSkeleton key={i} />
-                  ))}
-                </>
-              ) : filteredPatients.length === 0 ? (
-                <div className="p-12 text-center text-veto-gray font-bold">Aucun dossier trouvé.</div>
-              ) : (
-                filteredPatients.map((p) => (
-                  <div
-                    key={p.id}
-                    onClick={() => setSelectedPet(p)}
-                    className="grid grid-cols-5 px-8 py-6 items-center hover:bg-veto-blue-gray/50 transition-colors cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-4 col-span-2">
-                      <PetAvatar species={p.species || 'Inconnu'} name={p.name} size="md" />
-                      <div className="flex flex-col">
-                        <span className="font-extrabold text-lg text-veto-black group-hover:text-veto-yellow transition-colors">{p.name}</span>
-                        <span className="text-xs font-bold text-veto-gray flex items-center gap-1"><FileText size={12} /> Carnet de santé</span>
+          <div className="bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-sm border border-black/5 group/table">
+            <div className="overflow-x-auto">
+              <div className="min-w-[800px]">
+                <div className="grid grid-cols-5 p-10 border-b border-black/5 font-black text-[10px] tracking-[0.2em] text-veto-gray uppercase opacity-50">
+                  <span className="col-span-2">Dossier Médical</span>
+                  <span>Propriétaire</span>
+                  <span>Catégorie</span>
+                  <span>Dernier Soin</span>
+                </div>
+                <div className="divide-y divide-black/5">
+                  {loading ? (
+                    <>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <TableRowSkeleton key={i} />
+                      ))}
+                    </>
+                  ) : filteredPatients.length === 0 ? (
+                    <div className="p-12 text-center text-veto-gray font-bold">Aucun dossier trouvé.</div>
+                  ) : (
+                    filteredPatients.map((p) => (
+                      <div
+                        key={p.id}
+                        onClick={() => setSelectedPet(p)}
+                        className="grid grid-cols-5 px-8 py-6 items-center hover:bg-veto-blue-gray/50 transition-colors cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-4 col-span-2">
+                          <PetAvatar species={p.species || 'Inconnu'} name={p.name} size="md" />
+                          <div className="flex flex-col">
+                            <span className="font-extrabold text-lg text-veto-black group-hover:text-veto-yellow transition-colors">{p.name}</span>
+                            <span className="text-xs font-bold text-veto-gray flex items-center gap-1"><FileText size={12} /> Carnet de santé</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-veto-gray font-medium">
+                          <User size={16} />
+                          <span>{p.maitres?.full_name || 'Inconnu'}</span>
+                        </div>
+                        <span className="text-veto-gray font-medium">{p.species}</span>
+                        <span className="font-extrabold text-veto-black">{p.last_visit ? new Date(p.last_visit).toLocaleDateString() : 'Aucune'}</span>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-veto-gray font-medium">
-                      <User size={16} />
-                      <span>{p.maitres?.full_name || 'Inconnu'}</span>
-                    </div>
-                    <span className="text-veto-gray font-medium">{p.species}</span>
-                    <span className="font-extrabold text-veto-black">{p.last_visit ? new Date(p.last_visit).toLocaleDateString() : 'Aucune'}</span>
-                  </div>
-                ))
-              )}
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>

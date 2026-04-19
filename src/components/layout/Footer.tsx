@@ -14,7 +14,7 @@ export function Footer() {
       
       <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-8 relative z-10 flex-1 content-center">
         {/* Left: Brand & Info */}
-        <div className="md:col-span-4 flex flex-col gap-6">
+        <div className="md:col-span-4 flex flex-col items-center md:items-start gap-6 text-center md:text-left">
           <div className="flex items-center group cursor-pointer" onClick={() => window.location.href = '/'}>
             <img src={logo} alt="VetoMedical Logo" className="h-14 w-auto object-contain transition-transform group-hover:scale-105" />
             <span className="font-heading font-black text-3xl tracking-tighter uppercase ml-2 text-veto-black">VETOCARE</span>
@@ -34,7 +34,7 @@ export function Footer() {
         </div>
 
         {/* Middle: Navigation */}
-        <div className="md:col-span-3 flex flex-col gap-6 mt-4 md:mt-0">
+        <div className="md:col-span-3 flex flex-col items-center md:items-start gap-6 mt-4 md:mt-0 text-center md:text-left">
           <h4 className="font-black text-lg tracking-widest uppercase text-veto-black">Menu</h4>
           <ul className="flex flex-col gap-3 font-bold text-sm text-veto-gray">
             <li><a href="/#services" className="hover:text-veto-black transition-colors">Services</a></li>
@@ -44,8 +44,8 @@ export function Footer() {
         </div>
 
         {/* Right: CTA & Contacts */}
-        <div className="md:col-span-5 flex flex-col gap-4 items-start md:items-end text-left md:text-right mt-4 md:mt-0">
-          <h2 className="text-3xl font-black tracking-tighter text-veto-black">
+        <div className="md:col-span-5 flex flex-col gap-4 items-center md:items-end text-center md:text-right mt-4 md:mt-0">
+          <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-veto-black">
             Prêt à commencer ?
           </h2>
           <div className="flex flex-col gap-1 text-veto-gray font-bold mb-2">
@@ -62,17 +62,19 @@ export function Footer() {
       </div>
 
       {/* Bottom: Copyright & Top Button */}
-      <div className="max-w-[1400px] w-full mx-auto pt-6 border-t border-black/10 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] font-bold uppercase tracking-[0.2em] text-veto-gray relative z-10 mt-8">
-        <div>
-          © 2026 &nbsp;|&nbsp; <span className="text-veto-black">VETOMEDICAL. Tous droits réservés.</span>
+      <div className="max-w-[1400px] w-full mx-auto pt-6 border-t border-black/10 flex flex-col md:flex-row items-center justify-between gap-4 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-veto-gray relative z-10 mt-8 text-center md:text-left">
+        <div className="flex flex-col sm:flex-row gap-1 sm:gap-0 items-center">
+          <span>© 2026</span>
+          <span className="hidden sm:inline">&nbsp;|&nbsp;</span>
+          <span className="text-veto-black">VETOMEDICAL. Tous droits réservés.</span>
         </div>
-        <ul className="flex flex-wrap justify-center gap-8">
+        <ul className="flex flex-wrap justify-center gap-4 sm:gap-8">
           <li><a href="#" className="hover:text-veto-black transition-colors">Confidentialité</a></li>
           <li><a href="#" className="hover:text-veto-black transition-colors">Conditions</a></li>
         </ul>
         <button
           onClick={scrollToTop}
-          className="bg-white text-veto-black w-10 h-10 rounded-full flex items-center justify-center hover:bg-veto-yellow hover:scale-110 transition-all shadow-sm border border-black/5"
+          className="bg-white text-veto-black w-10 h-10 rounded-full flex items-center justify-center hover:bg-veto-yellow hover:scale-110 transition-all shadow-sm border border-black/5 mx-auto md:mx-0"
           title="Retour en haut"
         >
           <ArrowUp size={18} />
