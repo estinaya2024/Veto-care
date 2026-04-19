@@ -5,6 +5,7 @@ import { Heart, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import logo from '../assets/images/logo-icon-only.png';
 
 export function Login() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -67,11 +68,9 @@ export function Login() {
         >
           <ArrowLeft size={20} />
         </button>
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="bg-veto-black p-2 rounded-xl">
-            <Heart className="text-white fill-white" size={24} />
-          </div>
-          <span className="font-extrabold text-3xl tracking-tighter">VetoCare</span>
+        <div className="flex items-center justify-center group mb-8">
+          <img src={logo} alt="VetoMedical Logo" className="h-12 w-auto object-contain transition-transform group-hover:scale-105" />
+          <span className="font-heading font-black text-3xl tracking-tighter uppercase ml-1 text-veto-black">VETOMEDICAL</span>
         </div>
 
         <Heading level={3} className="mb-2">
