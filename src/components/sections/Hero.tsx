@@ -20,21 +20,33 @@ export function Hero() {
         />
       </div>
 
+      {/* Subtle Background Pattern */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+
       {/* Main Content Area */}
-      <div className="flex-1 relative z-20 max-w-[1400px] mx-auto w-full px-8 md:px-16 pt-[160px] pb-64 lg:pb-32 flex flex-col">
+      <div className="flex-1 relative z-20 max-w-[1400px] mx-auto w-full px-8 md:px-16 pt-[140px] pb-64 lg:pb-32 flex flex-col justify-center">
         {/* Left Typography */}
-        <div className="max-w-2xl animate-fadeInRight">
-          <Heading className="mb-12 text-[40px] lg:text-[7.5rem] tracking-tighter leading-[0.95] font-black text-veto-black drop-shadow-sm">
-            Your pet, <br />
-            our priority
+        <div className="max-w-3xl animate-fadeInRight">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/50 backdrop-blur-md rounded-full border border-white/50 mb-8 animate-fadeInUp">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-veto-black/70">Clinique Ouverte • Béjaïa</span>
+          </div>
+          
+          <Heading className="mb-10 text-[48px] lg:text-[8rem] tracking-tighter leading-[0.9] font-black text-veto-black drop-shadow-sm">
+            Vos compagnons, <br />
+            <span className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]">notre passion.</span>
           </Heading>
 
-          <div className="flex flex-wrap gap-5">
-            <Button variant="black" className="px-12 py-5 rounded-full hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest shadow-xl" onClick={() => window.location.href = '#services'}>
-              Learn more
+          <p className="text-lg lg:text-xl text-veto-gray font-bold max-w-xl mb-12 leading-relaxed animate-fadeInUp" style={{ animationDelay: '200ms' }}>
+            VetoCare est la première plateforme clinique à Béjaïa alliant expertise vétérinaire et suivi digitalisé pour le bien-être de vos animaux.
+          </p>
+
+          <div className="flex flex-wrap gap-6 animate-fadeInUp" style={{ animationDelay: '400ms' }}>
+            <Button variant="black" className="px-12 py-5 rounded-full hover:scale-105 transition-all font-black text-sm uppercase tracking-widest shadow-2xl" onClick={() => window.location.href = '#services'}>
+              Nos Services
             </Button>
-            <Button variant="yellow" className="px-12 py-5 rounded-full shadow-[0_10px_30px_rgba(255,213,0,0.4)] hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest" onClick={() => window.location.href = '#reservation'}>
-              Make a reservation
+            <Button variant="yellow" className="px-12 py-5 rounded-full shadow-[0_15px_40px_rgba(255,213,0,0.4)] hover:scale-105 transition-all font-black text-sm uppercase tracking-widest" onClick={() => window.location.href = '/login'}>
+              Prendre Rendez-vous
             </Button>
           </div>
         </div>
