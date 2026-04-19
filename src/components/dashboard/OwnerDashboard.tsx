@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { cn } from '../../lib/utils';
 import { BookingCalendar } from './BookingCalendar';
+import { toast } from 'react-hot-toast';
 
 export function OwnerDashboard() {
   const { user } = useAuth();
@@ -68,8 +69,9 @@ export function OwnerDashboard() {
       setNewName('');
       setNewWeight('');
       fetchData();
+      toast.success('Patient ajouté avec succès !');
     } else {
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 

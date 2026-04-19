@@ -7,13 +7,15 @@ import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { Toaster } from 'react-hot-toast';
 
 function AppContent() {
   const location = useLocation();
   const hideNavbar = ['/login', '/dashboard'].includes(location.pathname);
 
   return (
-    <div className="min-h-screen bg-veto-blue-gray">
+    <div className="min-h-screen bg-veto-blue-gray font-outfit">
+      <Toaster position="top-right" />
       {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />

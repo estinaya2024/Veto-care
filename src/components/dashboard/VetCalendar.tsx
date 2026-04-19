@@ -11,6 +11,7 @@ import { X, Calendar as CalendarIcon, Clock, Trash2, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '../../lib/utils';
+import { toast } from 'react-hot-toast';
 
 interface VetCalendarProps {
   vetId: string;
@@ -97,8 +98,9 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
       setShowBlockModal(false);
       setReason('');
       fetchData();
+      toast.success('Créneau bloqué avec succès');
     } catch (err) {
-      alert('Erreur lors du blocage du créneau');
+      toast.error('Erreur lors du blocage du créneau');
     }
   };
 
@@ -106,6 +108,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
     if (confirm('Voulez-vous supprimer ce blocage ?')) {
       await api.deleteUnavailability(id.replace('un-', ''));
       fetchData();
+      toast.success('Blocage supprimé');
     }
   };
 

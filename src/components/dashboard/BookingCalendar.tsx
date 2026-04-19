@@ -10,6 +10,8 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
+import { toast } from 'react-hot-toast';
+import { api } from '../../lib/api';
 
 interface BookingCalendarProps {
   maitreId: string;
@@ -108,7 +110,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
       const conflictCheck = await api.checkAppointmentConflict(vet.id, selectedSlot.start);
       
       if (conflictCheck.conflict) {
-        alert('Désolé, ce créneau vient d\'être réservé ou bloqué. Veuillez en choisir un autre.');
+        toast.error('Désolé, ce créneau vient d\'être réservé ou bloqué. Veuillez en choisir un autre.');
         fetchData();
         setShowBookingModal(false);
         return;
@@ -128,12 +130,13 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
       if (!error) {
         setShowBookingModal(false);
         fetchData();
+        toast.success('Rendez-vous confirmé !');
       } else {
         throw error;
       }
     } catch (err) {
       console.error('Booking error:', err);
-      alert('Erreur lors de la réservation. Veuillez réessayer.');
+      toast.error('Erreur lors de la réservation. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }

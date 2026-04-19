@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Calendar, Clock, MapPin, User, ChevronRight, Upload, X, FileText } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 export function Appointments() {
   const { user } = useAuth();
@@ -81,12 +82,13 @@ export function Appointments() {
         }]);
 
       if (insertError) throw insertError;
-
+      
+      toast.success('Rendez-vous réservé !');
       setShowModal(false);
       resetForm();
       fetchData();
     } catch (err: any) {
-      alert(err.message || 'Erreur lors de la création');
+      toast.error(err.message || 'Erreur lors de la création');
     } finally {
       setUploading(false);
     }

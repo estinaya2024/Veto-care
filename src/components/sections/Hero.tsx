@@ -1,9 +1,9 @@
 import { Button } from '../ui/Button';
 import { Heading } from '../ui/Heading';
 
-import medIllustration1 from '../../assets/images/illustration-1.svg';
-import medIllustration2 from '../../assets/images/illustration-2.svg';
-import heroMainImage from '../../assets/images/iStock-1143440918 (1).webp';
+import medIllustration1 from '../../assets/images/med-illu-1.svg';
+import medIllustration2 from '../../assets/images/med-illu-2.svg';
+import heroMainImage from '../../assets/images/hero-cat.webp';
 import heroDog from '../../assets/images/hero_dog.png';
 
 export function Hero() {

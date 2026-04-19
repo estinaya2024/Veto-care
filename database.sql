@@ -105,11 +105,11 @@ ALTER TABLE public.veterinaires ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rendez_vous ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.indisponibilites_vet ENABLE ROW LEVEL SECURITY;
 
--- GLOBAL DOCTOR ROLE CHECK FUNCTION
+-- GLOBAL DOCTOR ROLE CHECK FUNCTION (Uses JWT to avoid 'permission denied for table users')
 CREATE OR REPLACE FUNCTION public.is_vet()
 RETURNS BOOLEAN AS $$
 BEGIN
-  RETURN (SELECT email FROM auth.users WHERE id = auth.uid()) = 'a_karou@estin.dz';
+  RETURN (auth.jwt() ->> 'email') = 'a_karou@estin.dz';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
