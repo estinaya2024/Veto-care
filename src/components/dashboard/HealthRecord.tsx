@@ -11,12 +11,14 @@ import {
   Stethoscope, 
   FolderHeart,
   Calendar,
-  ClipboardList
+  ClipboardList,
+  AlertCircle
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-hot-toast';
 
 interface HealthRecordProps {
   pet: any;
@@ -25,9 +27,10 @@ interface HealthRecordProps {
 
 export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   const [history, setHistory] = useState<any[]>([]);
+  const [consultations, setConsultations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'history' | 'folder'>('history');
-  const { role } = useAuth();
+  const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'folder'>('history');
+  const { role, user } = useAuth();
 
   useEffect(() => {
     fetchHistory();
@@ -35,14 +38,29 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
 
   const fetchHistory = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('rendez_vous')
-      .select('*, veterinaires(name)')
-      .eq('patient_id', pet.id)
-      .order('date_rdv', { ascending: false });
-    
-    setHistory(data || []);
-    setLoading(false);
+    try {
+      // 1. Fetch Appointments
+      const { data: aptData } = await supabase
+        .from('rendez_vous')
+        .select('*, veterinaires(name)')
+        .eq('patient_id', pet.id)
+        .order('date_rdv', { ascending: false });
+      
+      // 2. Fetch Detailed Consultations
+      const { data: consultData } = await supabase
+        .from('consultations')
+        .select('*, prescriptions(*), veterinaires(name)')
+        .eq('patient_id', pet.id)
+        .order('date_consultation', { ascending: false });
+
+      setHistory(aptData || []);
+      setConsultations(consultData || []);
+    } catch (err) {
+      console.error('Error fetching clinical data:', err);
+      toast.error('Erreur lors de la récupération des données');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleUpdateStatus = async (id: string, status: string) => {
@@ -52,7 +70,10 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
       .eq('id', id);
 
     if (!error) {
+      toast.success(`Statut mis à jour : ${status}`);
       fetchHistory();
+    } else {
+      toast.error('Erreur lors de la mise à jour');
     }
   };
 
@@ -74,22 +95,30 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
         </div>
         
         <div className="flex p-1.5 bg-veto-blue-gray/50 rounded-full border border-black/5 backdrop-blur-xl">
-           <button 
-             onClick={() => setActiveTab('history')}
-             className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
-               activeTab === 'history' ? 'bg-white text-veto-black shadow-lg scale-105' : 'text-veto-gray hover:text-veto-black'
-             }`}
-           >
-             Historique
-           </button>
-           <button 
-             onClick={() => setActiveTab('folder')}
-             className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
-               activeTab === 'folder' ? 'bg-white text-veto-black shadow-lg scale-105' : 'text-veto-gray hover:text-veto-black'
-             }`}
-           >
-             Fiche Médicale
-           </button>
+            <button 
+              onClick={() => setActiveTab('history')}
+              className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                activeTab === 'history' ? 'bg-white text-veto-black shadow-lg scale-105' : 'text-veto-gray hover:text-veto-black'
+              }`}
+            >
+              Historique RDV
+            </button>
+            <button 
+              onClick={() => setActiveTab('consultations')}
+              className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                activeTab === 'consultations' ? 'bg-white text-veto-black shadow-lg scale-105' : 'text-veto-gray hover:text-veto-black'
+              }`}
+            >
+              Suivi Médical
+            </button>
+            <button 
+              onClick={() => setActiveTab('folder')}
+              className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
+                activeTab === 'folder' ? 'bg-white text-veto-black shadow-lg scale-105' : 'text-veto-gray hover:text-veto-black'
+              }`}
+            >
+              Fiche Info
+            </button>
         </div>
       </div>
 
@@ -140,7 +169,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
              <Stethoscope className="absolute -bottom-10 -right-10 text-white/5 w-40 h-40 transform rotate-12 transition-transform group-hover:rotate-0 duration-700" />
              
              <h4 className="font-black text-xl mb-6 flex items-center gap-3 relative z-10">
-                <FolderHeart className="text-veto-yellow" /> Rappels Vétérinaires
+                <FolderHeart className="text-veto-yellow" /> Rappels Médicaux
              </h4>
              <ul className="space-y-6 relative z-10">
                 <li className="flex justify-between items-end border-b border-white/5 pb-4">
@@ -148,14 +177,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                       <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Vaccination</p>
                       <p className="font-bold text-sm">Rage & Toux du Chenil</p>
                    </div>
-                   <span className="text-xs font-black text-veto-yellow">Mars 2025</span>
-                </li>
-                <li className="flex justify-between items-end border-b border-white/5 pb-4">
-                   <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">Traitement</p>
-                      <p className="font-bold text-sm">Anti-parasitaire</p>
-                   </div>
-                   <span className="text-xs font-black text-veto-yellow">Trimestriel</span>
+                   <span className="text-xs font-black text-veto-yellow">{pet.next_vax ? format(new Date(pet.next_vax), 'MMM yyyy') : 'À prévoir'}</span>
                 </li>
              </ul>
           </div>
@@ -167,9 +189,11 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             <div className="absolute top-0 right-0 w-64 h-64 bg-veto-yellow/5 rounded-full blur-[100px] -mr-32 -mt-32"></div>
             
             <div className="mb-10 relative z-10 flex justify-between items-end">
-              <h3 className="font-black text-2xl flex items-center gap-3 tracking-tighter">
+               <h3 className="font-black text-2xl flex items-center gap-3 tracking-tighter text-veto-black">
                 {activeTab === 'history' ? (
-                  <><Clock className="text-veto-yellow" /> Chronologie des Soins</>
+                  <><Clock className="text-veto-yellow" /> Chronologie des RDV</>
+                ) : activeTab === 'consultations' ? (
+                  <><Stethoscope className="text-veto-yellow" /> Historique Médical</>
                 ) : (
                   <><ClipboardList className="text-veto-yellow" /> Fiche Signalétique</>
                 )}
@@ -182,12 +206,12 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                 {loading ? (
                   <div className="py-24 text-center">
                      <div className="w-12 h-12 border-4 border-veto-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                     <span className="font-black text-xs text-veto-gray uppercase tracking-widest">Récupération des données...</span>
+                     <span className="font-black text-xs text-veto-gray uppercase tracking-widest">Récupération...</span>
                   </div>
                 ) : history.length === 0 ? (
                   <div className="py-40 text-center flex flex-col items-center gap-6">
                      <Calendar className="text-veto-gray/20" size={64} />
-                     <p className="text-veto-gray font-black text-xl opacity-40 tracking-tighter uppercase">Aucun historique clinique.</p>
+                     <p className="text-veto-gray font-black text-xl opacity-40 tracking-tighter uppercase">Aucun historique RDV.</p>
                   </div>
                 ) : (
                   <div className="space-y-12 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-1 before:bg-veto-blue-gray before:rounded-full">
@@ -199,8 +223,8 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                         <div className="p-8 rounded-[3rem] bg-veto-blue-gray/20 border border-transparent hover:border-veto-yellow/20 hover:bg-white transition-all shadow-sm hover:shadow-xl relative overflow-hidden">
                           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                             <div>
-                               <div className="text-[10px] font-black text-veto-gray uppercase tracking-widest opacity-60 mb-1">Intervention Clinique</div>
-                               <h4 className="font-black text-xl text-veto-black">Consultation avec {record.veterinaires?.name}</h4>
+                               <div className="text-[10px] font-black text-veto-gray uppercase tracking-widest opacity-60 mb-1">Passage Clinique</div>
+                               <h4 className="font-black text-xl text-veto-black">RDV avec Dr. {record.veterinaires?.name}</h4>
                             </div>
                             <time className="font-black text-xs px-5 py-2 bg-white rounded-full shadow-sm text-veto-black border border-black/5">
                                {format(new Date(record.date_rdv), 'EEEE dd MMMM yyyy', { locale: fr })}
@@ -208,19 +232,10 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                           </div>
                           
                           <div className="flex items-center gap-3 mb-6">
-                            <span className={`w-3 h-3 rounded-full animate-pulse ${record.status === 'terminé' ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
+                            <span className={`w-3 h-3 rounded-full ${record.status === 'terminé' ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
                             <span className="text-[10px] font-black text-veto-black uppercase tracking-widest">{record.status}</span>
                           </div>
-
-                          {record.medical_notes ? (
-                            <div className="mt-4 p-8 bg-white/60 backdrop-blur-md rounded-[2rem] border-l-8 border-veto-yellow text-sm font-bold text-veto-black italic shadow-inner">
-                              <span className="block mb-2 text-xs font-black text-veto-yellow uppercase not-italic tracking-widest opacity-60">Observations Médicales</span>
-                              "{record.medical_notes}"
-                            </div>
-                          ) : (
-                            <p className="text-veto-gray italic font-bold text-sm opacity-40">Pas de notes additionnelles pour cette séance.</p>
-                          )}
-
+ 
                           {role === 'vet' && record.status === 'confirmé' && (
                              <div className="mt-6 flex justify-end">
                                 <Button 
@@ -233,19 +248,68 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                                 </Button>
                              </div>
                           )}
-
-                          {record.health_record_url && (
-                            <div className="mt-8 flex justify-end">
-                               <a 
-                                 href={record.health_record_url} 
-                                 target="_blank" rel="noreferrer"
-                                 className="inline-flex items-center gap-3 px-8 py-4 bg-veto-black text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-black/30"
-                               >
-                                 <FileText size={16} className="text-veto-yellow" /> Consulter le dossier attaché
-                               </a>
-                            </div>
-                          )}
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : activeTab === 'consultations' ? (
+              <div className="relative z-10 flex-1">
+                {role === 'vet' && (
+                  <Button variant="yellow" className="mb-8 font-black uppercase text-[10px] tracking-widest w-full py-4 rounded-3xl shadow-xl shadow-veto-yellow/20 border-none">
+                    + Nouvelle Consultation Médicale
+                  </Button>
+                )}
+                
+                {loading ? (
+                   <div className="py-24 text-center">Chargement...</div>
+                ) : consultations.length === 0 ? (
+                  <div className="py-40 text-center flex flex-col items-center gap-6">
+                     <Stethoscope className="text-veto-gray/20" size={64} />
+                     <p className="text-veto-gray font-black text-xl opacity-40 tracking-tighter uppercase">Aucun suivi médical détaillé.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    {consultations.map(c => (
+                      <div key={c.id} className="p-8 rounded-[3rem] bg-veto-blue-gray/20 border border-black/5 hover:bg-white transition-all shadow-sm group">
+                        <div className="flex justify-between items-start mb-6">
+                           <div>
+                              <p className="text-[10px] font-black text-veto-yellow uppercase tracking-widest mb-1">Consultation du {format(new Date(c.date_consultation), 'dd/MM/yyyy')}</p>
+                              <h4 className="font-black text-xl">Dr. {c.veterinaires?.name}</h4>
+                           </div>
+                           {c.prescriptions?.length > 0 && (
+                             <div className="flex items-center gap-2 px-4 py-1.5 bg-veto-black text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                               <ShieldCheck size={10} className="text-veto-yellow" /> Ordonnance
+                             </div>
+                           )}
+                        </div>
+                        
+                        <div className="grid md:grid-cols-2 gap-6 mb-6">
+                           <div className="p-6 bg-white/60 rounded-[2rem] border border-white">
+                              <p className="text-[9px] font-black text-veto-gray uppercase tracking-widest mb-2 opacity-50">Diagnostic</p>
+                              <p className="font-bold text-sm text-veto-black">{c.diagnosis}</p>
+                           </div>
+                           <div className="p-6 bg-white/60 rounded-[2rem] border border-white">
+                              <p className="text-[9px] font-black text-veto-gray uppercase tracking-widest mb-2 opacity-50">Traitement</p>
+                              <p className="font-bold text-sm text-veto-black">{c.treatment}</p>
+                           </div>
+                        </div>
+
+                        {c.notes && (
+                          <div className="mb-6 px-6 py-4 bg-yellow-50/50 rounded-2xl border-l-4 border-veto-yellow text-[11px] font-medium text-veto-black italic">
+                             <AlertCircle size={14} className="inline mr-2 text-veto-yellow not-italic" />
+                             "{c.notes}"
+                          </div>
+                        )}
+
+                        {c.prescriptions?.length > 0 && (
+                           <div className="flex justify-end pt-4 border-t border-black/5">
+                              <Button size="sm" variant="outline" className="text-[9px] font-black uppercase tracking-widest border-2 hover:bg-veto-black hover:text-white transition-all">
+                                <FileText size={14} className="mr-2" /> Consulter l'ordonnance
+                              </Button>
+                           </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -262,19 +326,16 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                        </div>
                        <div className="pb-4 border-b border-black/5">
                           <p className="text-[10px] font-black text-veto-gray uppercase tracking-widest">Sexe</p>
-                          <p className="font-black text-xl">Mâle</p>
+                          <p className="font-black text-xl">Non renseigné</p>
                        </div>
                     </div>
                  </div>
                  <div className="p-8 bg-veto-light-blue/30 rounded-[3rem] border border-black/5 space-y-6">
-                    <h4 className="font-black text-lg mb-4 opacity-40 uppercase tracking-widest">Notes Cliniques Permanentes</h4>
+                    <h4 className="font-black text-lg mb-4 opacity-40 uppercase tracking-widest">Notes Permanentes</h4>
                     <p className="font-bold text-sm text-veto-black leading-relaxed">
-                       Ce patient est suivi régulièrement par le Dr. Veto-Care. 
-                       Toute allergie ou contre-indication sera listée ici.
+                       Patient suivi par Dr. Veto-Care à Bejaia, Algérie. 
+                       Toutes les observations majeures sont centralisées ici.
                     </p>
-                    <div className="pt-4 p-5 bg-white/50 rounded-2xl border border-dashed border-veto-gray/20 text-[10px] font-black uppercase tracking-widest text-veto-gray">
-                       Aucune allergie connue
-                    </div>
                  </div>
               </div>
             )}
