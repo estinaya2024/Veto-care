@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
-import { Search, User, FileText } from 'lucide-react';
+import { Search, User, FileText, Users, Activity, HeartPulse } from 'lucide-react';
 import { HealthRecord } from './HealthRecord';
 import { VetCalendar } from './VetCalendar';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { TableRowSkeleton } from '../ui/Skeleton';
+import { PetAvatar } from './PetAvatar';
 
 export function VetDashboard() {
   const [selectedPet, setSelectedPet] = useState<any | null>(null);
@@ -84,7 +85,44 @@ export function VetDashboard() {
           onSelectPatient={(patient) => setSelectedPet(patient)} 
         />
       ) : (
-        <>
+        <div className="space-y-8">
+          {/* Dashboard Analytics KPI */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-black/5 flex items-center gap-4 hover:-translate-y-1 transition-transform">
+               <div className="w-14 h-14 bg-veto-blue-gray rounded-2xl flex items-center justify-center border border-black/5">
+                 <Users className="text-veto-black" />
+               </div>
+               <div>
+                 <p className="text-[10px] font-black uppercase tracking-widest text-veto-gray mb-1">Total Patients</p>
+                 <p className="font-black text-2xl">{patients.length}</p>
+               </div>
+            </div>
+            
+            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-black/5 flex items-center gap-4 hover:-translate-y-1 transition-transform">
+               <div className="w-14 h-14 bg-orange-100/50 rounded-2xl flex items-center justify-center border border-orange-100">
+                 <Activity className="text-orange-500" />
+               </div>
+               <div>
+                 <p className="text-[10px] font-black uppercase tracking-widest text-veto-gray mb-1">Cas Médicaux Actifs</p>
+                 <p className="font-black text-2xl">
+                   {patients.filter(p => ['En traitement', 'Hospitalisé', 'Convalescence'].includes(p.status)).length}
+                 </p>
+               </div>
+            </div>
+
+            <div className="bg-veto-yellow/20 p-6 rounded-[2rem] shadow-sm border border-veto-yellow/30 flex items-center gap-4 hover:-translate-y-1 transition-transform">
+               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+                 <HeartPulse className="text-veto-black" />
+               </div>
+               <div>
+                 <p className="text-[10px] font-black uppercase tracking-widest text-veto-black mb-1 opacity-60">Sains & Suivis</p>
+                 <p className="font-black text-2xl">
+                   {patients.filter(p => !['En traitement', 'Hospitalisé', 'Convalescence'].includes(p.status)).length}
+                 </p>
+               </div>
+            </div>
+          </div>
+
           <div className="relative group">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-veto-gray group-focus-within:text-veto-black transition-colors" size={20} />
             <input
@@ -120,9 +158,7 @@ export function VetDashboard() {
                     className="grid grid-cols-5 px-8 py-6 items-center hover:bg-veto-blue-gray/50 transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center gap-4 col-span-2">
-                      <div className="w-12 h-12 bg-veto-yellow/20 rounded-2xl flex items-center justify-center font-extrabold text-veto-black">
-                        {p.name[0]}
-                      </div>
+                      <PetAvatar species={p.species || 'Inconnu'} name={p.name} size="md" />
                       <div className="flex flex-col">
                         <span className="font-extrabold text-lg text-veto-black group-hover:text-veto-yellow transition-colors">{p.name}</span>
                         <span className="text-xs font-bold text-veto-gray flex items-center gap-1"><FileText size={12} /> Carnet de santé</span>
@@ -139,7 +175,7 @@ export function VetDashboard() {
               )}
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

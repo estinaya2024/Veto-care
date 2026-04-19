@@ -9,6 +9,8 @@ import { cn } from '../../lib/utils';
 import { BookingCalendar } from './BookingCalendar';
 import { toast } from 'react-hot-toast';
 import { CardSkeleton } from '../ui/Skeleton';
+import { PetAvatar } from './PetAvatar';
+import { AlertCircle, BellRing } from 'lucide-react';
 
 export function OwnerDashboard() {
   const { user } = useAuth();
@@ -79,6 +81,18 @@ export function OwnerDashboard() {
   if (selectedPet) {
     return <HealthRecord pet={selectedPet} onBack={() => setSelectedPet(null)} />;
   }
+
+  // Calculate alerts
+  const urgentAlerts = pets.filter(p => {
+    if (!p.next_vax) return false;
+    const vaxDate = new Date(p.next_vax);
+    const now = new Date();
+    const diffDays = (vaxDate.getTime() - now.getTime()) / (1000 * 3600 * 24);
+    return diffDays <= 30;
+  }).map(p => {
+    const diffDays = Math.ceil((new Date(p.next_vax).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+    return { pet: p, days: diffDays };
+  });
 
   return (
     <div className="space-y-12 animate-fadeInUp">
@@ -168,14 +182,40 @@ export function OwnerDashboard() {
           <Button variant="outline" onClick={() => setShowModal(true)}>Ajouter mon premier animal</Button>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-8">
-          {pets.map((pet) => (
-            <div key={pet.id} className="bg-white p-8 rounded-[3rem] shadow-sm hover:shadow-md transition-all group animate-fadeInUp">
-              <div className="flex justify-between items-start mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-veto-yellow/20 rounded-2xl flex items-center justify-center font-extrabold text-2xl text-veto-black">
-                    {pet.name[0]}
-                  </div>
+        <div className="space-y-8">
+          {/* Alerts Section */}
+          {urgentAlerts.length > 0 && (
+            <div className="space-y-4">
+               {urgentAlerts.map(({pet, days}, i) => (
+                 <div key={`alert-${i}`} className={`p-6 rounded-[2rem] flex items-center justify-between border shadow-sm ${days < 0 ? 'bg-red-50 border-red-100 text-red-900' : 'bg-orange-50 border-orange-100 text-orange-900'}`}>
+                    <div className="flex items-center gap-4">
+                       <div className={`p-3 rounded-full ${days < 0 ? 'bg-red-100/50' : 'bg-orange-100/50'}`}>
+                          {days < 0 ? <AlertCircle size={24} /> : <BellRing size={24} />}
+                       </div>
+                       <div>
+                         <p className="font-black text-lg">
+                           {days < 0 ? `Vaccin expiré pour ${pet.name} !` : `Rappel de vaccin imminent pour ${pet.name}`}
+                         </p>
+                         <p className="text-sm font-medium opacity-80">
+                           {days < 0 ? `Le vaccin de ${pet.name} a expiré depuis ${Math.abs(days)} jours. Prenez rendez-vous d'urgence.` : `Le rappel annuel de ${pet.name} est prévu dans ${days} jours. Pensez à réserver un créneau.`}
+                         </p>
+                       </div>
+                    </div>
+                    <Button variant="outline" onClick={() => setActiveTab('agenda')} className="bg-white shadow-sm border-none uppercase tracking-widest text-[10px] font-black h-10 shrink-0">
+                       Prendre RDV
+                    </Button>
+                 </div>
+               ))}
+            </div>
+          )}
+
+          {/* Pets Grid */}
+          <div className="grid md:grid-cols-2 gap-8">
+            {pets.map((pet) => (
+              <div key={pet.id} className="bg-white p-8 rounded-[3rem] shadow-sm hover:shadow-md transition-all group animate-fadeInUp">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center gap-4">
+                    <PetAvatar species={pet.species || 'Inconnu'} name={pet.name} size="lg" />
                   <div>
                     <h3 className="font-extrabold text-xl">{pet.name}</h3>
                     <p className="text-veto-gray text-sm font-medium">{pet.species} • {pet.status}</p>

@@ -22,6 +22,7 @@ import { toast } from 'react-hot-toast';
 import { EditPatientModal } from './EditPatientModal';
 import { ConsultationModal } from './ConsultationModal';
 import { PrescriptionViewer } from './PrescriptionViewer';
+import { PetAvatar } from './PetAvatar';
 
 interface HealthRecordProps {
   pet: any;
@@ -136,9 +137,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             <div className="absolute top-0 right-0 w-32 h-32 bg-veto-yellow/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
             
             <div className="flex flex-col items-center text-center mb-10 relative z-10">
-              <div className="w-32 h-32 bg-gradient-to-br from-veto-yellow/40 to-veto-yellow/10 rounded-[3rem] flex items-center justify-center font-black text-6xl text-veto-black shadow-inner mb-6">
-                {pet.name[0]}
-              </div>
+              <PetAvatar species={pet.species || 'Inconnu'} name={pet.name} size="xl" className="mb-6 shadow-inner bg-gradient-to-br from-white to-gray-50" />
               <h3 className="font-black text-3xl tracking-tighter mb-2">{pet.name}</h3>
               <p className="text-veto-gray font-bold text-sm opacity-60 uppercase tracking-widest">{pet.species} • {pet.breed || 'Standard'}</p>
             </div>
