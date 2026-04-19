@@ -49,13 +49,19 @@ function App() {
 }
 
 import { WhyRelyOnUs } from './components/sections/WhyRelyOnUs';
+import { Stats } from './components/sections/Stats';
+import { Testimonials } from './components/sections/Testimonials';
+import { Contact } from './components/sections/Contact';
 
 function Home() {
   return (
     <main>
       <Hero />
+      <Stats />
       <WhyRelyOnUs />
       <Services />
+      <Testimonials />
+      <Contact />
     </main>
   );
 }
