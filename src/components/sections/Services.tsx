@@ -1,6 +1,7 @@
 import { Heading } from '../ui/Heading';
 import { Syringe, FileText, Stethoscope, ClipboardList, Calendar, PawPrint } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import heroPaw from '../../assets/images/paw.png';
 
 const services = [
   { name: 'Vaccinations', icon: Syringe },
@@ -13,7 +14,13 @@ const services = [
 
 export function Services() {
   return (
-    <section className="px-8 md:px-16 py-24 bg-white text-center">
+    <section id="services" className="px-8 md:px-16 py-24 bg-white text-center relative overflow-hidden">
+      {/* Paw reaching from the left */}
+      <img
+        src={heroPaw}
+        alt="Cat Paw"
+        className="absolute left-0 top-0 w-[160px] md:w-[220px] object-contain z-10 drop-shadow-xl -translate-x-[15%] md:-translate-x-[20%] -translate-y-[20%] md:-translate-y-[30%] -rotate-12 animate-fadeInLeft"
+      />
       <div className="relative inline-block mb-16">
         <Heading level={2}>Nous excellons en :</Heading>
         {/* Yellow Doodle */}
