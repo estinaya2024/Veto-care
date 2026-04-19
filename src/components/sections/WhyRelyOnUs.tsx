@@ -50,9 +50,9 @@ export function WhyRelyOnUs() {
                 </div>
               </div>
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-veto-black tracking-tight uppercase">
+                <Heading level={3} className="uppercase">
                   {reason.title}
-                </h3>
+                </Heading>
                 <p className="text-veto-gray font-medium leading-relaxed max-w-md">
                   {reason.description}
                 </p>
