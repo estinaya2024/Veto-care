@@ -49,7 +49,7 @@ export function Login() {
         });
         if (loginError) throw loginError;
       }
-      
+
       navigate('/');
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue');
@@ -61,16 +61,16 @@ export function Login() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8">
       <div className="bg-white p-12 rounded-[3rem] shadow-xl max-w-md w-full text-center relative">
-        <button 
-          onClick={() => navigate('/')} 
+        <button
+          onClick={() => navigate('/')}
           className="absolute top-8 left-8 p-3 bg-veto-blue-gray/50 text-veto-black rounded-full hover:bg-veto-yellow hover:scale-110 transition-all border border-black/5"
           title="Retourner à l'accueil"
         >
           <ArrowLeft size={20} />
         </button>
-        <div className="flex flex-col md:flex-row items-center justify-center group mb-10 gap-2">
+        <div className="flex flex-col md:flex-row items-center justify-center group mb-10 gap-[5px]">
           <img src={logo} alt="VetoMedical Logo" className="h-20 md:h-24 w-auto object-contain transition-transform group-hover:scale-105" />
-          <span className="font-heading font-black text-4xl md:text-[30px] tracking-tighter uppercase text-veto-black translate-y-[5px]">VETOMEDICAL</span>
+          <span className="font-heading font-black text-4xl md:text-[40px] tracking-tighter uppercase text-veto-black translate-y-[30px]">VETOMEDICAL</span>
         </div>
 
         <Heading level={3} className="mb-2">
