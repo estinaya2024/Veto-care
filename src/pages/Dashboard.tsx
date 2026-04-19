@@ -11,18 +11,9 @@ import { SecureChat } from '../components/dashboard/SecureChat';
 type DashboardTab = 'dashboard' | 'owner' | 'vet' | 'appointments' | 'settings';
 
 export function Dashboard() {
-  const [activeTab, setActiveTab] = useState<DashboardTab>('dashboard');
-  const navigate = useNavigate();
   const { signOut, role } = useAuth();
-
-  useEffect(() => {
-    // Initial tab based on role
-    if (role === 'vet') {
-      setActiveTab('vet');
-    } else {
-      setActiveTab('dashboard');
-    }
-  }, [role]);
+  const [activeTab, setActiveTab] = useState<DashboardTab>(role === 'vet' ? 'vet' : 'dashboard');
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await signOut();
