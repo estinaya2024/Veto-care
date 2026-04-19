@@ -50,7 +50,7 @@ export function Hero() {
                 Dog Walking & Pet Sitting Services
               </h3>
               <p className="text-veto-gray font-bold text-lg">
-                Throughout <span className="underline decoration-veto-yellow decoration-2 cursor-pointer">New York City</span>
+                À travers <span className="underline decoration-veto-yellow decoration-2 cursor-pointer">Béjaïa, Algérie</span>
               </p>
             </div>
 

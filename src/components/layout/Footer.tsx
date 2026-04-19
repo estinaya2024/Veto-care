@@ -8,7 +8,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="w-full bg-white pt-24 pb-12 px-6 md:px-16 border-t-[12px] border-veto-light-blue transition-colors">
+    <footer className="w-full bg-[#EBF3FF] pt-24 pb-12 px-6 md:px-16 border-t-[12px] border-veto-light-blue transition-colors">
       <div className="max-w-[1400px] mx-auto flex flex-col items-center">
 
         {/* Logo and Social Icons Row */}
@@ -44,12 +44,11 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Description & Navigation Menu */}
         <div className="w-full flex flex-col items-center text-center gap-12 mb-20">
           <div className="max-w-2xl">
             <p className="text-veto-gray font-bold text-xl md:text-2xl leading-snug">
               Services Professionnels de Soins pour Animaux <br />
-              New York ⸺ <a href="#" className="text-veto-black underline decoration-veto-yellow decoration-4 underline-offset-4 hover:text-veto-yellow transition-colors">Paris</a> et <a href="#" className="text-veto-black underline decoration-veto-yellow decoration-4 underline-offset-4 hover:text-veto-yellow transition-colors">Lyon</a>
+              Béjaïa, Algérie
             </p>
           </div>
 
