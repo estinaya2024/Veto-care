@@ -1,5 +1,6 @@
 import { Heading } from '../components/ui/Heading';
 import { Heart, Stethoscope, ShieldCheck, Clock, Award } from 'lucide-react';
+import aboutImg from '../assets/images/about-clinic.png';
 
 export function About() {
   return (
@@ -41,10 +42,9 @@ export function About() {
          <div className="relative animate-fadeInRight mt-10 md:mt-0">
             <div className="absolute inset-0 bg-veto-yellow/10 rounded-[3rem] transform rotate-6 border-2 border-veto-yellow/30 transition-transform hover:rotate-2 duration-500"></div>
             <div className="bg-white p-4 rounded-[3rem] shadow-2xl relative z-10 border border-black/5">
-                <div className="h-[400px] lg:h-[500px] bg-veto-blue-gray rounded-[2rem] flex items-center justify-center flex-col gap-6 overflow-hidden relative group">
-                   <Heart size={80} className="text-white fill-white relative z-10 group-hover:scale-110 transition-transform duration-500" />
-                   <p className="text-white font-black text-2xl tracking-tighter relative z-10">La vie avant tout</p>
-                   <div className="absolute inset-0 bg-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="h-[400px] lg:h-[500px] bg-veto-blue-gray rounded-[2rem] flex items-center justify-center overflow-hidden relative group">
+                   <img src={aboutImg} alt="Vétérinaire experte en consultation" className="w-full h-full object-cover relative z-10 group-hover:scale-110 transition-transform duration-700 origin-center" />
+                   <div className="absolute inset-0 bg-blue-900/10 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none"></div>
                 </div>
             </div>
          </div>
