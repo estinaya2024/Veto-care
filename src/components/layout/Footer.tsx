@@ -8,7 +8,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="w-full bg-[#EBF3FF] pt-24 pb-12 px-6 md:px-16 border-t-[12px] border-veto-light-blue transition-colors">
+    <footer className="w-full bg-[#EBF3FF] pt-12 pb-8 px-6 md:px-16 border-t-[12px] border-veto-light-blue transition-colors">
       <div className="max-w-[1400px] mx-auto flex flex-col items-center">
 
         {/* Logo and Social Icons Row */}
@@ -29,7 +29,7 @@ export function Footer() {
         </div>
 
         {/* Divider with Scroll-to-Top Button */}
-        <div className="w-full relative py-12">
+        <div className="w-full relative py-8">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-black/5"></div>
           </div>
@@ -44,7 +44,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="w-full flex flex-col items-center text-center gap-12 mb-20">
+        <div className="w-full flex flex-col items-center text-center gap-8 mb-12">
           <div className="max-w-2xl">
             <p className="text-veto-gray font-bold text-xl md:text-2xl leading-snug">
               Services Professionnels de Soins pour Animaux <br />
@@ -62,7 +62,7 @@ export function Footer() {
         </div>
 
         {/* CTA Section: "Ready to get started?" */}
-        <div className="w-full text-center space-y-12 mb-24">
+        <div className="w-full text-center space-y-8 mb-12">
           <h2 className="text-4xl md:text-6xl font-black text-veto-black tracking-tighter">
             Prêt à commencer le voyage ?
           </h2>
@@ -86,7 +86,7 @@ export function Footer() {
         </div>
 
         {/* Copyright Bar */}
-        <div className="w-full pt-10 border-t border-black/5 flex flex-col md:flex-row items-center justify-between gap-8 text-[11px] font-bold uppercase tracking-[0.25em] text-veto-gray">
+        <div className="w-full pt-8 border-t border-black/5 flex flex-col md:flex-row items-center justify-between gap-8 text-[11px] font-bold uppercase tracking-[0.25em] text-veto-gray">
           <div>
             © 2026 &nbsp; | &nbsp; <span className="text-veto-black">VETOMEDICAL. Tous droits réservés.</span>
           </div>

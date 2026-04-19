@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '../components/ui/Button';
 import { Heading } from '../components/ui/Heading';
-import { Heart } from 'lucide-react';
+import { Heart, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -59,7 +59,14 @@ export function Login() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8">
-      <div className="bg-white p-12 rounded-[3rem] shadow-xl max-w-md w-full text-center">
+      <div className="bg-white p-12 rounded-[3rem] shadow-xl max-w-md w-full text-center relative">
+        <button 
+          onClick={() => navigate('/')} 
+          className="absolute top-8 left-8 p-3 bg-veto-blue-gray/50 text-veto-black rounded-full hover:bg-veto-yellow hover:scale-110 transition-all border border-black/5"
+          title="Retourner à l'accueil"
+        >
+          <ArrowLeft size={20} />
+        </button>
         <div className="flex items-center justify-center gap-2 mb-8">
           <div className="bg-veto-black p-2 rounded-xl">
             <Heart className="text-white fill-white" size={24} />
