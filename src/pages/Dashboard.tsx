@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { OwnerDashboard } from '../components/dashboard/OwnerDashboard';
 import { VetDashboard } from '../components/dashboard/VetDashboard';
 import { Appointments } from '../components/dashboard/Appointments';
+import { Settings } from '../components/dashboard/Settings';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Sidebar } from '../components/layout/Sidebar';
@@ -42,12 +43,7 @@ export function Dashboard() {
           {activeTab === 'owner' && <OwnerDashboard />}
           {activeTab === 'vet' && <VetDashboard />}
           {activeTab === 'appointments' && <Appointments />}
-          {activeTab === 'settings' && (
-             <div className="p-12 bg-white rounded-[3rem] text-center shadow-xl">
-               <h2 className="text-3xl font-black mb-4">Paramètres du compte</h2>
-               <p className="text-veto-gray font-bold text-lg mb-8">Page en cours de développement...</p>
-             </div>
-          )}
+          {activeTab === 'settings' && <Settings />}
         </div>
       </main>
     </div>

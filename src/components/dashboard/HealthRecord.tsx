@@ -19,6 +19,9 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import { EditPatientModal } from './EditPatientModal';
+import { ConsultationModal } from './ConsultationModal';
+import { PrescriptionViewer } from './PrescriptionViewer';
 
 interface HealthRecordProps {
   pet: any;
@@ -30,6 +33,10 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   const [consultations, setConsultations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'folder'>('history');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showConsultModal, setShowConsultModal] = useState(false);
+  const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
+  const [prescribingVet, setPrescribingVet] = useState('');
   const { role, user } = useAuth();
 
   useEffect(() => {
@@ -257,7 +264,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             ) : activeTab === 'consultations' ? (
               <div className="relative z-10 flex-1">
                 {role === 'vet' && (
-                  <Button variant="yellow" className="mb-8 font-black uppercase text-[10px] tracking-widest w-full py-4 rounded-3xl shadow-xl shadow-veto-yellow/20 border-none">
+                  <Button variant="yellow" onClick={() => setShowConsultModal(true)} className="mb-8 font-black uppercase text-[10px] tracking-widest w-full py-4 rounded-3xl shadow-xl shadow-veto-yellow/20 border-none">
                     + Nouvelle Consultation Médicale
                   </Button>
                 )}
@@ -305,7 +312,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
 
                         {c.prescriptions?.length > 0 && (
                            <div className="flex justify-end pt-4 border-t border-black/5">
-                              <Button size="sm" variant="outline" className="text-[9px] font-black uppercase tracking-widest border-2 hover:bg-veto-black hover:text-white transition-all">
+                              <Button size="sm" variant="outline" onClick={() => { setSelectedPrescription(c.prescriptions[0]); setPrescribingVet(c.veterinaires?.name || 'Vétérinaire'); }} className="text-[9px] font-black uppercase tracking-widest border-2 hover:bg-veto-black hover:text-white transition-all">
                                 <FileText size={14} className="mr-2" /> Consulter l'ordonnance
                               </Button>
                            </div>
@@ -318,7 +325,12 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             ) : (
               <div className="relative z-10 flex-1 grid md:grid-cols-2 gap-8">
                  <div className="p-8 bg-veto-blue-gray/30 rounded-[3rem] border border-black/5 space-y-6">
-                    <h4 className="font-black text-lg mb-4 opacity-40 uppercase tracking-widest">Informations Générales</h4>
+                    <div className="flex justify-between items-start mb-4">
+                       <h4 className="font-black text-lg opacity-40 uppercase tracking-widest">Informations Générales</h4>
+                       <Button size="sm" variant="outline" className="text-[10px] font-black uppercase tracking-widest px-4 py-2" onClick={() => setShowEditModal(true)}>
+                         Modifier
+                       </Button>
+                    </div>
                     <div className="space-y-4">
                        <div className="pb-4 border-b border-black/5">
                           <p className="text-[10px] font-black text-veto-gray uppercase tracking-widest">Race / Variété</p>
@@ -342,6 +354,37 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
           </div>
         </div>
       </div>
+
+      {showEditModal && (
+        <EditPatientModal 
+          pet={pet} 
+          onClose={() => setShowEditModal(false)}
+          onSuccess={() => {
+            setShowEditModal(false);
+            onBack();
+          }}
+        />
+      )}
+
+      {showConsultModal && (
+        <ConsultationModal 
+          pet={pet}
+          onClose={() => setShowConsultModal(false)}
+          onSuccess={() => {
+            setShowConsultModal(false);
+            fetchHistory(); // Refresh consultations
+          }}
+        />
+      )}
+
+      {selectedPrescription && (
+        <PrescriptionViewer 
+          prescription={selectedPrescription}
+          vetName={prescribingVet}
+          petName={pet.name}
+          onClose={() => setSelectedPrescription(null)}
+        />
+      )}
     </div>
   );
 }
