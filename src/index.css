@@ -66,6 +66,78 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+  .glass-premium {
+    @apply bg-white/70 backdrop-blur-2xl border border-white/50 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+  }
+  .shadow-premium {
+    @apply shadow-[0_20px_50px_rgba(0,0,0,0.05)];
+  }
+  .glow-yellow {
+    @apply shadow-[0_0_20px_rgba(255,213,0,0.2)];
+  }
+
+
+
+/* FullCalendar Premium Overrides */
+.fc {
+  --fc-border-color: rgba(0, 0, 0, 0.03) !important;
+  --fc-today-bg-color: rgba(255, 213, 0, 0.03) !important;
+  font-family: inherit;
+}
+
+.fc .fc-scrollgrid {
+  border: none !important;
+}
+
+.fc .fc-col-header-cell {
+  border: none !important;
+  padding: 1.5rem 0.5rem !important;
+}
+
+.fc .fc-col-header-cell-cushion {
+  font-size: 10px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.2em !important;
+  color: var(--color-veto-gray) !important;
+  opacity: 0.4 !important;
+  text-decoration: none !important;
+}
+
+.fc .fc-timegrid-slot {
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.03) !important;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  font-size: 9px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: var(--color-veto-gray) !important;
+  opacity: 0.3 !important;
+}
+
+.fc .fc-timegrid-axis-cushion {
+  font-size: 9px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: var(--color-veto-gray) !important;
+  opacity: 0.3 !important;
+}
+
+.fc .fc-timegrid-now-indicator-line {
+  border-color: var(--color-veto-yellow) !important;
+  border-width: 2px !important;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+  border-color: var(--color-veto-yellow) !important;
+  border-bottom-color: transparent !important;
+  border-top-color: transparent !important;
+}
+
+
 @keyframes fadeInRight {
   from {
     opacity: 0;

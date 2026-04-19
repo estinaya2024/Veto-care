@@ -5,13 +5,14 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import { supabase } from '../../lib/supabase';
-import { Calendar as CalendarIcon, Clock, X, Zap } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, X, Zap, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
 import { toast } from 'react-hot-toast';
 import { api } from '../../lib/api';
+import { motion, AnimatePresence } from 'framer-motion';
 interface BookingCalendarProps {
   maitreId: string;
 }
@@ -184,28 +185,33 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
   };
 
   return (
-    <div className="bg-white/60 backdrop-blur-3xl rounded-[3rem] p-6 shadow-xl border border-white/50 animate-fadeInUp relative overflow-hidden group/calendar min-h-[700px]">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-veto-yellow/5 rounded-full blur-[90px] -mr-32 -mt-32 pointer-events-none"></div>
+    <div className="glass-premium rounded-[3.5rem] p-8 shadow-premium animate-fadeInUp relative overflow-hidden group/calendar min-h-[800px]">
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-veto-yellow/5 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none group-hover/calendar:bg-veto-yellow/10 transition-colors duration-1000"></div>
       
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 gap-4">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-veto-yellow/10 rounded-2xl shadow-inner">
-            <CalendarIcon size={24} className="text-veto-black/70" />
-          </div>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 relative z-10 gap-6">
+        <div className="flex items-center gap-6">
+          <motion.div 
+            className="p-4 bg-white shadow-sm border border-black/5 rounded-[1.5rem] glow-yellow"
+          >
+            <CalendarIcon size={28} className="text-veto-black" />
+          </motion.div>
           <div>
-            <h3 className="text-2xl font-black tracking-tight text-veto-black/90">Prendre Rendez-vous</h3>
-            <div className="flex items-center gap-2 text-veto-gray font-bold uppercase tracking-widest text-[8px] opacity-40">
-               <Zap size={8} className="text-veto-yellow" /> Sélectionnez un créneau libre
+            <h3 className="text-3xl font-black tracking-tighter text-veto-black leading-none mb-2">Prendre Rendez-vous</h3>
+            <div className="flex items-center gap-2">
+               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+               <span className="text-veto-gray font-black uppercase tracking-[0.2em] text-[9px] opacity-40">Horaires d'ouverture 08:00 — 20:00</span>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-2">
-           <div className="flex items-center gap-2 px-3 py-1.5 bg-white/50 rounded-full border border-black/5 text-[8px] font-black uppercase tracking-widest">
-              <div className="w-2 h-2 rounded-full bg-veto-yellow"></div> Mes RDV
+        <div className="flex flex-wrap items-center gap-3">
+           <div className="flex items-center gap-2 px-5 py-2.5 bg-white/50 rounded-full border border-black/5 shadow-sm text-[9px] font-black uppercase tracking-widest transition-all hover:bg-white">
+              <div className="w-2.5 h-2.5 rounded-full bg-veto-yellow shadow-[0_0_8px_rgba(255,213,0,0.5)]"></div> 
+              <span className="text-veto-black">Mes Consultations</span>
            </div>
-           <div className="flex items-center gap-2 px-3 py-1.5 bg-white/50 rounded-full border border-black/5 text-[8px] font-black uppercase tracking-widest text-gray-400">
-              <div className="w-2 h-2 rounded-full bg-gray-200"></div> Réservé / Fermé
+           <div className="flex items-center gap-2 px-5 py-2.5 bg-white/30 rounded-full border border-black/5 text-[9px] font-black uppercase tracking-widest text-gray-400 opacity-60">
+              <div className="w-2.5 h-2.5 rounded-full bg-gray-200"></div> 
+              <span>Réservé</span>
            </div>
         </div>
       </div>
@@ -242,107 +248,146 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
             const isReserved = type === 'reserved';
             
             return (
-              <div className={cn(
-                "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-all relative overflow-hidden group/event",
-                isMine ? "border-veto-yellow bg-white shadow-md z-20" : 
-                isBlocked ? "border-gray-500 bg-gray-50/80" : 
-                "border-gray-300 bg-gray-50/40 opacity-70"
-              )}>
-                {isMine && <div className="absolute inset-0 bg-veto-yellow/10 pointer-events-none animate-pulse"></div>}
-                {(isBlocked || isReserved) && (
-                  <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:6px_6px] opacity-40 pointer-events-none"></div>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className={cn(
+                  "p-3 w-full h-full flex flex-col justify-start gap-1 rounded-2xl transition-all relative overflow-hidden group/event",
+                  isMine ? "border-veto-yellow bg-white shadow-xl z-20" : 
+                  isBlocked ? "border-gray-200 bg-gray-50/50 grayscale opacity-40 shrink-0" : 
+                  "border-gray-100 bg-white shadow-sm opacity-60"
                 )}
+              >
+                {isMine && <div className="absolute inset-0 bg-veto-yellow/5 pointer-events-none group-hover/event:bg-veto-yellow/10 transition-colors"></div>}
                 
-                <div className="flex items-center gap-2 relative z-10">
-                   {isMine ? (
-                     <div className="w-1.5 h-1.5 rounded-full bg-veto-yellow animate-bounce"></div>
-                   ) : isBlocked ? (
-                     <X size={8} className="text-gray-400" />
-                   ) : (
-                     <div className="w-1 h-1 rounded-full bg-gray-300"></div>
-                   )}
+                <div className="flex items-center justify-between relative z-10 w-full mb-1">
                    <div className={cn(
-                     "font-black text-[9px] uppercase tracking-tight truncate",
+                     "font-black text-[10px] uppercase tracking-tight truncate max-w-[80%]",
                      isMine ? "text-veto-black" : "text-gray-400"
                    )}>
                      {arg.event.title}
                    </div>
+                   {isMine ? (
+                     <div className="w-2 h-2 rounded-full bg-veto-yellow shadow-[0_0_8px_rgba(255,213,0,0.8)]"></div>
+                   ) : isBlocked || isReserved ? (
+                     <Clock size={10} className="text-gray-300" />
+                   ) : null}
                 </div>
                 
                 {isMine && (
-                   <div className="text-[7px] font-black text-veto-gray/40 uppercase tracking-widest mt-0.5">
-                     {format(new Date(arg.event.start!), 'HH:mm')}
+                   <div className="flex items-center gap-2 mt-auto">
+                     <div className="px-2 py-0.5 bg-black/5 rounded-md text-[8px] font-black text-veto-gray uppercase tracking-widest">
+                       {format(new Date(arg.event.start!), 'HH:mm')}
+                     </div>
+                     <span className="text-[7px] font-black text-veto-gray/20 uppercase tracking-[0.2em]">CONSULTATION</span>
                    </div>
                 )}
-              </div>
+              </motion.div>
             );
           }}
         />
       </div>
 
-      {showBookingModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-[3rem] p-8 shadow-3xl animate-scaleIn relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-full h-2 bg-veto-yellow"></div>
-             <button onClick={() => setShowBookingModal(false)} className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <X size={20} className="text-veto-gray" />
-            </button>
-            <div className="mb-6">
-               <h3 className="text-2xl font-black tracking-tight mb-1">Confirmer le RDV</h3>
-               <p className="font-bold text-veto-gray opacity-50 uppercase text-[8px] tracking-widest">Vérification de disponibilité</p>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="p-6 bg-gray-50/80 rounded-3xl border border-gray-100 space-y-3">
-                 <div className="flex items-center gap-3 text-veto-black font-extrabold">
-                    <Clock size={16} className="text-veto-yellow" />
-                    <span className="text-sm">Le {format(new Date(selectedSlot!.start), 'EEEE d MMMM', { locale: fr })} à {format(new Date(selectedSlot!.start), 'HH:mm')}</span>
-                 </div>
+      <AnimatePresence>
+        {showBookingModal && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowBookingModal(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-xl"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white w-full max-w-md rounded-[3.5rem] p-10 shadow-3xl relative overflow-hidden border border-black/5"
+            >
+              <div className="absolute top-0 left-0 w-full h-3 bg-veto-yellow"></div>
+              <button onClick={() => setShowBookingModal(false)} className="absolute top-8 right-8 p-3 hover:bg-gray-100 rounded-full transition-colors text-veto-gray">
+                <X size={20} />
+              </button>
+              
+              <div className="mb-10">
+                 <h3 className="text-3xl font-black tracking-tighter mb-2">Confirmer le RDV</h3>
+                 <p className="font-black text-veto-gray/40 uppercase text-[9px] tracking-widest">Planification de soin veterinaire</p>
               </div>
+              
+              <div className="space-y-8">
+                <div className="p-8 bg-gray-50 rounded-[2.5rem] border border-black/5 space-y-4">
+                   <div className="flex items-center gap-4 text-veto-black">
+                      <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+                        <Clock size={20} className="text-veto-yellow" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase text-veto-gray/50 tracking-widest leading-none mb-1">Date & Heure</span>
+                        <span className="text-sm font-black uppercase tracking-tight">Le {format(new Date(selectedSlot!.start), 'EEEE d MMMM', { locale: fr })} à {format(new Date(selectedSlot!.start), 'HH:mm')}</span>
+                      </div>
+                   </div>
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-[9px] font-black ml-4 text-veto-gray uppercase tracking-widest">Choisir un compagnon</label>
-                <select 
-                  value={selectedPet}
-                  onChange={(e) => setSelectedPet(e.target.value)}
-                  className="w-full px-6 py-4 bg-gray-50 rounded-full border-none focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all font-extrabold text-sm appearance-none"
-                >
-                  {pets.map(pet => (
-                    <option key={pet.id} value={pet.id}>{pet.name}</option>
-                  ))}
-                </select>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black ml-6 text-veto-gray uppercase tracking-widest opacity-60">Choisir un compagnon</label>
+                  <div className="relative">
+                    <select 
+                      value={selectedPet}
+                      onChange={(e) => setSelectedPet(e.target.value)}
+                      className="w-full px-8 py-5 bg-gray-50 rounded-[2rem] border-none focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all font-black text-sm appearance-none cursor-pointer"
+                    >
+                      {pets.map(pet => (
+                        <option key={pet.id} value={pet.id}>{pet.name}</option>
+                      ))}
+                    </select>
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-veto-gray opacity-30">
+                       <ChevronDown size={18} />
+                    </div>
+                  </div>
+                </div>
+
+                <Button onClick={handleConfirmBooking} className="w-full py-6 text-sm font-black shadow-2xl shadow-veto-yellow/30 rounded-[2rem]" variant="yellow">
+                   CONFIRMER LA RÉSERVATION
+                </Button>
               </div>
-
-              <Button onClick={handleConfirmBooking} className="w-full py-4 text-sm font-black shadow-xl shadow-veto-yellow/20" variant="yellow">
-                 Réserver maintenant
-              </Button>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
 
-      {appointmentToCancel && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-[3rem] p-8 shadow-3xl animate-scaleIn relative overflow-hidden text-center">
-            <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
-            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-               <X size={32} />
-            </div>
-            <h3 className="text-2xl font-black tracking-tight mb-2">Annuler ce RDV ?</h3>
-            <p className="text-sm text-gray-500 font-medium mb-6">
-               Le {format(new Date(appointmentToCancel.date), 'EEEE d MMMM à HH:mm', { locale: fr })}
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Button onClick={() => setAppointmentToCancel(null)} variant="outline" className="py-3 font-bold border-gray-200">
-                Garder
-              </Button>
-              <Button onClick={handleCancelAppointment} className="py-3 font-bold bg-red-500 text-white hover:bg-red-600 border-none">
-                Confirmer
-              </Button>
-            </div>
+        {appointmentToCancel && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+             <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setAppointmentToCancel(null)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-xl"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white w-full max-w-sm rounded-[3rem] p-10 shadow-3xl relative overflow-hidden text-center border border-black/5"
+            >
+              <div className="absolute top-0 left-0 w-full h-3 bg-red-500"></div>
+              <div className="w-20 h-20 bg-red-50 text-red-500 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-sm border border-red-100/50">
+                 <X size={32} strokeWidth={3} />
+              </div>
+              <h3 className="text-3xl font-black tracking-tighter mb-2">Annuler ce RDV ?</h3>
+              <p className="text-[10px] font-black text-veto-gray/40 uppercase tracking-widest mb-8">
+                 Le {format(new Date(appointmentToCancel.date), 'EEEE d MMMM à HH:mm', { locale: fr })}
+              </p>
+              <div className="flex flex-col gap-3">
+                <Button onClick={handleCancelAppointment} className="w-full py-5 font-black bg-red-500 text-white hover:bg-red-600 border-none rounded-[1.5rem] text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-red-500/20">
+                  CONFIRMER L'ANNULATION
+                </Button>
+                <Button onClick={() => setAppointmentToCancel(null)} variant="ghost" className="w-full py-5 font-black text-veto-gray/60 hover:text-veto-black transition-colors text-[10px] uppercase tracking-widest">
+                  Garder le rendez-vous
+                </Button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {loading && (
         <div className="absolute inset-0 bg-white/40 backdrop-blur-[4px] z-20 flex items-center justify-center">
@@ -352,12 +397,16 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
 
       <style>{`
         .premium-calendar.owner-view .fc-timegrid-slot {
-          height: 4rem !important;
+          height: 6rem !important;
         }
         .premium-calendar.owner-view .fc-event {
-          border-radius: 12px;
-          border: 2px solid white !important;
+          border-radius: 20px;
+          border: none !important;
           box-shadow: none;
+          background: transparent !important;
+        }
+        .premium-calendar.owner-view .fc-timegrid-event-harness {
+          margin: 6px !important;
         }
       `}</style>
     </div>
