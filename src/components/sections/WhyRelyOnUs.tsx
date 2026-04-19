@@ -4,28 +4,28 @@ import { PawPrint } from 'lucide-react';
 export function WhyRelyOnUs() {
   const reasons = [
     {
-      title: "We love dogs",
-      description: "We understand that your furry friend is a treasured member of your family and deserves the best care and attention possible."
+      title: "Passion Médicale",
+      description: "Nous considérons chaque animal comme un membre précieux de votre famille nécessitant des soins irréprochables avec toute l'attention médicale qu'il mérite."
     },
     {
-      title: "Peace of mind",
-      description: "We know that leaving your furry friend can be stressful, and you want to ensure that they are receiving the best care while you're away."
+      title: "Tranquillité d'esprit",
+      description: "Des normes d'hygiène strictes pour garantir un environnement serein, où votre compagnon reçoit les meilleurs traitements sans stress prolongé."
     },
     {
-      title: "Convenience",
-      description: "In addition to our convenient appointment times, we also offer online booking for easy scheduling."
+      title: "Consultations Flexibles",
+      description: "En plus de nos plages horaires pratiques, nous vous proposons une prise de rendez-vous rapide via notre portail en ligne pour s'adapter à votre quotidien."
     },
     {
-      title: "Transparency", // Corrected typo from image
-      description: "We want you to feel confident in the care we provide and trust that we have your dog's best interests at heart."
+      title: "Transparence Totale",
+      description: "Nous prenons le temps de vous expliquer nos diagnostics et procédures cliniques pour vous accompagner sereinement dans les décisions de santé."
     },
     {
-      title: "Personalized care",
-      description: "Our team of trained professionals is dedicated to providing personalized care for every dog that comes through our doors."
+      title: "Prise en charge locale",
+      description: "Basés à Béjaïa, nous assurons des soins personnalisés et de proximité, bâtissant une relation de confiance durable avec nos patients du quartier."
     },
     {
-      title: "Teamwork",
-      description: "Our team of vets, technicians, and other pet care professionals work together to ensure that your dog receives the best possible care."
+      title: "Urgences & Suivi",
+      description: "Notre équipe est préparée pour la gestion de toute pathologie, garantissant à la fois un rétablissement optimal et un suivi digitalisé (carnet de santé)."
     }
   ];
 
@@ -37,7 +37,7 @@ export function WhyRelyOnUs() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-20">
           <Heading level={2} className="text-5xl md:text-7xl">
-            Why rely on us?
+            Pourquoi nous choisir ?
           </Heading>
         </div>
 
