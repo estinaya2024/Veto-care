@@ -70,7 +70,7 @@ export function Login() {
         </button>
         <div className="flex flex-col md:flex-row items-center justify-center group mb-10 gap-2">
           <img src={logo} alt="VetoMedical Logo" className="h-20 md:h-24 w-auto object-contain transition-transform group-hover:scale-105" />
-          <span className="font-heading font-black text-4xl md:text-5xl tracking-tighter uppercase text-veto-black">VETOMEDICAL</span>
+          <span className="font-heading font-black text-4xl md:text-[30px] tracking-tighter uppercase text-veto-black translate-y-[5px]">VETOMEDICAL</span>
         </div>
 
         <Heading level={3} className="mb-2">
