@@ -68,9 +68,9 @@ export function Login() {
         >
           <ArrowLeft size={20} />
         </button>
-        <div className="flex items-center justify-center group mb-8">
-          <img src={logo} alt="VetoMedical Logo" className="h-12 w-auto object-contain transition-transform group-hover:scale-105" />
-          <span className="font-heading font-black text-3xl tracking-tighter uppercase ml-1 text-veto-black">VETOMEDICAL</span>
+        <div className="flex flex-col md:flex-row items-center justify-center group mb-10 gap-2">
+          <img src={logo} alt="VetoMedical Logo" className="h-20 md:h-24 w-auto object-contain transition-transform group-hover:scale-105" />
+          <span className="font-heading font-black text-4xl md:text-5xl tracking-tighter uppercase text-veto-black">VETOMEDICAL</span>
         </div>
 
         <Heading level={3} className="mb-2">
