@@ -1,4 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace(/\/+$/, '');
+import { supabase } from './supabase';
 
 export const api = {
   async get(endpoint: string) {
@@ -39,6 +40,59 @@ export const api = {
   },
 
   async deleteUnavailability(id: string) {
-    return fetch(`${API_URL}/unavailability/${id}`, { method: 'DELETE' }).then(res => res.json());
+    const response = await fetch(`${API_URL}/unavailability/${id}`, { method: 'DELETE' });
+    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+    return response.json();
+  },
+
+  // Clinical Operations (wrapping Supabase for consistency)
+  async getOwnerProfile(userId: string) {
+    const { data, error } = await supabase
+      .from('maitres')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async updateOwnerProfile(userId: string, updates: any) {
+    const { data, error } = await supabase
+      .from('maitres')
+      .update(updates)
+      .eq('id', userId)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async getPatientsByOwner(ownerId: string) {
+    const { data, error } = await supabase
+      .from('patients')
+      .select('*')
+      .eq('maitre_id', ownerId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getAppointmentsByOwner(ownerId: string) {
+    const { data, error } = await supabase
+      .from('rendez_vous')
+      .select('*, veterinaires(name), patients(name)')
+      .eq('maitre_id', ownerId)
+      .order('date_rdv', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getAllPatients() {
+    const { data, error } = await supabase
+      .from('patients')
+      .select('*, maitres(full_name)')
+      .order('name', { ascending: true });
+    if (error) throw error;
+    return data || [];
   }
 };
