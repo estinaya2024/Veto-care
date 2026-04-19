@@ -5,6 +5,7 @@ import { Services } from './components/sections/Services';
 import { Footer } from './components/layout/Footer';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
+import { About } from './pages/About';
 
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
@@ -19,6 +20,7 @@ function AppContent() {
       {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route 
           path="/dashboard" 

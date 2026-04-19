@@ -37,9 +37,9 @@ export function Footer() {
         <div className="md:col-span-3 flex flex-col gap-6 mt-4 md:mt-0">
           <h4 className="font-black text-lg tracking-widest uppercase text-veto-black">Menu</h4>
           <ul className="flex flex-col gap-3 font-bold text-sm text-veto-gray">
-            <li><a href="#" className="hover:text-veto-black transition-colors">Services</a></li>
-            <li><a href="#" className="hover:text-veto-black transition-colors">À Propos</a></li>
-            <li><a href="#" className="hover:text-veto-black transition-colors">Contact</a></li>
+            <li><a href="/#services" className="hover:text-veto-black transition-colors">Services</a></li>
+            <li><a href="/about" className="hover:text-veto-black transition-colors">À Propos</a></li>
+            <li><a href="#contact" className="hover:text-veto-black transition-colors">Contact</a></li>
           </ul>
         </div>
 

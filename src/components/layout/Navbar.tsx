@@ -7,9 +7,9 @@ export function Navbar() {
   const { user } = useAuth();
 
   const navLinks = [
-    { name: 'ACCUEIL', href: '#', hasDropdown: false },
-    { name: 'À PROPOS', href: '#about', hasDropdown: false },
-    { name: 'SERVICES', href: '#services', hasDropdown: false },
+    { name: 'ACCUEIL', href: '/', hasDropdown: false },
+    { name: 'À PROPOS', href: '/about', hasDropdown: false },
+    { name: 'SERVICES', href: '/#services', hasDropdown: false },
     { name: 'URGENCES', href: 'tel:+1-800-VET-PRO', hasDropdown: false },
   ];
 
