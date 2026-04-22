@@ -31,9 +31,6 @@ export function WhyRelyOnUs() {
 
   return (
     <section className="px-8 md:px-16 py-24 bg-white relative overflow-hidden">
-      {/* Decorative Wing/Feather Doodle */}
-      
-
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-20">
           <Heading level={2} className="text-5xl md:text-7xl">

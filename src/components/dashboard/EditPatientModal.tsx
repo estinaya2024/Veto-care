@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '../ui/Button';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'react-hot-toast';
+import { X } from 'lucide-react';
 
 interface EditPatientModalProps {
   pet: any;
@@ -44,30 +45,32 @@ export function EditPatientModal({ pet, onClose, onSuccess }: EditPatientModalPr
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-[3rem] p-8 shadow-2xl animate-scaleIn relative">
-        <button onClick={onClose} className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-veto-yellow hover:text-black rounded-full transition-colors font-black z-10 shadow-sm border border-black/5">X</button>
-        <h3 className="text-2xl font-black mb-6 pr-8">Éditer la Fiche : {pet.name}</h3>
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl relative border border-gray-200">
+        <button onClick={onClose} className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
+           <X size={20} />
+        </button>
+        <h3 className="text-2xl font-bold tracking-tight mb-6">Éditer : {pet.name}</h3>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest ml-2 text-veto-gray">Espèce</label>
-            <input type="text" value={formData.species} onChange={(e) => setFormData({...formData, species: e.target.value})} className="w-full p-4 bg-gray-50 border rounded-2xl font-medium focus:bg-white focus:ring-4 focus:ring-black/5 outline-none transition-all" required />
+            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Espèce</label>
+            <input type="text" value={formData.species} onChange={(e) => setFormData({...formData, species: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all" required />
           </div>
           
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest ml-2 text-veto-gray">Race / Variété</label>
-            <input type="text" value={formData.breed} onChange={(e) => setFormData({...formData, breed: e.target.value})} placeholder="Berger Allemand, Siamois..." className="w-full p-4 bg-gray-50 border rounded-2xl font-medium focus:bg-white focus:ring-4 focus:ring-black/5 outline-none transition-all" />
+            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Race / Variété</label>
+            <input type="text" value={formData.breed} onChange={(e) => setFormData({...formData, breed: e.target.value})} placeholder="Berger Allemand, Siamois..." className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest ml-2 text-veto-gray">Poids (kg)</label>
-            <input type="text" value={formData.weight} onChange={(e) => setFormData({...formData, weight: e.target.value})} placeholder="Ex: 5" className="w-full p-4 bg-gray-50 border rounded-2xl font-medium focus:bg-white focus:ring-4 focus:ring-black/5 outline-none transition-all" />
+            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Poids (kg)</label>
+            <input type="text" value={formData.weight} onChange={(e) => setFormData({...formData, weight: e.target.value})} placeholder="Ex: 5" className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all" />
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest ml-2 text-veto-gray">Statut Clinique</label>
-            <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full p-4 bg-gray-50 border rounded-full font-bold focus:bg-white focus:ring-4 focus:ring-black/5 outline-none transition-all">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Statut Clinique</label>
+            <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-veto-yellow/20 appearance-none">
               <option value="En bonne santé">En bonne santé</option>
               <option value="En traitement">En traitement</option>
               <option value="Hospitalisé">Hospitalisé</option>
@@ -76,7 +79,7 @@ export function EditPatientModal({ pet, onClose, onSuccess }: EditPatientModalPr
             </select>
           </div>
 
-          <Button type="submit" variant="yellow" disabled={loading} className="w-full py-5 text-[11px] font-black uppercase tracking-widest mt-6 shadow-xl shadow-veto-yellow/20">
+          <Button type="submit" variant="yellow" disabled={loading} className="w-full py-4 text-xs font-bold rounded-xl mt-6">
             {loading ? 'Mise à jour...' : 'Mettre à jour la fiche'}
           </Button>
         </form>

@@ -14,14 +14,16 @@ export function Dashboard() {
   const navigate = useNavigate();
   
   // Use a derived initial state to avoid useEffect + setState
-  const [activeTab, setActiveTab] = useState<DashboardTab>(role === 'vet' ? 'vet' : 'dashboard');
+  // Initialize with correct tab based on role
+  const [activeTab, setActiveTab] = useState<DashboardTab>(() => {
+    return role === 'vet' ? 'vet' : 'dashboard';
+  });
 
-  // Synchronize tab if role arrives later (async)
+  // Only sync if role changes and tab is in a state that shouldn't exist for that role
   useEffect(() => {
     if (role === 'vet' && activeTab === 'dashboard') {
       setActiveTab('vet');
-    }
-    if (role === 'owner' && activeTab === 'vet') {
+    } else if (role === 'owner' && activeTab === 'vet') {
       setActiveTab('dashboard');
     }
   }, [role, activeTab]);

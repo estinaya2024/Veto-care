@@ -1,5 +1,4 @@
 import { 
-  Smile, 
   ChevronLeft,
   ChevronRight,
   Stethoscope,
@@ -8,7 +7,8 @@ import {
   Settings,
   LayoutDashboard,
   LogOut,
-  X
+  X,
+  Menu
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -68,15 +68,15 @@ const SidebarContent = ({
             setIsMobileOpen(false);
           }}
           className={cn(
-            "w-full flex items-center gap-4 px-4 py-4 rounded-3xl transition-all group relative",
+            "w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all group relative",
             activeTab === item.id 
-              ? "bg-veto-yellow text-veto-black shadow-lg shadow-veto-yellow/20" 
-              : "text-veto-gray hover:bg-black/5 hover:text-veto-black"
+              ? "bg-black text-white shadow-sm" 
+              : "text-gray-500 hover:bg-gray-50 hover:text-black"
           )}
         >
-          <item.icon size={22} className={cn(
+          <item.icon size={20} className={cn(
             "transition-transform",
-            activeTab === item.id ? "scale-110" : "group-hover:scale-110"
+            activeTab === item.id ? "scale-105" : "group-hover:scale-105"
           )} />
           
           <AnimatePresence>
@@ -92,9 +92,9 @@ const SidebarContent = ({
             )}
           </AnimatePresence>
 
-          {/* Active Indicator Dot */}
+          {/* Active Indicator Dot (Collapsed) */}
           {activeTab === item.id && isCollapsed && (
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-veto-black rounded-full mr-1" />
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-white rounded-full mr-2" />
           )}
         </button>
       ))}
@@ -102,15 +102,15 @@ const SidebarContent = ({
 
     {/* Footer / Logout */}
     <div className="px-4 mt-auto">
-      <div className="h-[1px] bg-black/5 mb-6 mx-2" />
+      <div className="h-[1px] bg-gray-100 mb-6 mx-2" />
       <button
         onClick={onLogout}
         className={cn(
-          "w-full flex items-center gap-4 px-4 py-4 rounded-3xl text-red-500 hover:bg-red-50 transition-all font-bold group",
+          "w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-red-500 hover:bg-red-50 transition-all font-bold group",
           isCollapsed && "justify-center"
         )}
       >
-        <LogOut size={22} className="group-hover:scale-110 transition-transform" />
+        <LogOut size={20} className="group-hover:scale-105 transition-transform" />
         {!isCollapsed && <span className="text-sm">Se Déconnecter</span>}
       </button>
     </div>
@@ -134,16 +134,16 @@ export function Sidebar({ role, onLogout, activeTab, setActiveTab }: SidebarProp
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between p-6 bg-white/80 backdrop-blur-xl border-b border-black/5 sticky top-0 z-[100]">
+      <div className="md:hidden flex items-center justify-between p-5 bg-white border-b border-gray-100 sticky top-0 z-[100]">
         <div className="flex items-center gap-2">
           <img src={logo} alt="Logo" className="w-8 h-8" />
-          <span className="font-extrabold text-xl tracking-tighter">VetoCare</span>
+          <span className="font-bold text-xl tracking-tighter">VetoCare</span>
         </div>
         <button 
           onClick={() => setIsMobileOpen(true)}
-          className="p-2 bg-black/5 rounded-2xl"
+          className="p-2.5 bg-gray-100 rounded-xl"
         >
-          <Smile size={24} className="text-veto-yellow" />
+         <Menu size={20} className="text-black" />
         </button>
       </div>
 

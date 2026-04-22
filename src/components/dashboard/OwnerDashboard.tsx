@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
 import { Calendar, Stethoscope, HeartPulse, Clock, Activity, X, ChevronRight } from 'lucide-react';
@@ -13,13 +13,32 @@ import { CardSkeleton } from '../ui/Skeleton';
 import { PetAvatar } from './PetAvatar';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { motion } from 'framer-motion';
+
+interface Pet {
+  id: string;
+  name: string;
+  species: string;
+  breed?: string;
+  weight?: string;
+  status: string;
+  is_archived: boolean;
+  next_vax?: string;
+}
+
+interface Appointment {
+  id: string;
+  date_rdv: string;
+  status: string;
+  veterinaires?: { name: string };
+}
 
 export function OwnerDashboard() {
   const { user } = useAuth();
-  const [pets, setPets] = useState<any[]>([]);
-  const [nextAppointment, setNextAppointment] = useState<any | null>(null);
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [nextAppointment, setNextAppointment] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedPet, setSelectedPet] = useState<any | null>(null);
+  const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
   const [activeTab, setActiveTab] = useState<'pets' | 'agenda'>('pets');
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -28,7 +47,7 @@ export function OwnerDashboard() {
   const [newSpecies, setNewSpecies] = useState('Chien');
   const [newWeight, setNewWeight] = useState('');
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
@@ -36,14 +55,14 @@ export function OwnerDashboard() {
         api.getPatientsByOwner(user.id),
         api.getNextAppointment(user.id)
       ]);
-      setPets(petsData);
-      setNextAppointment(nextAptData);
+      setPets(petsData as Pet[]);
+      setNextAppointment(nextAptData as Appointment);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchData();
@@ -73,7 +92,7 @@ export function OwnerDashboard() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, fetchData]);
 
   const handleAddPatient = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +124,7 @@ export function OwnerDashboard() {
       await api.setPatientArchiveStatus(patientId, true);
       toast.success('Animal archivé');
       fetchData();
-    } catch (err) {
+    } catch {
       toast.error('Erreur lors de l\'archivage');
     }
   };
@@ -115,7 +134,7 @@ export function OwnerDashboard() {
       await api.updateAppointmentStatus(appointmentId, 'en_attente');
       toast.success('Vous êtes maintenant en salle d\'attente !');
       fetchData();
-    } catch (err) {
+    } catch {
       toast.error('Erreur lors du check-in');
     }
   };
@@ -127,30 +146,30 @@ export function OwnerDashboard() {
   const activePets = pets.filter(p => !p.is_archived);
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className="space-y-8 pb-10">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 border-b border-black/5 pb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-gray-200 pb-6">
         <div>
-           <Heading level={2} className="text-3xl sm:text-4xl lg:text-5xl tracking-tighter">Mon Espace Santé</Heading>
-           <p className="text-veto-gray font-bold uppercase tracking-widest text-[9px] mt-2 opacity-50">Gestion de vos compagnons et rendez-vous</p>
+           <Heading level={2} className="text-3xl font-bold tracking-tight">Mon Espace Santé</Heading>
+           <p className="text-gray-500 text-sm mt-1">Gérez vos animaux et vos rendez-vous en un seul endroit.</p>
         </div>
         
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-          <div className="flex p-1 bg-black/5 rounded-full border border-black/5 backdrop-blur-md w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+          <div className="flex p-1 bg-gray-100 rounded-xl w-full sm:w-auto">
             <button 
               onClick={() => setActiveTab('pets')}
               className={cn(
-                "flex-1 sm:flex-none px-6 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
-                activeTab === 'pets' ? "bg-white shadow-sm text-veto-black" : "text-veto-gray hover:text-veto-black"
+                "flex-1 sm:flex-none px-5 py-2 rounded-lg text-xs font-bold transition-all",
+                activeTab === 'pets' ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-black"
               )}
             >
-              Animaux
+              Mes Animaux
             </button>
             <button 
               onClick={() => setActiveTab('agenda')}
               className={cn(
-                "flex-1 sm:flex-none px-6 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
-                activeTab === 'agenda' ? "bg-white shadow-sm text-veto-black" : "text-veto-gray hover:text-veto-black"
+                "flex-1 sm:flex-none px-5 py-2 rounded-lg text-xs font-bold transition-all",
+                activeTab === 'agenda' ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-black"
               )}
             >
               Agenda
@@ -159,10 +178,10 @@ export function OwnerDashboard() {
           <Button 
             variant="black" 
             size="sm"
-            className="w-full sm:w-auto font-black h-10 px-6 rounded-full text-[9px] uppercase tracking-widest"
+            className="w-full sm:w-auto font-bold h-10 px-6 rounded-xl text-xs"
             onClick={() => setShowAddModal(true)}
           >
-            + Inscrire
+            + Nouvel Animal
           </Button>
         </div>
       </div>
@@ -171,34 +190,32 @@ export function OwnerDashboard() {
         <BookingCalendar maitreId={user?.id || ''} />
       ) : (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Hero Card: Next Appointment */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Appointment Card */}
             <div className="lg:col-span-2">
-               <div className="bg-veto-black rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12 text-white relative overflow-hidden h-full flex flex-col justify-between group">
-                  <div className="absolute top-0 right-0 w-80 h-80 bg-veto-yellow/5 rounded-full blur-[100px] -mr-40 -mt-40 transition-all duration-700"></div>
-                  <div className="relative z-10">
-                     <div className="flex items-center gap-3 mb-8 md:mb-10">
-                        <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
-                           <Calendar size={20} className="text-veto-yellow" />
+               <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm h-full flex flex-col justify-between group transition-all hover:border-veto-yellow/50">
+                  <div>
+                     <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2.5 bg-gray-100 rounded-xl">
+                           <Calendar size={18} className="text-gray-600" />
                         </div>
-                        <span className="font-black text-[10px] uppercase tracking-[0.2em] text-white/40">Agenda Personnel</span>
+                        <span className="font-bold text-xs text-gray-500 uppercase tracking-wider">Prochain Rendez-vous</span>
                      </div>
                      
                      {nextAppointment ? (
                        <div className="space-y-6">
                           <div>
-                             <p className="text-veto-yellow font-black text-xs uppercase tracking-widest opacity-80 mb-2">Prochain Rendez-vous</p>
-                             <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tighter leading-none mb-4">
+                             <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
                                {format(new Date(nextAppointment.date_rdv), 'EEEE d MMMM', { locale: fr })}
                              </h3>
-                             <div className="flex flex-wrap items-center gap-4 text-white/60 font-bold">
-                                <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-lg">
-                                   <Clock size={14} />
-                                   <span className="text-xs">{format(new Date(nextAppointment.date_rdv), 'HH:mm')}</span>
+                             <div className="flex flex-wrap items-center gap-3">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100">
+                                   <Clock size={14} className="text-gray-400" />
+                                   <span className="text-xs font-bold">{format(new Date(nextAppointment.date_rdv), 'HH:mm')}</span>
                                 </div>
-                                <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-lg">
-                                   <Stethoscope size={14} />
-                                   <span className="text-xs">Dr. {nextAppointment.veterinaires?.name}</span>
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-100">
+                                   <Stethoscope size={14} className="text-gray-400" />
+                                   <span className="text-xs font-bold">Dr. {nextAppointment.veterinaires?.name}</span>
                                 </div>
                              </div>
                           </div>
@@ -207,70 +224,67 @@ export function OwnerDashboard() {
                             <Button 
                               onClick={() => handleCheckIn(nextAppointment.id)} 
                               variant="yellow" 
-                              className="w-full sm:w-auto px-8 py-4 font-black uppercase tracking-widest text-[10px] shadow-xl shadow-veto-yellow/20 animate-pulse"
+                              className="w-full sm:w-auto px-8 py-3.5 font-bold rounded-xl text-xs"
                             >
-                              JE SUIS ARRIVÉ AU CABINET
+                              Confirmer mon arrivée au cabinet
                             </Button>
                           )}
                           {nextAppointment.status === 'en_attente' && (
-                            <div className="flex items-center gap-3 px-6 py-4 bg-white/10 rounded-[2rem] border border-white/5 w-fit">
-                               <div className="w-2 h-2 rounded-full bg-green-500 animate-ping"></div>
-                               <span className="text-[10px] font-black uppercase tracking-widest opacity-60">En salle d'attente...</span>
+                            <div className="flex items-center gap-3 px-5 py-3 bg-green-50 rounded-xl border border-green-100 w-fit">
+                               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                               <span className="text-xs font-bold text-green-700">En salle d'attente</span>
                             </div>
                           )}
                        </div>
                      ) : (
-                       <div className="py-4">
-                          <h3 className="text-3xl md:text-4xl font-black tracking-tight opacity-20">Aucun soin planifié</h3>
-                          <button onClick={() => setActiveTab('agenda')} className="mt-4 text-veto-yellow text-xs md:text-sm font-black uppercase tracking-widest hover:underline">Vérifier les disponibilités →</button>
+                       <div className="py-2">
+                          <h3 className="text-xl font-bold text-gray-400">Aucun soin planifié</h3>
+                          <button onClick={() => setActiveTab('agenda')} className="mt-3 text-veto-yellow text-xs font-bold hover:underline">Voir les disponibilités →</button>
                        </div>
                      )}
                   </div>
 
-                  <div className="mt-12 flex items-center gap-6 relative z-10">
-                     <div className="flex -space-x-3">
-                        {activePets.slice(0, 3).map((p, i) => (
-                          <div key={p.id} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-4 border-veto-black overflow-hidden bg-white shadow-xl" style={{ zIndex: 10 - i }}>
-                             <PetAvatar species={p.species} name={p.name} size="md" />
+                  <div className="mt-8 flex items-center justify-between border-t border-gray-100 pt-6">
+                     <div className="flex -space-x-2">
+                        {activePets.slice(0, 4).map((p) => (
+                          <div key={p.id} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-gray-50 ring-1 ring-gray-100">
+                             <PetAvatar species={p.species} name={p.name} size="md" className="w-full h-full border-none shadow-none" />
                           </div>
                         ))}
                      </div>
-                     <p className="font-bold text-[10px] text-white/40 uppercase tracking-widest">
-                        {activePets.length} compagnon{activePets.length > 1 ? 's' : ''} actif{activePets.length > 1 ? 's' : ''}
+                     <p className="text-xs font-bold text-gray-400">
+                        {activePets.length} animal{activePets.length > 1 ? 'aux' : ''} actif{activePets.length > 1 ? 's' : ''}
                      </p>
                   </div>
                </div>
             </div>
 
             {/* Clinic Info Card */}
-            <div className="bg-white rounded-[2.5rem] md:rounded-[3.5rem] p-8 md:p-12 border border-black/5 flex flex-col justify-between shadow-sm">
-               <div className="space-y-8">
+            <div className="bg-gray-50 rounded-3xl p-8 border border-gray-200 flex flex-col justify-between">
+               <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                     <div className="bg-veto-blue-gray p-3 rounded-2xl">
-                        <HeartPulse size={20} className="text-veto-black" />
+                     <div className="bg-white p-2.5 rounded-xl border border-gray-100">
+                        <HeartPulse size={18} className="text-veto-black" />
                      </div>
                      <div>
-                        <span className="font-black text-[10px] uppercase tracking-widest text-veto-gray block mb-0.5 opacity-50">Établissement</span>
-                        <span className="font-black text-sm text-veto-black uppercase tracking-tight">Clinique VetoCare</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Ma Clinique</span>
+                        <span className="font-bold text-sm">Clinique VetoCare</span>
                      </div>
                   </div>
                   
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                      <div>
-                        <p className="text-[10px] font-black uppercase text-veto-gray/30 mb-1 tracking-widest">Horaires d'Ouverture</p>
-                        <div className="flex items-center gap-2">
-                           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                           <p className="font-black text-sm text-veto-black underline decoration-veto-yellow decoration-4 underline-offset-4">08h00 — 20h00</p>
-                        </div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Horaires</p>
+                        <p className="font-bold text-sm">Lun — Sam: 08:00 - 20:00</p>
                      </div>
                      <div>
-                        <p className="text-[10px] font-black uppercase text-veto-gray/30 mb-1 tracking-widest">Localisation</p>
-                        <p className="font-bold text-sm text-veto-black leading-tight italic">Cité des Sciences, Oran • Algérie</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Contact</p>
+                        <p className="font-bold text-sm">0541 22 33 44</p>
                      </div>
-                     <div className="pt-4">
-                        <div className="flex items-center gap-3 px-6 py-4 bg-red-50 text-red-500 rounded-3xl w-full border border-red-100/50 group hover:bg-red-500 hover:text-white transition-all cursor-pointer">
-                           <Activity size={18} className="animate-pulse" />
-                           <span className="font-black text-[10px] uppercase tracking-[0.15em] shrink-0">Urgence: 0541 22 33 44</span>
+                     <div className="pt-2">
+                        <div className="flex items-center gap-3 px-4 py-3 bg-white border border-red-100 rounded-xl group hover:border-red-500 transition-all cursor-pointer">
+                           <Activity size={16} className="text-red-500" />
+                           <span className="font-bold text-xs text-red-600">Appel d'urgence</span>
                         </div>
                      </div>
                   </div>
@@ -278,38 +292,35 @@ export function OwnerDashboard() {
             </div>
           </div>
 
-          <div className="space-y-10">
-            <div className="flex items-center justify-between px-2">
-               <h3 className="font-black text-xs uppercase tracking-[0.3em] text-veto-black/30">Votre Flotte Santé</h3>
-               <div className="h-[1px] flex-1 mx-8 bg-black/5"></div>
-               <button onClick={() => setShowAddModal(true)} className="text-[10px] font-black text-veto-gray hover:text-veto-black transition-colors uppercase tracking-widest">+ Ajouter</button>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+               <h3 className="font-bold text-sm text-gray-500 uppercase tracking-widest">Mes Compagnons</h3>
+               <button onClick={() => setShowAddModal(true)} className="text-xs font-bold text-veto-gray hover:text-black transition-colors">+ Ajouter un animal</button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {loading ? (
                 <CardSkeleton />
               ) : activePets.length === 0 ? (
-                <div className="col-span-full p-12 md:p-24 text-center bg-white rounded-[2.5rem] md:rounded-[3.5rem] border border-dashed border-black/10">
-                   <p className="text-veto-gray font-bold text-base md:text-lg">Aucun animal n'est encore associé à votre compte.</p>
-                   <Button variant="outline" className="mt-8 rounded-full px-8 py-5" onClick={() => setShowAddModal(true)}>Commencer l'inscription</Button>
+                <div className="col-span-full p-16 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-300">
+                   <p className="text-gray-500 font-bold mb-4">Vous n'avez pas encore inscrit d'animal.</p>
+                   <Button variant="outline" className="rounded-xl px-8" onClick={() => setShowAddModal(true)}>Ajouter mon premier animal</Button>
                 </div>
               ) : (
                 activePets.map((p) => (
-                  <div key={p.id} className="group bg-white p-8 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border border-black/5 shadow-sm hover:border-veto-yellow/30 transition-all duration-500 relative overflow-hidden flex flex-col justify-between min-h-[350px] md:min-h-[400px]">
-
-                    
-                    <div className="flex items-start justify-between mb-8">
-                      <PetAvatar species={p.species} name={p.name} size="lg" />
+                  <div key={p.id} className="group bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between min-h-[280px]">
+                    <div className="flex items-start justify-between mb-4">
+                      <PetAvatar species={p.species} name={p.name} size="lg" className="shadow-none border-gray-100" />
                       <div className="flex flex-col items-end gap-2">
-                         <div className="px-4 py-1.5 bg-veto-blue-gray rounded-full">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-veto-black opacity-60 decoration-veto-yellow decoration-2">{p.species}</span>
+                         <div className="px-3 py-1 bg-gray-100 rounded-full">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600">{p.species}</span>
                          </div>
                          <button 
                            onClick={(e) => {
                              e.stopPropagation();
                              handleArchivePatient(p.id);
                            }}
-                           className="text-[8px] font-black text-red-400 hover:text-red-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity"
+                           className="text-[9px] font-bold text-red-400 hover:text-red-600 uppercase tracking-wider transition-colors"
                          >
                            Archiver
                          </button>
@@ -317,26 +328,21 @@ export function OwnerDashboard() {
                     </div>
 
                     <div onClick={() => setSelectedPet(p)} className="flex-1 cursor-pointer">
-                      <h4 className="text-3xl font-black tracking-tighter text-veto-black mb-1 group-hover:text-veto-yellow transition-colors">{p.name}</h4>
-                      <p className="text-[10px] font-black text-veto-gray/40 uppercase tracking-widest flex items-center gap-2">
-                        <Activity size={10} /> Suivi Médical Actif
+                      <h4 className="text-2xl font-bold text-black mb-1">{p.name}</h4>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Activity size={10} /> {p.status}
                       </p>
                     </div>
 
-                    <div className="pt-8 border-t border-black/5 flex justify-between items-center">
-                      <div className="space-y-1">
-                        <p className="text-[8px] font-black uppercase tracking-widest text-veto-gray opacity-40">Rappel Vaccin</p>
-                        <div className="flex items-center gap-2">
-                           <div className="w-8 h-8 rounded-xl bg-orange-50 flex items-center justify-center">
-                              <Stethoscope size={14} className="text-orange-400" />
-                           </div>
-                           <span className="text-veto-black font-black text-sm">
-                             {p.next_vax ? new Date(p.next_vax).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—'}
-                           </span>
-                        </div>
+                    <div className="pt-4 mt-6 border-t border-gray-100 flex justify-between items-center">
+                      <div className="space-y-0.5">
+                        <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Vaccination</p>
+                        <p className="text-black font-bold text-xs italic">
+                          {p.next_vax ? new Date(p.next_vax).toLocaleDateString('fr-FR') : 'Non planifié'}
+                        </p>
                       </div>
-                      <button onClick={() => setSelectedPet(p)} className="w-12 h-12 bg-veto-blue-gray rounded-[1.5rem] flex items-center justify-center text-veto-black group-hover:bg-veto-black group-hover:text-white transition-all shadow-sm">
-                         <ChevronRight size={20} />
+                      <button onClick={() => setSelectedPet(p)} className="p-2.5 bg-gray-50 rounded-xl text-gray-400 group-hover:bg-veto-yellow group-hover:text-black transition-all">
+                         <ChevronRight size={18} />
                       </button>
                     </div>
                   </div>
@@ -347,40 +353,44 @@ export function OwnerDashboard() {
         </>
       )}
 
-      {/* Add Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-xl z-[300] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-[3.5rem] p-10 shadow-3xl animate-scaleIn relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-veto-yellow/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
-            <button onClick={() => setShowAddModal(false)} className="absolute top-8 right-8 p-3 hover:bg-gray-100 rounded-full transition-colors text-veto-gray">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            onClick={() => setShowAddModal(false)}
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+          />
+          <div className="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl relative overflow-hidden border border-gray-200">
+            <button onClick={() => setShowAddModal(false)} className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
                <X size={20} />
             </button>
             
-            <div className="mb-10">
-               <h3 className="text-3xl font-black tracking-tight mb-2">Inscription Patient</h3>
-               <p className="text-[11px] font-black text-veto-gray uppercase tracking-widest opacity-40">Ajouter un nouveau compagnon à votre dossier</p>
+            <div className="mb-8">
+               <h3 className="text-2xl font-bold tracking-tight mb-1">Inscription Patient</h3>
+               <p className="text-xs text-gray-500">Ajouter un nouveau compagnon à votre dossier.</p>
             </div>
 
-            <form onSubmit={handleAddPatient} className="space-y-6">
+            <form onSubmit={handleAddPatient} className="space-y-5">
               <div className="space-y-2">
-                <label className="text-[10px] font-black ml-4 uppercase tracking-widest text-veto-gray">Identité de l'animal</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Identité de l'animal</label>
                 <input 
                   type="text" 
                   value={newName} 
                   onChange={(e) => setNewName(e.target.value)} 
                   placeholder="Ex: Rex, Luna..." 
-                  className="w-full p-6 bg-gray-50/80 border-none rounded-[2rem] font-black text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all" 
+                  className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all" 
                   required 
                 />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black ml-4 uppercase tracking-widest text-veto-gray">Espèce</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Espèce</label>
                   <select 
                     value={newSpecies} 
                     onChange={(e) => setNewSpecies(e.target.value)} 
-                    className="w-full p-6 bg-gray-50/80 border-none rounded-[2rem] font-black text-sm appearance-none outline-none focus:ring-2 focus:ring-veto-yellow/20"
+                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm appearance-none outline-none focus:ring-2 focus:ring-veto-yellow/20"
                   >
                     <option value="Chien">Chien</option>
                     <option value="Chat">Chat</option>
@@ -390,18 +400,18 @@ export function OwnerDashboard() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black ml-4 uppercase tracking-widest text-veto-gray">Poids estimé (kg)</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Poids (kg)</label>
                   <input 
                     type="text" 
                     value={newWeight} 
                     onChange={(e) => setNewWeight(e.target.value)} 
                     placeholder="Ex: 5, 25..." 
-                    className="w-full p-6 bg-gray-50/80 border-none rounded-[2rem] font-black text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all" 
+                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all" 
                   />
                 </div>
               </div>
 
-              <Button type="submit" className="w-full py-6 text-sm font-black shadow-2xl shadow-veto-yellow/20 mt-4 rounded-[2rem]" variant="yellow">
+              <Button type="submit" className="w-full py-4 text-xs font-bold rounded-xl mt-2" variant="yellow">
                  Confirmer l'inscription
               </Button>
             </form>

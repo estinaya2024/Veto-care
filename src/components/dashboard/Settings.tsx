@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Heading } from '../ui/Heading';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '../ui/Button';
-import { User, Phone, Mail, Shield } from 'lucide-react';
+import { User, Shield } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'react-hot-toast';
@@ -15,7 +14,7 @@ export function Settings() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!user || !role) return;
     setLoading(true);
     const table = role === 'vet' ? 'veterinaires' : 'maitres';
@@ -32,13 +31,13 @@ export function Settings() {
       setPhone(data.phone || '');
     }
     setLoading(false);
-  };
+  }, [user, role]);
 
   useEffect(() => {
     if (user && role) {
       fetchProfile();
     }
-  }, [user, role]);
+  }, [user, role, fetchProfile]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,68 +74,67 @@ export function Settings() {
   return (
     <div className="max-w-3xl mx-auto space-y-8 animate-fadeInUp">
       <div>
-        <Heading level={2} className="text-3xl">Paramètres du Compte</Heading>
-        <p className="text-veto-gray font-medium tracking-tight">Gérez vos informations personnelles et préférences.</p>
+        <h2 className="text-3xl font-bold tracking-tight">Paramètres</h2>
+        <p className="text-gray-500 font-medium">Gérez vos informations personnelles et préférences.</p>
       </div>
 
-      <div className="bg-white rounded-[3rem] p-10 shadow-sm border border-black/5">
-        <div className="flex items-center gap-6 mb-10 pb-8 border-b border-black/5">
-          <div className="w-24 h-24 bg-veto-yellow/20 rounded-full flex items-center justify-center font-black text-4xl text-veto-black">
+      <div className="bg-white rounded-3xl p-10 shadow-sm border border-gray-100">
+        <div className="flex items-center gap-6 mb-10 pb-8 border-b border-gray-100">
+          <div className="w-20 h-20 bg-veto-yellow/20 rounded-2xl flex items-center justify-center font-bold text-3xl text-black">
             {fullName ? fullName[0].toUpperCase() : <User />}
           </div>
           <div>
-            <h3 className="font-black text-2xl">{fullName || 'Utilisateur'}</h3>
-            <p className="text-veto-gray font-bold text-sm uppercase tracking-widest">{role === 'vet' ? 'Vétérinaire' : 'Propriétaire'}</p>
+            <h3 className="font-bold text-2xl">{fullName || 'Utilisateur'}</h3>
+            <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">{role === 'vet' ? 'Vétérinaire' : 'Propriétaire'}</p>
           </div>
         </div>
 
         <form onSubmit={handleSave} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-veto-gray ml-4 flex items-center gap-2">
-              <User size={12} /> Nom Complet
+            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 ml-1 flex items-center gap-2">
+               Nom Complet
             </label>
             <input 
               type="text" 
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full bg-gray-50/50 p-5 rounded-2xl border border-black/5 font-extrabold focus:bg-white focus:border-black/20 focus:ring-4 focus:ring-black/5 outline-none transition-all"
+              className="w-full bg-gray-50 px-5 py-4 rounded-xl border border-gray-100 font-bold text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all"
             />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-veto-gray ml-4 flex items-center gap-2">
-                <Phone size={12} /> Numéro de téléphone
+              <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 ml-1">
+                Numéro de téléphone
               </label>
               <input 
                 type="text" 
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+213 00 00 00 00"
-                className="w-full bg-gray-50/50 p-5 rounded-2xl border border-black/5 font-extrabold focus:bg-white focus:border-black/20 focus:ring-4 focus:ring-black/5 outline-none transition-all"
+                className="w-full bg-gray-50 px-5 py-4 rounded-xl border border-gray-100 font-bold text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all"
               />
             </div>
             
             <div className="space-y-2 opacity-60">
-              <label className="text-[10px] font-black uppercase tracking-widest text-veto-gray ml-4 flex items-center gap-2">
-                <Mail size={12} /> Adresse Email
+              <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 ml-1">
+                Adresse Email
               </label>
               <input 
                 type="text" 
                 value={user?.email || ''}
                 readOnly
-                className="w-full bg-gray-100 p-5 rounded-2xl border border-black/5 font-extrabold outline-none cursor-not-allowed"
-                title="L'adresse email ne peut être modifiée"
+                className="w-full bg-gray-100 px-5 py-4 rounded-xl border border-gray-100 font-bold text-sm outline-none cursor-not-allowed"
               />
             </div>
           </div>
           
-          <div className="pt-6 border-t border-black/5 flex items-center justify-between">
-             <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-veto-gray">
+          <div className="pt-6 border-t border-gray-100 flex items-center justify-between">
+             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
                 <Shield size={14} className="text-green-500" /> Données sécurisées
              </div>
-             <Button variant="yellow" type="submit" disabled={saving} className="px-10 py-4 font-black uppercase tracking-widest text-xs">
-               {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+             <Button variant="yellow" type="submit" disabled={saving} className="px-8 py-3.5 font-bold rounded-xl text-xs">
+               {saving ? 'Enregistrement...' : 'Sauvegarder'}
              </Button>
           </div>
         </form>

@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import { supabase } from '../../lib/supabase';
-import { Calendar as CalendarIcon, Clock, X, Zap, ChevronDown } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, X, Zap } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Button } from '../ui/Button';
@@ -185,38 +185,31 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
   };
 
   return (
-    <div className="glass-premium rounded-[3.5rem] p-8 shadow-premium animate-fadeInUp relative overflow-hidden group/calendar min-h-[800px]">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-veto-yellow/5 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none group-hover/calendar:bg-veto-yellow/10 transition-colors duration-1000"></div>
-      
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 relative z-10 gap-6">
-        <div className="flex items-center gap-6">
-          <motion.div 
-            className="p-4 bg-white shadow-sm border border-black/5 rounded-[1.5rem] glow-yellow"
-          >
-            <CalendarIcon size={28} className="text-veto-black" />
-          </motion.div>
+    <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm animate-fadeInUp relative overflow-hidden min-h-[800px]">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-gray-100 rounded-xl">
+            <CalendarIcon size={20} className="text-gray-600" />
+          </div>
           <div>
-            <h3 className="text-3xl font-black tracking-tighter text-veto-black leading-none mb-2">Prendre Rendez-vous</h3>
-            <div className="flex items-center gap-2">
-               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-               <span className="text-veto-gray font-black uppercase tracking-[0.2em] text-[9px] opacity-40">Horaires d'ouverture 08:00 — 20:00</span>
-            </div>
+            <h3 className="text-xl font-bold text-black tracking-tight leading-none mb-1">Prendre Rendez-vous</h3>
+            <p className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Ouvert de 08:00 à 20:00</p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-           <div className="flex items-center gap-2 px-5 py-2.5 bg-white/50 rounded-full border border-black/5 shadow-sm text-[9px] font-black uppercase tracking-widest transition-all hover:bg-white">
-              <div className="w-2.5 h-2.5 rounded-full bg-veto-yellow shadow-[0_0_8px_rgba(255,213,0,0.5)]"></div> 
-              <span className="text-veto-black">Mes Consultations</span>
+           <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-100 text-[10px] font-bold uppercase transition-all">
+              <div className="w-2.5 h-2.5 rounded-full bg-veto-yellow shadow-sm"></div> 
+              <span className="text-black">Mes RDV</span>
            </div>
-           <div className="flex items-center gap-2 px-5 py-2.5 bg-white/30 rounded-full border border-black/5 text-[9px] font-black uppercase tracking-widest text-gray-400 opacity-60">
+           <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-100 text-[10px] font-bold uppercase text-gray-400">
               <div className="w-2.5 h-2.5 rounded-full bg-gray-200"></div> 
               <span>Réservé</span>
            </div>
         </div>
       </div>
 
-      <div className="premium-calendar owner-view relative z-10 min-h-[600px]">
+      <div className="premium-calendar owner-view relative z-10">
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -232,7 +225,6 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
           slotMaxTime="20:00:00"
           allDaySlot={false}
           selectAllow={(selectInfo) => {
-            // Check if ANY event overlaps with the selection
             return !events.some(event => {
               const eStart = new Date(event.start).getTime();
               const eEnd = new Date(event.end).getTime();
@@ -245,44 +237,26 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
             const type = arg.event.extendedProps.type;
             const isMine = type === 'mine';
             const isBlocked = type === 'blocked';
-            const isReserved = type === 'reserved';
             
             return (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className={cn(
-                  "p-3 w-full h-full flex flex-col justify-start gap-1 rounded-2xl transition-all relative overflow-hidden group/event",
-                  isMine ? "border-veto-yellow bg-white shadow-xl z-20" : 
-                  isBlocked ? "border-gray-200 bg-gray-50/50 grayscale opacity-40 shrink-0" : 
-                  "border-gray-100 bg-white shadow-sm opacity-60"
-                )}
-              >
-                {isMine && <div className="absolute inset-0 bg-veto-yellow/5 pointer-events-none group-hover/event:bg-veto-yellow/10 transition-colors"></div>}
-                
-                <div className="flex items-center justify-between relative z-10 w-full mb-1">
-                   <div className={cn(
-                     "font-black text-[10px] uppercase tracking-tight truncate max-w-[80%]",
-                     isMine ? "text-veto-black" : "text-gray-400"
-                   )}>
+              <div className={cn(
+                "p-2 w-full h-full flex flex-col justify-between rounded-lg border transition-all",
+                isMine ? "bg-veto-yellow border-veto-yellow text-black shadow-sm" : 
+                isBlocked ? "bg-gray-100 border-gray-200 opacity-50 grayscale" : 
+                "bg-gray-50 border-gray-200 text-gray-400"
+              )}>
+                <div className="flex items-center justify-between w-full overflow-hidden">
+                   <div className="font-bold text-[9px] uppercase tracking-tight truncate">
                      {arg.event.title}
                    </div>
-                   {isMine ? (
-                     <div className="w-2 h-2 rounded-full bg-veto-yellow shadow-[0_0_8px_rgba(255,213,0,0.8)]"></div>
-                   ) : isBlocked || isReserved ? (
-                     <Clock size={10} className="text-gray-300" />
-                   ) : null}
+                   {isMine ? <Zap size={8} fill="currentColor" /> : <Clock size={8} />}
                 </div>
-                
                 {isMine && (
-                   <div className="flex items-center gap-2 mt-auto">
-                     <div className="px-2 py-0.5 bg-black/5 rounded-md text-[8px] font-black text-veto-gray uppercase tracking-widest">
-                       {format(new Date(arg.event.start!), 'HH:mm')}
-                     </div>
-                     <span className="text-[7px] font-black text-veto-gray/20 uppercase tracking-[0.2em]">CONSULTATION</span>
-                   </div>
+                  <div className="text-[8px] font-bold opacity-60">
+                    {format(new Date(arg.event.start!), 'HH:mm')}
+                  </div>
                 )}
-              </motion.div>
+              </div>
             );
           }}
         />
@@ -296,56 +270,46 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowBookingModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-xl"
+              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-white w-full max-w-md rounded-[3.5rem] p-10 shadow-3xl relative overflow-hidden border border-black/5"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl relative border border-gray-200"
             >
-              <div className="absolute top-0 left-0 w-full h-3 bg-veto-yellow"></div>
-              <button onClick={() => setShowBookingModal(false)} className="absolute top-8 right-8 p-3 hover:bg-gray-100 rounded-full transition-colors text-veto-gray">
-                <X size={20} />
+              <button onClick={() => setShowBookingModal(false)} className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <X size={18} className="text-gray-400" />
               </button>
               
-              <div className="mb-10">
-                 <h3 className="text-3xl font-black tracking-tighter mb-2">Confirmer le RDV</h3>
-                 <p className="font-black text-veto-gray/40 uppercase text-[9px] tracking-widest">Planification de soin veterinaire</p>
+              <div className="mb-6">
+                 <h3 className="text-xl font-bold text-black mb-1">Détails du RDV</h3>
+                 <p className="text-gray-400 text-xs">Veuillez choisir l'animal concerné.</p>
               </div>
               
-              <div className="space-y-8">
-                <div className="p-8 bg-gray-50 rounded-[2.5rem] border border-black/5 space-y-4">
-                   <div className="flex items-center gap-4 text-veto-black">
-                      <div className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-                        <Clock size={20} className="text-veto-yellow" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase text-veto-gray/50 tracking-widest leading-none mb-1">Date & Heure</span>
-                        <span className="text-sm font-black uppercase tracking-tight">Le {format(new Date(selectedSlot!.start), 'EEEE d MMMM', { locale: fr })} à {format(new Date(selectedSlot!.start), 'HH:mm')}</span>
-                      </div>
-                   </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black ml-6 text-veto-gray uppercase tracking-widest opacity-60">Choisir un compagnon</label>
-                  <div className="relative">
-                    <select 
-                      value={selectedPet}
-                      onChange={(e) => setSelectedPet(e.target.value)}
-                      className="w-full px-8 py-5 bg-gray-50 rounded-[2rem] border-none focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all font-black text-sm appearance-none cursor-pointer"
-                    >
-                      {pets.map(pet => (
-                        <option key={pet.id} value={pet.id}>{pet.name}</option>
-                      ))}
-                    </select>
-                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-veto-gray opacity-30">
-                       <ChevronDown size={18} />
+              <div className="space-y-6">
+                <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center gap-3">
+                    <Clock size={18} className="text-veto-yellow" />
+                    <div>
+                      <p className="text-[9px] font-bold text-gray-400 uppercase">Créneau choisi</p>
+                      <p className="text-xs font-bold">{format(new Date(selectedSlot!.start), 'EEEE d MMMM HH:mm', { locale: fr })}</p>
                     </div>
-                  </div>
                 </div>
 
-                <Button onClick={handleConfirmBooking} className="w-full py-6 text-sm font-black shadow-2xl shadow-veto-yellow/30 rounded-[2rem]" variant="yellow">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Choix de l'animal</label>
+                  <select 
+                    value={selectedPet}
+                    onChange={(e) => setSelectedPet(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 outline-none focus:border-veto-yellow transition-all font-bold text-sm"
+                  >
+                    {pets.map(pet => (
+                      <option key={pet.id} value={pet.id}>{pet.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <Button onClick={handleConfirmBooking} className="w-full py-4 text-xs font-bold rounded-xl" variant="yellow">
                    CONFIRMER LA RÉSERVATION
                 </Button>
               </div>
@@ -360,28 +324,26 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setAppointmentToCancel(null)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-xl"
+              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-white w-full max-w-sm rounded-[3rem] p-10 shadow-3xl relative overflow-hidden text-center border border-black/5"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl relative text-center border border-gray-200"
             >
-              <div className="absolute top-0 left-0 w-full h-3 bg-red-500"></div>
-              <div className="w-20 h-20 bg-red-50 text-red-500 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-sm border border-red-100/50">
-                 <X size={32} strokeWidth={3} />
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-100">
+                 <X size={28} />
               </div>
-              <h3 className="text-3xl font-black tracking-tighter mb-2">Annuler ce RDV ?</h3>
-              <p className="text-[10px] font-black text-veto-gray/40 uppercase tracking-widest mb-8">
-                 Le {format(new Date(appointmentToCancel.date), 'EEEE d MMMM à HH:mm', { locale: fr })}
-              </p>
-              <div className="flex flex-col gap-3">
-                <Button onClick={handleCancelAppointment} className="w-full py-5 font-black bg-red-500 text-white hover:bg-red-600 border-none rounded-[1.5rem] text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-red-500/20">
-                  CONFIRMER L'ANNULATION
+              <h3 className="text-xl font-bold mb-1">Annuler le RDV ?</h3>
+              <p className="text-gray-400 text-xs mb-6">Le {format(new Date(appointmentToCancel.date), 'EEEE d MMMM HH:mm', { locale: fr })}</p>
+              
+              <div className="flex flex-col gap-2">
+                <Button onClick={handleCancelAppointment} className="w-full py-4 font-bold bg-red-500 text-white hover:bg-red-600 rounded-xl text-xs uppercase">
+                  Confirmer l'annulation
                 </Button>
-                <Button onClick={() => setAppointmentToCancel(null)} variant="ghost" className="w-full py-5 font-black text-veto-gray/60 hover:text-veto-black transition-colors text-[10px] uppercase tracking-widest">
-                  Garder le rendez-vous
+                <Button onClick={() => setAppointmentToCancel(null)} variant="ghost" className="w-full py-3 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+                  Retour
                 </Button>
               </div>
             </motion.div>
@@ -390,23 +352,32 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
       </AnimatePresence>
 
       {loading && (
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[4px] z-20 flex items-center justify-center">
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex items-center justify-center">
             <div className="w-8 h-8 border-4 border-veto-yellow border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
 
       <style>{`
         .premium-calendar.owner-view .fc-timegrid-slot {
-          height: 6rem !important;
+          height: 4.5rem !important;
         }
         .premium-calendar.owner-view .fc-event {
-          border-radius: 20px;
+          border-radius: 8px;
           border: none !important;
-          box-shadow: none;
-          background: transparent !important;
+          padding: 0 !important;
         }
         .premium-calendar.owner-view .fc-timegrid-event-harness {
-          margin: 6px !important;
+          margin: 2px !important;
+        }
+        .premium-calendar.owner-view .fc-col-header-cell {
+          padding: 12px 0 !important;
+          background: #f9fafb !important;
+        }
+        .premium-calendar.owner-view .fc-col-header-cell-cushion {
+          font-size: 10px !important;
+          font-weight: 800 !important;
+          color: #6b7280 !important;
+          text-transform: uppercase;
         }
       `}</style>
     </div>

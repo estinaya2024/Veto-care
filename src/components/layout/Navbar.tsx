@@ -40,17 +40,17 @@ export function Navbar() {
       </div>
 
       {/* Right Content */}
-      <div className="flex flex-1 items-center justify-end gap-3 xl:gap-6">
+      <div className="flex flex-1 items-center justify-end gap-3 xl:gap-5">
         <Button 
           variant="outline" 
-          className="hidden md:flex font-black px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest border-2 border-veto-black text-veto-black hover:bg-veto-black hover:text-white transition-all whitespace-nowrap" 
+          className="hidden md:flex font-bold px-6 py-2.5 rounded-xl text-[10px] uppercase tracking-wider border-2 border-black text-black hover:bg-black hover:text-white transition-all whitespace-nowrap" 
           onClick={() => window.location.href = user ? '/dashboard' : '/login'}
         >
           {user ? 'MON COMPTE' : 'CONNEXION / COMPTE'}
         </Button>
         <Button 
           variant="yellow" 
-          className="hidden sm:flex font-black px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest shadow-lg shadow-veto-yellow/20 whitespace-nowrap" 
+          className="hidden sm:flex font-bold px-6 py-2.5 rounded-xl text-[10px] uppercase tracking-wider shadow-sm whitespace-nowrap" 
           onClick={() => window.location.href = user ? '/dashboard' : '/login'}
         >
           PRENDRE RDV
@@ -59,7 +59,7 @@ export function Navbar() {
         {/* Mobile Menu Toggle */}
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="lg:hidden p-3 bg-white/80 backdrop-blur-md rounded-2xl shadow-sm text-veto-black hover:bg-veto-yellow transition-all"
+          className="lg:hidden p-2.5 bg-gray-100 rounded-xl text-black hover:bg-veto-yellow transition-all"
         >
           {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -74,18 +74,18 @@ export function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] lg:hidden"
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[100] lg:hidden"
             />
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 right-0 w-[280px] bg-white z-[101] lg:hidden shadow-2xl p-8 flex flex-col"
+              className="fixed inset-y-0 right-0 w-[280px] bg-white z-[101] lg:hidden shadow-xl p-8 flex flex-col"
             >
               <div className="flex items-center justify-between mb-12">
-                <span className="font-heading font-black text-2xl tracking-tighter uppercase text-veto-black">VetoCare</span>
-                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-gray-100 rounded-xl">
+                <span className="font-heading font-bold text-2xl tracking-tighter uppercase text-black">VetoCare</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-gray-100 rounded-lg">
                   <X size={20} />
                 </button>
               </div>
@@ -96,7 +96,7 @@ export function Navbar() {
                     key={link.name}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-lg font-black text-veto-black hover:text-veto-yellow transition-colors uppercase tracking-tight"
+                    className="text-lg font-bold text-black hover:text-veto-yellow transition-colors uppercase tracking-tight"
                   >
                     {link.name}
                   </a>
@@ -106,14 +106,14 @@ export function Navbar() {
               <div className="mt-auto space-y-4">
                 <Button 
                   variant="black" 
-                  className="w-full font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest" 
+                  className="w-full font-bold py-4 rounded-xl text-[10px] uppercase tracking-widest" 
                   onClick={() => window.location.href = user ? '/dashboard' : '/login'}
                 >
                   {user ? 'MON COMPTE' : 'CONNEXION'}
                 </Button>
                 <Button 
                   variant="yellow" 
-                  className="w-full font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest shadow-lg shadow-veto-yellow/20" 
+                  className="w-full font-bold py-4 rounded-xl text-[10px] uppercase tracking-widest" 
                   onClick={() => window.location.href = user ? '/dashboard' : '/login'}
                 >
                   PRENDRE RDV

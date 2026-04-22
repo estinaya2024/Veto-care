@@ -53,7 +53,7 @@ export function Footer() {
             <a href="tel:+1-800-VET-PRO" className="hover:text-veto-black transition-colors">+1-800-VET-PRO</a>
           </div>
           <div className="relative group">
-            <Button variant="yellow" className="px-8 py-3 text-sm rounded-full shadow-lg shadow-veto-yellow/20 hover:-translate-y-1 transition-transform" onClick={() => window.location.href = '/dashboard'}>
+            <Button variant="yellow" className="px-8 py-3 text-sm rounded-full shadow-lg shadow-veto-yellow/20 hover:-translate-y-1 transition-transform" onClick={() => window.location.href = '/login'}>
               Prendre RDV
             </Button>
             <Sparkles className="absolute -right-4 -top-4 text-veto-yellow animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" size={20} />

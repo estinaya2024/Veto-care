@@ -7,7 +7,7 @@ import frLocale from '@fullcalendar/core/locales/fr';
 import { supabase } from '../../lib/supabase';
 import { api } from '../../lib/api';
 import { Button } from '../ui/Button';
-import { X, Calendar as CalendarIcon, Clock, Zap, User } from 'lucide-react';
+import { X, Calendar as CalendarIcon, Clock, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '../../lib/utils';
@@ -128,48 +128,47 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   };
 
   return (
-    <div className="bg-white/60 backdrop-blur-3xl rounded-[3rem] p-6 shadow-xl border border-white/50 animate-fadeInUp relative overflow-hidden group/calendar">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-veto-yellow/5 rounded-full blur-[90px] -mr-32 -mt-32 pointer-events-none"></div>
+    <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-fadeInUp relative group/calendar">
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 relative z-10 gap-4">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-veto-yellow/10 rounded-2xl shadow-inner">
-            <CalendarIcon size={24} className="text-veto-black/70" />
+          <div className="p-3 bg-veto-yellow/10 rounded-2xl">
+            <CalendarIcon size={22} className="text-black" />
           </div>
           <div>
-            <h3 className="text-2xl font-black tracking-tight text-veto-black/90">Agenda Clinic</h3>
-            <div className="flex items-center gap-2 text-veto-gray font-bold uppercase tracking-widest text-[8px] opacity-40">
-               <Zap size={8} className="text-veto-yellow" /> Mode Minimaliste • Haute Précision
-            </div>
+            <h3 className="text-xl font-bold tracking-tight text-black">Agenda Clinique</h3>
+            <p className="text-gray-400 font-bold uppercase tracking-widest text-[8px]">
+               Gestion des consultations et planning
+            </p>
           </div>
         </div>
         
-        <div className="flex p-1 bg-black/5 rounded-full border border-black/5 backdrop-blur-md">
+        <div className="flex p-1 bg-gray-100 rounded-xl border border-gray-100">
           <button 
             onClick={() => calendarRef.current?.getApi().changeView('dayGridMonth')}
-            className="px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-white/40 transition-all active:scale-95"
+            className="px-4 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-white transition-all"
           >
             Mois
           </button>
           <button 
             onClick={() => calendarRef.current?.getApi().changeView('timeGridWeek')}
-            className="px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/60 shadow-sm transition-all active:scale-95"
+            className="px-4 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest bg-white shadow-sm transition-all"
           >
             Semaine
           </button>
-          <div className="w-[1px] h-4 bg-black/5 mx-1 self-center"></div>
+          <div className="w-[1px] h-4 bg-gray-200 mx-1 self-center"></div>
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={fetchData}
-            className="rounded-full px-4 py-2 h-auto text-[9px] font-black uppercase tracking-widest text-veto-black hover:bg-veto-yellow transition-all"
+            className="rounded-lg px-4 py-2 h-auto text-[9px] font-bold uppercase tracking-widest text-black hover:bg-veto-yellow transition-all"
           >
-            Rafraîchir Flux
+            Actualiser
           </Button>
         </div>
       </div>
 
-      <div className="premium-calendar relative z-10">
+      <div className="vet-calendar-theme relative z-10">
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -191,25 +190,21 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
           eventContent={(arg) => {
             const type = arg.event.extendedProps.type;
             const isApt = type === 'appointment';
-            const isBlock = type === 'unavailability';
             
             return (
               <div className={cn(
-                "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg relative overflow-hidden group/event shadow-sm",
-                isApt ? "border-veto-yellow bg-white" : "border-red-400 bg-red-50/30"
+                "p-2 w-full h-full flex flex-col justify-center border-l-4 transition-colors shadow-sm",
+                isApt ? "border-veto-yellow bg-white" : "border-gray-300 bg-gray-50"
               )}>
-                {isApt && <div className="absolute inset-0 bg-gradient-to-r from-veto-yellow/5 to-transparent pointer-events-none"></div>}
-                {isBlock && <div className="absolute inset-0 bg-red-400/5 pointer-events-none"></div>}
-                
-                <div className="flex items-center gap-2 relative z-10">
-                   {isApt ? <User size={10} className="text-veto-yellow" /> : <X size={10} className="text-red-400" />}
-                   <div className="font-black text-[9px] uppercase tracking-tight truncate">
+                <div className="flex items-center gap-1.5 relative z-10">
+                   {isApt ? <User size={10} className="text-veto-yellow" /> : <X size={10} className="text-gray-400" />}
+                   <div className="font-bold text-[9px] uppercase tracking-tight truncate text-black">
                      {arg.event.title}
                    </div>
                 </div>
-                {isBlock && (
-                  <div className="text-[7px] font-black text-red-400/60 uppercase tracking-widest mt-1">
-                    HORS SERVICE
+                {!isApt && (
+                  <div className="text-[7px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                    Indisponible
                   </div>
                 )}
               </div>
@@ -219,42 +214,41 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
       </div>
 
       {showBlockModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-[3rem] p-8 shadow-3xl animate-scaleIn relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-full h-2 bg-veto-yellow"></div>
-             <button onClick={() => setShowBlockModal(false)} className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-full transition-colors">
-              <X size={20} className="text-veto-gray" />
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl relative border border-gray-200">
+             <button onClick={() => setShowBlockModal(false)} className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-lg text-gray-400">
+              <X size={20} />
             </button>
             <div className="mb-6">
-               <h3 className="text-2xl font-black tracking-tight mb-1">Bloquer un Créneau</h3>
-               <p className="font-bold text-veto-gray opacity-50 uppercase text-[8px] tracking-widest">Indisponibilité Vétérinaire</p>
+               <h3 className="text-xl font-bold tracking-tight">Bloquer un créneau</h3>
+               <p className="font-bold text-gray-400 uppercase text-[8px] tracking-widest">Planning Interne</p>
             </div>
             
             <div className="space-y-6">
-              <div className="p-6 bg-gray-50/80 rounded-3xl border border-gray-100 space-y-3">
-                 <div className="flex items-center gap-3 text-veto-black font-extrabold">
+              <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
+                 <div className="flex items-center gap-3 text-black font-bold">
                     <CalendarIcon size={16} className="text-veto-yellow" />
                     <span className="text-sm">{format(new Date(selectedRange!.start), 'EEEE d MMMM', { locale: fr })}</span>
                  </div>
-                 <div className="flex items-center gap-3 text-veto-black font-extrabold">
+                 <div className="flex items-center gap-3 text-black font-bold">
                     <Clock size={16} className="text-veto-yellow" />
                     <span className="text-sm">De {format(new Date(selectedRange!.start), 'HH:mm')} à {format(new Date(selectedRange!.end), 'HH:mm')}</span>
                  </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[9px] font-black ml-4 text-veto-gray uppercase tracking-widest">Motif (Optionnel)</label>
+                <label className="text-[9px] font-bold ml-1 text-gray-500 uppercase tracking-widest">Motif (Optionnel)</label>
                 <input 
                   type="text" 
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Ex: Chirurgie..."
-                  className="w-full px-6 py-4 bg-gray-50 rounded-full border-none focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all font-extrabold text-sm appearance-none"
+                  className="w-full px-5 py-3 bg-gray-50 rounded-xl border border-gray-100 focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all font-bold text-sm"
                 />
               </div>
 
-              <Button onClick={handleBlockSlot} className="w-full py-4 text-sm font-black shadow-xl shadow-veto-yellow/20" variant="yellow">
-                 Confirmer le Blocage
+              <Button onClick={handleBlockSlot} className="w-full py-4 text-xs font-bold rounded-xl" variant="yellow">
+                 Confirmer le blocage
               </Button>
             </div>
           </div>
@@ -262,19 +256,19 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
       )}
 
       {loading && (
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[4px] z-20 flex items-center justify-center">
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex items-center justify-center rounded-3xl">
             <div className="w-8 h-8 border-4 border-veto-yellow border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
 
       <style>{`
-        .premium-calendar .fc-timegrid-slot {
-          height: 4rem !important;
+        .vet-calendar-theme .fc-timegrid-slot {
+          height: 3.5rem !important;
         }
-        .premium-calendar .fc-event {
-          border-radius: 12px;
-          border: 2px solid white !important;
-          box-shadow: none;
+        .vet-calendar-theme .fc-event {
+          border-radius: 8px;
+          border: 1px solid #f1f1f1 !important;
+          overflow: hidden;
         }
       `}</style>
     </div>

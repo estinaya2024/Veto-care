@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
 import { Calendar, Clock, MapPin, User, ChevronRight, Upload, X, FileText } from 'lucide-react';
@@ -6,11 +6,35 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'react-hot-toast';
 
+interface Appointment {
+  id: string;
+  maitre_id: string;
+  veterinaire_id: string;
+  patient_id: string;
+  date_rdv: string;
+  health_record_url: string;
+  status: string;
+  veterinaires?: { name: string };
+  patients?: { name: string };
+}
+
+interface Vet {
+  id: string;
+  name: string;
+  specialty: string;
+}
+
+interface Patient {
+  id: string;
+  name: string;
+  species: string;
+}
+
 export function Appointments() {
   const { user } = useAuth();
-  const [appointments, setAppointments] = useState<any[]>([]);
-  const [vets, setVets] = useState<any[]>([]);
-  const [patients, setPatients] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [vets, setVets] = useState<Vet[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
@@ -22,11 +46,7 @@ export function Appointments() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    fetchData();
-  }, [user]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     
@@ -48,11 +68,15 @@ export function Appointments() {
       .select('*')
       .eq('maitre_id', user.id);
 
-    if (!aptError) setAppointments(aptData || []);
-    if (vetData) setVets(vetData);
-    if (petData) setPatients(petData);
+    if (!aptError) setAppointments((aptData as unknown as Appointment[]) || []);
+    if (vetData) setVets(vetData as Vet[]);
+    if (petData) setPatients(petData as Patient[]);
     setLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchData();
+  }, [user, fetchData]);
 
   const handleCreateAppointment = async (e: React.FormEvent) => {
     e.preventDefault();

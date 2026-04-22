@@ -38,10 +38,10 @@ export function PetAvatar({ species, name, className, size = 'md' }: PetAvatarPr
   }
 
   const dimensions = {
-    sm: 'w-8 h-8 rounded-lg',
-    md: 'w-12 h-12 rounded-2xl',
-    lg: 'w-16 h-16 rounded-[1.5rem]',
-    xl: 'w-32 h-32 rounded-[3rem]'
+    sm: 'w-8 h-8 rounded-md',
+    md: 'w-12 h-12 rounded-xl',
+    lg: 'w-16 h-16 rounded-2xl',
+    xl: 'w-32 h-32 rounded-3xl'
   };
 
   const iconSizes = {

@@ -33,7 +33,7 @@ export function Hero() {
             <Button variant="black" className="w-full sm:w-auto px-12 py-5 rounded-full hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest shadow-xl" onClick={() => window.location.href = '#services'}>
               Learn more
             </Button>
-            <Button variant="yellow" className="w-full sm:w-auto px-12 py-5 rounded-full shadow-[0_10px_30px_rgba(255,213,0,0.4)] hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest" onClick={() => window.location.href = '#reservation'}>
+            <Button variant="yellow" className="w-full sm:w-auto px-12 py-5 rounded-full shadow-[0_10px_30px_rgba(255,213,0,0.4)] hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest" onClick={() => window.location.href = '/login'}>
               Make a reservation
             </Button>
           </div>
