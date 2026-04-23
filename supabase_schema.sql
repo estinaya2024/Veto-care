@@ -180,19 +180,50 @@ ALTER TABLE public.consultations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.prescriptions ENABLE ROW LEVEL SECURITY;
 
 -- Patients Policies
-CREATE POLICY "Vet Access" ON public.patients FOR ALL TO authenticated USING (is_vet());
-CREATE POLICY "Owner Access" ON public.patients FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
-CREATE POLICY "Owner Insert" ON public.patients FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
-CREATE POLICY "Owner Update" ON public.patients FOR UPDATE TO authenticated USING (auth.uid() = maitre_id);
+DROP POLICY IF EXISTS "Vet: Full Access" ON public.patients;
+CREATE POLICY "Vet: Full Access" ON public.patients FOR ALL TO authenticated USING (is_vet());
+DROP POLICY IF EXISTS "Owner: Only Mine" ON public.patients;
+CREATE POLICY "Owner: Only Mine" ON public.patients FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
+DROP POLICY IF EXISTS "Owner: Insert Mine" ON public.patients;
+CREATE POLICY "Owner: Insert Mine" ON public.patients FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
+DROP POLICY IF EXISTS "Owner: Update Mine" ON public.patients;
+CREATE POLICY "Owner: Update Mine" ON public.patients FOR UPDATE TO authenticated USING (auth.uid() = maitre_id);
 
 -- Agenda Policies
-CREATE POLICY "Vet Agenda" ON public.rendez_vous FOR ALL TO authenticated USING (is_vet());
-CREATE POLICY "Public Agenda View" ON public.rendez_vous FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Owner Book" ON public.rendez_vous FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
+DROP POLICY IF EXISTS "Vet: Full Agenda Access" ON public.rendez_vous;
+CREATE POLICY "Vet: Full Agenda Access" ON public.rendez_vous FOR ALL TO authenticated USING (is_vet());
+DROP POLICY IF EXISTS "Anyone: See Reserved Dates" ON public.rendez_vous;
+CREATE POLICY "Anyone: See Reserved Dates" ON public.rendez_vous FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Owner: Create My Appointment" ON public.rendez_vous;
+CREATE POLICY "Owner: Create My Appointment" ON public.rendez_vous FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
 
 -- Unavailability Policies
-CREATE POLICY "Vet Unavailability" ON public.indisponibilites_vet FOR ALL TO authenticated USING (is_vet());
-CREATE POLICY "Public Unavailability" ON public.indisponibilites_vet FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "Vet: Manage Blocked Slots" ON public.indisponibilites_vet;
+CREATE POLICY "Vet: Manage Blocked Slots" ON public.indisponibilites_vet FOR ALL TO authenticated USING (is_vet());
+DROP POLICY IF EXISTS "Everyone: See Blocked Slots" ON public.indisponibilites_vet;
+CREATE POLICY "Everyone: See Blocked Slots" ON public.indisponibilites_vet FOR SELECT TO authenticated USING (true);
+
+-- Profile Policies
+DROP POLICY IF EXISTS "User: Select Own Profile" ON public.maitres;
+CREATE POLICY "User: Select Own Profile" ON public.maitres FOR SELECT TO authenticated USING (auth.uid() = id);
+DROP POLICY IF EXISTS "User: Update Own Profile" ON public.maitres;
+CREATE POLICY "User: Update Own Profile" ON public.maitres FOR UPDATE TO authenticated USING (auth.uid() = id);
+DROP POLICY IF EXISTS "Everyone: See Doc Info" ON public.veterinaires;
+CREATE POLICY "Everyone: See Doc Info" ON public.veterinaires FOR SELECT TO authenticated USING (true);
+
+-- Consultations Policies
+DROP POLICY IF EXISTS "Vet: Full Consultations Access" ON public.consultations;
+CREATE POLICY "Vet: Full Consultations Access" ON public.consultations FOR ALL TO authenticated USING (is_vet());
+DROP POLICY IF EXISTS "Owner: My Pets Consultations" ON public.consultations;
+CREATE POLICY "Owner: My Pets Consultations" ON public.consultations FOR SELECT TO authenticated 
+USING (EXISTS (SELECT 1 FROM public.patients WHERE id = consultations.patient_id AND maitre_id = auth.uid()));
+
+-- Prescriptions Policies
+DROP POLICY IF EXISTS "Vet: Full Prescriptions Access" ON public.prescriptions;
+CREATE POLICY "Vet: Full Prescriptions Access" ON public.prescriptions FOR ALL TO authenticated USING (is_vet());
+DROP POLICY IF EXISTS "Owner: My Pets Prescriptions" ON public.prescriptions;
+CREATE POLICY "Owner: My Pets Prescriptions" ON public.prescriptions FOR SELECT TO authenticated 
+USING (EXISTS (SELECT 1 FROM public.patients WHERE id = prescriptions.patient_id AND maitre_id = auth.uid()));
 
 -- ==========================================
 -- 4. STORAGE
