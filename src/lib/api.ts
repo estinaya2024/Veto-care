@@ -40,17 +40,31 @@ export const api = {
   },
 
   async getUnavailability(vetId: string) {
-    return this.get(`/unavailability/${vetId}`);
+    const { data, error } = await supabase
+      .from('indisponibilites_vet')
+      .select('*')
+      .eq('veterinaire_id', vetId);
+    if (error) throw error;
+    return data || [];
   },
 
   async createUnavailability(data: { veterinaire_id: string; start_time: string; end_time: string; motif?: string }) {
-    return this.post('/unavailability', data);
+    const { data: result, error } = await supabase
+      .from('indisponibilites_vet')
+      .insert([data])
+      .select()
+      .single();
+    if (error) throw error;
+    return result;
   },
 
   async deleteUnavailability(id: string) {
-    const response = await fetch(`${API_URL}/unavailability/${id}`, { method: 'DELETE' });
-    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-    return response.json();
+    const { error } = await supabase
+      .from('indisponibilites_vet')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return { success: true };
   },
 
   // Clinical Operations (wrapping Supabase for consistency)
