@@ -4,10 +4,11 @@ import { cn } from '../../lib/utils';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'yellow' | 'black' | 'ghost' | 'outline';
   size?: 'sm' | 'md' | 'lg';
+  loading?: boolean;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'yellow', size = 'md', ...props }, ref) => {
+  ({ className, variant = 'yellow', size = 'md', loading, ...props }, ref) => {
     const variants = {
       yellow: 'btn-yellow',
       black: 'btn-black',
@@ -24,14 +25,21 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
+        disabled={props.disabled || loading}
         className={cn(
-          'btn pill-shadow',
+          'btn pill-shadow flex items-center justify-center gap-2 transition-all',
           variants[variant],
           size !== 'md' && sizes[size],
+          loading && 'opacity-80 cursor-wait',
           className
         )}
         {...props}
-      />
+      >
+        {loading && (
+          <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+        )}
+        {props.children}
+      </button>
     );
   }
 );

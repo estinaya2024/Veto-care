@@ -40,7 +40,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
   const [pets, setPets] = useState<any[]>([]);
   const [appointmentToCancel, setAppointmentToCancel] = useState<{ id: string; date: string } | null>(null);
   const calendarRef = useRef<FullCalendar>(null);
-  const [bookingStep, setBookingStep] = useState('');
+  const [vetExists, setVetExists] = useState<boolean | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -63,7 +63,14 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // 1. Fetch All Appointments (for this clinic)
+      // 0. Check if Vet exists
+      const { count } = await supabase
+        .from('veterinaires')
+        .select('*', { count: 'exact', head: true });
+      
+      setVetExists(count !== null && count > 0);
+
+      // 1. Fetch All Appointments
       const { data: allApts } = await supabase
         .from('rendez_vous')
         .select('*, patients(name)')
@@ -116,14 +123,18 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
   };
 
   const handleConfirmBooking = async () => {
-    if (!selectedSlot || !selectedPet) return;
+    if (!selectedSlot) return;
+    
+    if (!selectedPet) {
+      toast.error("Veuillez d'abord ajouter un animal dans l'onglet 'Mes Animaux'.");
+      return;
+    }
     
     setLoading(true);
-    setBookingStep('Fetching Vet');
     try {
       const vet = await api.getPrimaryVet();
-
-      setBookingStep('Booking Appointment');
+      if (!vet) throw new Error('Aucun vétérinaire n\'est disponible pour le moment.');
+      
       const { data: bookingData, error: bookingError } = await supabase.rpc('book_appointment', {
         p_maitre_id: maitreId,
         p_patient_id: selectedPet,
@@ -134,7 +145,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
       if (bookingError) throw bookingError;
 
       if (!bookingData.success) {
-        toast.error('Désolé, ce créneau vient d\'être réservé ou bloqué. Veuillez en choisir un autre.');
+        toast.error(bookingData.message || 'Désolé, ce créneau n\'est plus disponible.');
         fetchData();
         setShowBookingModal(false);
         return;
@@ -145,7 +156,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
       toast.success('Rendez-vous confirmé !');
     } catch (err: any) {
       console.error('Booking error:', err);
-      toast.error(`Étape: ${bookingStep} - ${err.message || 'Veuillez réessayer.'}`);
+      toast.error(`${err.message || 'Erreur lors de la réservation.'}`);
     } finally {
       setLoading(false);
     }
@@ -186,6 +197,16 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
 
   return (
     <div className="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm animate-fadeInUp relative overflow-hidden min-h-[800px]">
+      {vetExists === false && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 animate-pulse">
+           <Zap className="text-amber-500" size={20} />
+           <p className="text-amber-800 text-xs font-bold">
+             Système en attente : Aucun vétérinaire n'est encore inscrit. 
+             (Veuillez vous connecter avec l'email administrateur pour activer la clinique).
+           </p>
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-6">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-gray-100 rounded-xl">
@@ -225,6 +246,9 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
           slotMaxTime="20:00:00"
           allDaySlot={false}
           selectAllow={(selectInfo) => {
+            const now = new Date();
+            if (new Date(selectInfo.start) < now) return false;
+            
             return !events.some(event => {
               const eStart = new Date(event.start).getTime();
               const eEnd = new Date(event.end).getTime();
@@ -309,9 +333,15 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
                   </select>
                 </div>
 
-                <Button onClick={handleConfirmBooking} className="w-full py-4 text-xs font-bold rounded-xl" variant="yellow">
-                   CONFIRMER LA RÉSERVATION
-                </Button>
+                <Button 
+                   onClick={handleConfirmBooking} 
+                   className="w-full py-4 text-xs font-bold rounded-xl" 
+                   variant="yellow"
+                   loading={loading}
+                   disabled={loading}
+                 >
+                    {loading ? 'CONFIRMATION...' : 'CONFIRMER LA RÉSERVATION'}
+                 </Button>
               </div>
             </motion.div>
           </div>

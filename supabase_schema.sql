@@ -126,11 +126,12 @@ RETURNS BOOLEAN AS $$
 BEGIN
   IF EXISTS (
     SELECT 1 FROM public.rendez_vous 
-    WHERE veterinaire_id = v_id AND status != 'annulé'
-    AND ABS(EXTRACT(EPOCH FROM (date_rdv - rdv_date))) < 1740 -- 29 min buffer
+    WHERE veterinaire_id = v_id AND status NOT IN ('annulé', 'terminé')
+    AND ABS(EXTRACT(EPOCH FROM (date_rdv - rdv_date))) < 1800 -- 30 min buffer
   ) OR EXISTS (
     SELECT 1 FROM public.indisponibilites_vet 
-    WHERE veterinaire_id = v_id AND rdv_date >= start_time AND rdv_date < end_time
+    WHERE veterinaire_id = v_id 
+    AND (rdv_date >= start_time AND rdv_date < end_time)
   ) THEN
     RETURN TRUE;
   END IF;
@@ -186,7 +187,7 @@ CREATE POLICY "Owner Update" ON public.patients FOR UPDATE TO authenticated USIN
 
 -- Agenda Policies
 CREATE POLICY "Vet Agenda" ON public.rendez_vous FOR ALL TO authenticated USING (is_vet());
-CREATE POLICY "Owner Agenda" ON public.rendez_vous FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
+CREATE POLICY "Public Agenda View" ON public.rendez_vous FOR SELECT TO authenticated USING (true);
 CREATE POLICY "Owner Book" ON public.rendez_vous FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
 
 -- Unavailability Policies

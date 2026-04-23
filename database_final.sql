@@ -147,11 +147,12 @@ RETURNS BOOLEAN AS $$
 BEGIN
   IF EXISTS (
     SELECT 1 FROM public.rendez_vous 
-    WHERE veterinaire_id = v_id AND status != 'annulé'
-    AND ABS(EXTRACT(EPOCH FROM (date_rdv - rdv_date))) < 1740
+    WHERE veterinaire_id = v_id AND status NOT IN ('annulé', 'terminé')
+    AND ABS(EXTRACT(EPOCH FROM (date_rdv - rdv_date))) < 1800 -- Exactly 30 mins
   ) OR EXISTS (
     SELECT 1 FROM public.indisponibilites_vet 
-    WHERE veterinaire_id = v_id AND rdv_date >= start_time AND rdv_date < end_time
+    WHERE veterinaire_id = v_id 
+    AND (rdv_date >= start_time AND rdv_date < end_time)
   ) THEN
     RETURN TRUE;
   END IF;
@@ -193,8 +194,8 @@ CREATE POLICY "Owner: Update Mine" ON public.patients FOR UPDATE TO authenticate
 -- AGENDA POLICIES
 DROP POLICY IF EXISTS "Vet: Full Agenda Access" ON public.rendez_vous;
 CREATE POLICY "Vet: Full Agenda Access" ON public.rendez_vous FOR ALL TO authenticated USING (is_vet());
-DROP POLICY IF EXISTS "Owner: My Appointments" ON public.rendez_vous;
-CREATE POLICY "Owner: My Appointments" ON public.rendez_vous FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
+DROP POLICY IF EXISTS "Anyone: See Reserved Dates" ON public.rendez_vous;
+CREATE POLICY "Anyone: See Reserved Dates" ON public.rendez_vous FOR SELECT TO authenticated USING (true);
 DROP POLICY IF EXISTS "Owner: Create My Appointment" ON public.rendez_vous;
 CREATE POLICY "Owner: Create My Appointment" ON public.rendez_vous FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
 
