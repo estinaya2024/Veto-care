@@ -176,6 +176,14 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
           headerToolbar={false}
           events={events}
           selectable={true}
+          selectMirror={true}
+          selectAllow={(selectInfo) => {
+            const now = new Date();
+            // Allow blocking slots that start in the next 15 mins or later
+            const buffer = 15 * 60 * 1000; 
+            return new Date(selectInfo.start).getTime() >= (now.getTime() - buffer);
+          }}
+          longPressDelay={0}
           select={handleSelect}
           locale={frLocale}
           height="auto"
