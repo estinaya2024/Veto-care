@@ -25,6 +25,15 @@ export const api = {
     return { conflict: data === true };
   },
 
+  async getVets() {
+    const { data, error } = await supabase
+      .from('veterinaires')
+      .select('*')
+      .order('name', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  },
+
   async getPrimaryVet() {
     const { data, error } = await supabase
       .from('veterinaires')
@@ -97,6 +106,15 @@ export const api = {
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data || [];
+  },
+
+  async deletePatient(id: string) {
+    const { error } = await supabase
+      .from('patients')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return { success: true };
   },
 
   async getAppointmentsByOwner(ownerId: string) {

@@ -1,45 +1,90 @@
 # Clinique Vétérinaire - Veto-Care 🐾
 
-Ce projet est un extranet vétérinaire complet construit avec React, TypeScript et Supabase, répondant aux critères des 4 Missions (Data, Frontend, DevOps, README).
+**Binôme :** [Prénom NOM 1] & [Prénom NOM 2]  
+**Thème :** Clinique Vétérinaire ("Veto-Care")  
+**Module :** Build & Ship - Architecture Cloud
+
+---
+
+## 🏗️ Architecture du Système
+
+```mermaid
+graph TD
+    User((Utilisateur)) -- HTTPS/Vercel --> Frontend[Vite + React App]
+    Frontend -- "Auth / SQL / Storage" --> Supabase[Supabase BaaS]
+    
+    subgraph "Cloud Layer (Vercel)"
+        Frontend
+        CI[CI/CD Pipeline]
+    end
+    
+    subgraph "Data Layer (Supabase)"
+        DB[(PostgreSQL)]
+        Auth[GoTrue Auth]
+        Storage[Object Storage]
+        RLS{Row Level Security}
+        DB --- RLS
+        Storage --- RLS
+    end
+    
+    GitHub[Dépôt GitHub] -- "Push Event" --> CI
+    CI -- "Build & Deploy" --> Frontend
+```
 
 ---
 
 ## 🛠️ Mission 4 : Le README "Architecte"
 
-### 🎯 Mapping du Thème
-Pour faciliter la correction, voici comment nous avons traduit les exigences du sujet dans notre application :
+### 🎯 Mapping du Thème : Clinique Vétérinaire 🐾
+Pour faciliter la correction, voici le mapping strict de nos entités :
 
-| Élément | Correspondance dans l'Application | Description |
+| Concept Sujet | Entité Application | Table / Ressource |
 | :--- | :--- | :--- |
-| **Table A** | `maitres` | Les propriétaires d'animaux (Clients). Chaque utilisateur authentifié a un profil unique. |
-| **Table B** | `veterinaires` | Le catalogue des professionnels de santé disponibles dans la clinique. |
-| **Table C** | `rendez_vous` | L'interaction principale : un maître prend rendez-vous avec un vétérinaire. |
-| **Fichier** | `Carnet de santé` | Document (PDF/Image) uploadé par le maître lors de la prise de rendez-vous. |
+| **Table A (Utilisateurs)** | Maîtres (Owners) | `public.maitres` (lié à `auth.users`) |
+| **Table B (Ressources)** | Vétérinaires (Docs) | `public.veterinaires` |
+| **Table C (Interactions)** | Rendez-vous (Agenda) | `public.rendez_vous` |
+| **Storage (Fichiers)** | Carnet de santé | Bucket `health-records` |
+
+### 🏛️ Analyse d'Architecture (Concepts Cloud)
+
+#### 1. Justification Financière : CAPEX vs OPEX
+Lancer **Veto-Care** avec un serveur classique (On-premise) nécessiterait un **CAPEX** (Capital Expenditure) massif : acquisition de serveurs physiques, mise en place d'un réseau sécurisé et frais d'installation. C'est un coût fixe risqué.
+En choisissant **Vercel + Supabase**, nous adoptons un modèle **OPEX** (Operating Expenditure). Le coût est proportionnel à l'usage réel (Pay-as-you-go). Cela permet de démarrer avec un budget nul (Tier gratuit) tout en garantissant une infrastructure de classe entreprise dès le premier jour.
+
+#### 2. Scalabilité Serverless vs Data Center Physique
+Dans un **Data Center physique**, la scalabilité est limitée par le matériel disponible. Ajouter de la capacité est un processus lent et manuel.
+**Vercel** utilise une architecture **Edge Computing** : notre code est déployé au plus proche de l'utilisateur. **Supabase** gère la base de données de manière élastique. Si le trafic augmente soudainement, l'infrastructure "Serverless" alloue automatiquement les ressources nécessaires sans intervention humaine, offrant une scalabilité horizontale instantanée.
+
+#### 3. Données Structurées vs Non-structurées
+- **Données Structurées** : Les profils, planning et dossiers médicaux sont stockés dans **PostgreSQL**. Ils suivent un schéma relationnel strict, permettant des jointures complexes et une intégrité référentielle totale.
+- **Données Non-structurées** : Les scans de **Carnets de santé** (images, PDF) n'ont pas de schéma fixe. Ils sont stockés dans le **Supabase Storage** (Object Storage). Nous ne stockons dans la base de données que l'URL (métadonnée) pointant vers ces fichiers.
+
+### 📊 Modèle de Données (ERD)
+
+```mermaid
+erDiagram
+    MAITRES ||--o{ PATIENTS : "possède"
+    MAITRES ||--o{ RENDEZ_VOUS : "prend"
+    VETERINAIRES ||--o{ RENDEZ_VOUS : "reçoit"
+    PATIENTS ||--o{ RENDEZ_VOUS : "concerne"
+    PATIENTS ||--o{ CONSULTATIONS : "historique"
+    VETERINAIRES ||--o{ CONSULTATIONS : "effectue"
+    CONSULTATIONS ||--o{ PRESCRIPTIONS : "génère"
+```
 
 ---
 
-### 🏛️ Analyse d'Architecture
-
-#### 1. Pourquoi Vercel + Supabase est-il plus logique financièrement ? (**CAPEX vs OPEX**)
-Lancer ce projet avec un serveur classique nécessiterait un **CAPEX** (Capital Expenditure) important : achat de serveurs physiques, routeurs, onduleurs et climatisation. C'est un coût "en amont" risqué pour une nouvelle application.
-En utilisant Vercel et Supabase, nous passons à un modèle **OPEX** (Operating Expenditure). Nous ne payons que pour l'utilisation réelle (frais de fonctionnement). La barrière à l'entrée est quasi-nulle (Tier gratuit), ce qui permet de valider le projet sans investissement lourd initial.
-
-#### 2. Gestion de la scalabilité : Vercel vs Data Center physique local
-Dans un **Data Center physique**, la scalabilité est verticale (ajouter de la RAM, des CPU) ou horizontale manuelle (acheter de nouveaux racks). C'est lent et coûteux en maintenance (gestion de la chaleur, électricité).
-**Vercel** utilise une architecture **Edge/Serverless**. Notre application est distribuée sur des centaines de serveurs à travers le monde. Si le trafic explose (ex: campagne de vaccination massive), Vercel alloue automatiquement plus de ressources sans que nous n'ayons à manipuler de matériel physique. C'est une scalabilité élastique instantanée.
-
-#### 3. Donnée Structurée vs Non-structurée
-- **Donnée Structurée** : Ce sont nos tables SQL (`maitres`, `veterinaires`, `rendez_vous`). Elles suivent un schéma strict (IDs, dates, relations) et sont stockées dans PostgreSQL sur Supabase. Elles sont faciles à requêter et à filtrer.
-- **Donnée Non-structurée** : Ce sont les **Carnets de santé** (fichiers PDF, JPG, PNG). Ces données n'ont pas de format de recherche interne pour SQL. Elles sont stockées de manière brute dans le **Supabase Storage** (Object Storage), et nous ne gardons que leur lien (URL) dans notre base structurée.
+## 🚀 Accès & Test
+- **URL de Production** : [https://votre-projet.vercel.app](https://votre-projet.vercel.app)
+- **Identifiants de Test (Enseignant)** :
+  - **Email** : `enseignant@vetocare.dz`
+  - **Password** : `VetoTest2026!`
+  - *Note : Cet utilisateur "Maître" a déjà un animal enregistré pour tester le flux.*
 
 ---
 
-## 🚀 Installation & Lancement local
-
-1. Clonez le dépôt.
-2. `npm install`
-3. Créez un fichier `.env` basé sur `.env.example` avec vos clés Supabase.
-4. Exécutez le script `database.sql` dans votre éditeur SQL Supabase.
-5. `npm run dev`
-
----
+## 🛠️ Installation Locale
+1. `npm install`
+2. Configurer `.env` (Supabase URL & Key)
+3. Exécuter `supabase_schema.sql` dans le SQL Editor de Supabase.
+4. `npm run dev`

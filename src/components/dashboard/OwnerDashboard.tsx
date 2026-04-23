@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
-import { Calendar, Stethoscope, HeartPulse, Clock, Activity, X, ChevronRight } from 'lucide-react';
+import { Calendar, Stethoscope, HeartPulse, Clock, Activity, X, ChevronRight, Trash2 } from 'lucide-react';
 import { HealthRecord } from './HealthRecord';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
@@ -39,8 +39,9 @@ export function OwnerDashboard() {
   const [nextAppointment, setNextAppointment] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPet, setSelectedPet] = useState<Pet | null>(null);
-  const [activeTab, setActiveTab] = useState<'pets' | 'agenda'>('pets');
+  const [activeTab, setActiveTab] = useState<'pets' | 'agenda' | 'vets'>('pets');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [vets, setVets] = useState<any[]>([]);
 
   // Form state
   const [newName, setNewName] = useState('');
@@ -51,18 +52,34 @@ export function OwnerDashboard() {
     if (!user) return;
     setLoading(true);
     try {
-      const [petsData, nextAptData] = await Promise.all([
+      const [petsData, nextAptData, vetsData] = await Promise.all([
         api.getPatientsByOwner(user.id),
-        api.getNextAppointment(user.id)
+        api.getNextAppointment(user.id),
+        api.getVets()
       ]);
       setPets(petsData as Pet[]);
       setNextAppointment(nextAptData as Appointment);
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+      setVets(vetsData);
+    } catch (err: any) {
+      toast.error(`Erreur: ${err.message}`);
     } finally {
       setLoading(false);
     }
   }, [user]);
+
+  const handleDeletePet = async (petId: string, petName: string) => {
+    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer ${petName} ? Cette action est irréversible.`)) {
+      return;
+    }
+
+    try {
+      await api.deletePatient(petId);
+      toast.success(`${petName} a été supprimé.`);
+      fetchData();
+    } catch (err: any) {
+      toast.error(`Erreur lors de la suppression: ${err.message}`);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -174,6 +191,15 @@ export function OwnerDashboard() {
             >
               Agenda
             </button>
+            <button 
+              onClick={() => setActiveTab('vets')}
+              className={cn(
+                "flex-1 sm:flex-none px-5 py-2 rounded-lg text-xs font-bold transition-all",
+                activeTab === 'vets' ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-black"
+              )}
+            >
+              L'Équipe
+            </button>
           </div>
           <Button 
             variant="black" 
@@ -188,6 +214,38 @@ export function OwnerDashboard() {
 
       {activeTab === 'agenda' ? (
         <BookingCalendar maitreId={user?.id || ''} />
+      ) : activeTab === 'vets' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fadeInRight">
+           {vets.map(vet => (
+              <div key={vet.id} className="bg-white rounded-3xl overflow-hidden border border-gray-200 shadow-sm flex flex-col group">
+                 <div className="h-48 overflow-hidden relative">
+                    <img 
+                      src={vet.image_url || 'https://images.unsplash.com/photo-1628033036254-6eec92ca1951?q=80&w=400&auto=format&fit=crop'} 
+                      alt={vet.name} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-4 left-4">
+                       <span className="px-3 py-1.5 bg-white/90 backdrop-blur-md rounded-lg text-[10px] font-black uppercase tracking-widest text-veto-black">
+                          {vet.specialty}
+                       </span>
+                    </div>
+                 </div>
+                 <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                       <h3 className="text-xl font-bold mb-2">Dr. {vet.name}</h3>
+                       <p className="text-gray-500 text-xs leading-relaxed mb-6 italic">"{vet.description || 'Vétérinaire passionné dédié au bien-être de vos animaux.'}"</p>
+                    </div>
+                    <Button 
+                      variant="yellow" 
+                      className="w-full py-3 text-[10px] font-black uppercase tracking-widest rounded-xl"
+                      onClick={() => setActiveTab('agenda')}
+                    >
+                      Prendre RDV
+                    </Button>
+                 </div>
+              </div>
+           ))}
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -302,9 +360,15 @@ export function OwnerDashboard() {
               {loading ? (
                 <CardSkeleton />
               ) : activePets.length === 0 ? (
-                <div className="col-span-full p-16 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-300">
-                   <p className="text-gray-500 font-bold mb-4">Vous n'avez pas encore inscrit d'animal.</p>
-                   <Button variant="outline" className="rounded-xl px-8" onClick={() => setShowAddModal(true)}>Ajouter mon premier animal</Button>
+                <div className="col-span-full p-20 text-center bg-white rounded-3xl border border-dashed border-gray-200 flex flex-col items-center gap-6 group">
+                   <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-300 group-hover:scale-110 group-hover:bg-veto-yellow/10 group-hover:text-veto-yellow transition-all duration-500">
+                      <HeartPulse size={40} />
+                   </div>
+                   <div>
+                      <p className="text-black font-bold text-lg mb-1">Aucun compagnon enregistré</p>
+                      <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Commencez par ajouter votre premier animal</p>
+                   </div>
+                   <Button variant="yellow" className="rounded-xl px-10 py-4 shadow-premium" onClick={() => setShowAddModal(true)}>+ Ajouter mon premier animal</Button>
                 </div>
               ) : (
                 activePets.map((p) => (
@@ -341,9 +405,21 @@ export function OwnerDashboard() {
                           {p.next_vax ? new Date(p.next_vax).toLocaleDateString('fr-FR') : 'Non planifié'}
                         </p>
                       </div>
-                      <button onClick={() => setSelectedPet(p)} className="p-2.5 bg-gray-50 rounded-xl text-gray-400 group-hover:bg-veto-yellow group-hover:text-black transition-all">
-                         <ChevronRight size={18} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => handleDeletePet(p.id, p.name)} 
+                          className="p-2.5 bg-gray-50 rounded-xl text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
+                          title="Supprimer"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                        <button 
+                          onClick={() => setSelectedPet(p)} 
+                          className="p-2.5 bg-gray-50 rounded-xl text-gray-400 group-hover:bg-veto-yellow group-hover:text-black transition-all"
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))

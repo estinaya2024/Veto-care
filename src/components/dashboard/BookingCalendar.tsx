@@ -13,6 +13,8 @@ import { cn } from '../../lib/utils';
 import { toast } from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import { FileText, Upload } from 'lucide-react';
 interface BookingCalendarProps {
   maitreId: string;
 }
@@ -41,6 +43,8 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
   const [appointmentToCancel, setAppointmentToCancel] = useState<{ id: string; date: string } | null>(null);
   const calendarRef = useRef<FullCalendar>(null);
   const [vetExists, setVetExists] = useState<boolean | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -131,15 +135,38 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
     }
     
     setLoading(true);
+    setUploading(true);
     try {
       const vet = await api.getPrimaryVet();
       if (!vet) throw new Error('Aucun vétérinaire n\'est disponible pour le moment.');
       
+      let healthRecordUrl = null;
+
+      // 1. Upload File if selected
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${maitreId}/${Date.now()}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('health-records')
+          .upload(fileName, selectedFile);
+
+        if (uploadError) throw uploadError;
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from('health-records')
+          .getPublicUrl(uploadData.path);
+          
+        healthRecordUrl = publicUrl;
+      }
+
+      // 2. Book Appointment
       const { data: bookingData, error: bookingError } = await supabase.rpc('book_appointment', {
         p_maitre_id: maitreId,
         p_patient_id: selectedPet,
         p_veterinaire_id: vet.id,
-        p_date_rdv: selectedSlot.start
+        p_date_rdv: selectedSlot.start,
+        p_health_record_url: healthRecordUrl
       });
 
       if (bookingError) throw bookingError;
@@ -151,7 +178,16 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
         return;
       }
 
+      // 3. Success Feedback
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#FFD500', '#111111', '#FFFFFF']
+      });
+
       setShowBookingModal(false);
+      setSelectedFile(null);
       fetchData();
       toast.success('Rendez-vous confirmé !');
     } catch (err: any) {
@@ -159,6 +195,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
       toast.error(`${err.message || 'Erreur lors de la réservation.'}`);
     } finally {
       setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -343,14 +380,50 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
                   </select>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider ml-1">Carnet de santé (Requis)</label>
+                  <div className="relative group">
+                    <input 
+                      type="file" 
+                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      accept="image/*,.pdf"
+                    />
+                    <div className={cn(
+                      "w-full px-4 py-4 bg-gray-50 rounded-xl border-2 border-dashed transition-all flex items-center justify-between",
+                      selectedFile ? "border-veto-yellow bg-veto-yellow/5" : "border-gray-200 group-hover:border-gray-300"
+                    )}>
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "p-2 rounded-lg",
+                          selectedFile ? "bg-veto-yellow text-black" : "bg-white text-gray-400 border border-gray-100"
+                        )}>
+                          {selectedFile ? <FileText size={16} /> : <Upload size={16} />}
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-bold text-black truncate max-w-[150px]">
+                            {selectedFile ? selectedFile.name : "Téléverser le dossier"}
+                          </p>
+                          <p className="text-[8px] font-bold text-gray-400 uppercase">PDF, JPG, PNG</p>
+                        </div>
+                      </div>
+                      {selectedFile && (
+                        <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center text-white">
+                           <Zap size={10} fill="currentColor" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <Button 
                    onClick={handleConfirmBooking} 
                    className="w-full py-4 text-xs font-bold rounded-xl" 
                    variant="yellow"
                    loading={loading}
-                   disabled={loading}
+                   disabled={loading || !selectedFile}
                  >
-                    {loading ? 'CONFIRMATION...' : 'CONFIRMER LA RÉSERVATION'}
+                    {uploading ? 'TÉLÉVERSEMENT...' : loading ? 'CONFIRMATION...' : 'CONFIRMER LA RÉSERVATION'}
                  </Button>
               </div>
             </motion.div>

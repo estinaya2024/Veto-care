@@ -15,8 +15,9 @@ CREATE TABLE IF NOT EXISTS public.maitres (
 );
 
 -- Table: Vétérinaires (Doctors)
+ALTER TABLE IF EXISTS public.veterinaires DROP CONSTRAINT IF EXISTS veterinaires_id_fkey;
 CREATE TABLE IF NOT EXISTS public.veterinaires (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY, -- Removed strict auth.users reference to allow seeding
     name TEXT NOT NULL,
     specialty TEXT DEFAULT 'Généraliste',
     description TEXT,
@@ -190,6 +191,8 @@ DROP POLICY IF EXISTS "Owner: Insert Mine" ON public.patients;
 CREATE POLICY "Owner: Insert Mine" ON public.patients FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
 DROP POLICY IF EXISTS "Owner: Update Mine" ON public.patients;
 CREATE POLICY "Owner: Update Mine" ON public.patients FOR UPDATE TO authenticated USING (auth.uid() = maitre_id);
+DROP POLICY IF EXISTS "Owner: Delete Mine" ON public.patients;
+CREATE POLICY "Owner: Delete Mine" ON public.patients FOR DELETE TO authenticated USING (auth.uid() = maitre_id);
 
 -- AGENDA POLICIES
 DROP POLICY IF EXISTS "Vet: Full Agenda Access" ON public.rendez_vous;
@@ -234,3 +237,34 @@ CREATE INDEX IF NOT EXISTS idx_rdv_date ON public.rendez_vous(date_rdv);
 CREATE INDEX IF NOT EXISTS idx_indispo_range ON public.indisponibilites_vet(start_time, end_time);
 CREATE INDEX IF NOT EXISTS idx_consult_patient ON public.consultations(patient_id);
 CREATE INDEX IF NOT EXISTS idx_prescript_patient ON public.prescriptions(patient_id);
+
+-- ==========================================
+-- 5. STORAGE & ASSETS
+-- ==========================================
+
+-- Create Bucket: 'health-records'
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('health-records', 'health-records', false)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage Policies for 'health-records'
+DROP POLICY IF EXISTS "Maitres: Upload own records" ON storage.objects;
+CREATE POLICY "Maitres: Upload own records" ON storage.objects FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'health-records' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+DROP POLICY IF EXISTS "Maitres: See own records" ON storage.objects;
+CREATE POLICY "Maitres: See own records" ON storage.objects FOR SELECT TO authenticated
+USING (bucket_id = 'health-records' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+DROP POLICY IF EXISTS "Vets: See all records" ON storage.objects;
+CREATE POLICY "Vets: See all records" ON storage.objects FOR SELECT TO authenticated
+USING (bucket_id = 'health-records' AND public.is_vet());
+
+-- ==========================================
+-- 6. SEED DATA (For Evaluation)
+-- ==========================================
+INSERT INTO public.veterinaires (id, name, specialty, description, image_url)
+VALUES 
+  ('00000000-0000-0000-0000-000000000000', 'Dr. Ayaka', 'Chirurgie & NAC', 'Spécialiste passionnée par les petits mammifères.', 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=400&auto=format&fit=crop'),
+  ('11111111-1111-1111-1111-111111111111', 'Dr. Karim', 'Médecine Interne', 'Expert en diagnostics complexes et soins intensifs.', 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?q=80&w=400&auto=format&fit=crop')
+ON CONFLICT (id) DO NOTHING;
