@@ -238,6 +238,9 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
           headerToolbar={false}
           events={events}
           selectable={true}
+          selectMirror={true}
+          unselectAuto={true}
+          longPressDelay={0}
           select={handleSelect}
           eventClick={handleEventClick}
           locale={frLocale}
@@ -246,14 +249,21 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
           slotMaxTime="20:00:00"
           allDaySlot={false}
           selectAllow={(selectInfo) => {
-            const now = new Date();
-            if (new Date(selectInfo.start) < now) return false;
+            const now = new Date().getTime();
+            const start = new Date(selectInfo.start).getTime();
             
+            // Allow if it starts in the future (with 5 min tolerance for safety)
+            if (start < (now - 5 * 60 * 1000)) return false;
+            
+            // Check overlaps
             return !events.some(event => {
+              if (!event.start || !event.end) return false;
               const eStart = new Date(event.start).getTime();
               const eEnd = new Date(event.end).getTime();
-              const sStart = new Date(selectInfo.start).getTime();
+              const sStart = start;
               const sEnd = new Date(selectInfo.end).getTime();
+              
+              // Standard overlap check: (StartA < EndB) and (EndA > StartB)
               return (sStart < eEnd && sEnd > eStart);
             });
           }}
