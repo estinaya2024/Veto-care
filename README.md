@@ -43,8 +43,3 @@ Dans un **Data Center physique**, la scalabilité est verticale (ajouter de la R
 5. `npm run dev`
 
 ---
-
-## 🧪 Identifiants de test (Professeur)
-- **Email** : `prof@test.fr`
-- **Mot de passe** : `VetoCare2024!`
-
