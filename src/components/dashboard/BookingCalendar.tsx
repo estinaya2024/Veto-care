@@ -14,7 +14,6 @@ import { toast } from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { FileText, Upload } from 'lucide-react';
 
 interface BookingCalendarProps {
   maitreId: string;
