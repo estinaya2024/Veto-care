@@ -35,7 +35,7 @@ const translations = {
     'nav.dashboard': 'Dashboard',
     'nav.login': 'Login',
     'nav.logout': 'Logout',
-    'hero.title': 'Your pet\nour priority',
+    'hero.title': 'Your pet our priority',
     'hero.subtitle': 'Next-gen veterinary extranet: simple, fast, and secure.',
     'hero.cta': 'Book an Appointment',
     'dash.welcome': 'Welcome',
