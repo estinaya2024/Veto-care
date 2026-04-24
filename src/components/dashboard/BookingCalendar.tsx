@@ -440,6 +440,12 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
         .premium-calendar.owner-view .fc-col-header-cell { padding: 20px 0 !important; background: transparent !important; }
         .premium-calendar.owner-view .fc-col-header-cell-cushion { font-size: 11px !important; font-weight: 900 !important; color: #000 !important; text-transform: uppercase; letter-spacing: 0.1em; }
         .premium-calendar.owner-view .fc-scrollgrid { border: none !important; }
+        .premium-calendar.owner-view .fc-day-today { 
+          background: rgba(255, 213, 0, 0.03) !important;
+        }
+        .premium-calendar.owner-view .fc-timegrid-col.fc-day-today {
+          box-shadow: inset 0 0 40px rgba(255, 213, 0, 0.05);
+        }
       `}</style>
     </div>
   );
