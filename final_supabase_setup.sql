@@ -144,5 +144,11 @@ INSERT INTO public.veterinaires (id, name, specialty, description)
 VALUES ('eb8bc3d3-3241-40fd-aa37-f5df08e348ed', 'Dr. Clinique Veto', 'Vétérinaire Principal', 'Expert en soins')
 ON CONFLICT (id) DO UPDATE SET specialty = 'Vétérinaire Principal';
 
--- 6. CACHE REFRESH
+-- 6. AUTO-REGISTER EXISTING USERS
+-- This ensures anyone already logged in gets a profile so they can add pets
+INSERT INTO public.maitres (id, full_name)
+SELECT id, COALESCE(email, 'Utilisateur Veto') FROM auth.users
+ON CONFLICT (id) DO NOTHING;
+
+-- 7. CACHE REFRESH
 NOTIFY pgrst, 'reload schema';
