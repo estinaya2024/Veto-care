@@ -163,19 +163,50 @@ ALTER TABLE public.consultations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.prescriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.medical_documents ENABLE ROW LEVEL SECURITY;
 
--- Vet Policies
-DROP POLICY IF EXISTS "Vet: Full Access" ON public.patients;
-CREATE POLICY "Vet: Full Access" ON public.patients FOR ALL TO authenticated USING (is_vet());
+-- Global Policies
+DROP POLICY IF EXISTS "Public Vets" ON public.veterinaires;
+CREATE POLICY "Public Vets" ON public.veterinaires FOR SELECT USING (true);
 
-DROP POLICY IF EXISTS "Vet: Full Agenda Access" ON public.rendez_vous;
-CREATE POLICY "Vet: Full Agenda Access" ON public.rendez_vous FOR ALL TO authenticated USING (is_vet());
+-- Vet Policies
+DROP POLICY IF EXISTS "Vet: Full Access Patients" ON public.patients;
+CREATE POLICY "Vet: Full Access Patients" ON public.patients FOR ALL TO authenticated USING (is_vet());
+
+DROP POLICY IF EXISTS "Vet: Full Access Appointments" ON public.rendez_vous;
+CREATE POLICY "Vet: Full Access Appointments" ON public.rendez_vous FOR ALL TO authenticated USING (is_vet());
+
+DROP POLICY IF EXISTS "Vet: Full Access Unavailability" ON public.indisponibilites_vet;
+CREATE POLICY "Vet: Full Access Unavailability" ON public.indisponibilites_vet FOR ALL TO authenticated USING (is_vet());
+
+DROP POLICY IF EXISTS "Vet: Full Access Consultations" ON public.consultations;
+CREATE POLICY "Vet: Full Access Consultations" ON public.consultations FOR ALL TO authenticated USING (is_vet());
+
+DROP POLICY IF EXISTS "Vet: Full Access Prescriptions" ON public.prescriptions;
+CREATE POLICY "Vet: Full Access Prescriptions" ON public.prescriptions FOR ALL TO authenticated USING (is_vet());
 
 DROP POLICY IF EXISTS "Vet: Manage Docs" ON public.medical_documents;
 CREATE POLICY "Vet: Manage Docs" ON public.medical_documents FOR ALL TO authenticated USING (is_vet());
 
 -- Owner Policies
+DROP POLICY IF EXISTS "Owner: View Profile" ON public.maitres;
+CREATE POLICY "Owner: View Profile" ON public.maitres FOR SELECT TO authenticated USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Owner: Update Profile" ON public.maitres;
+CREATE POLICY "Owner: Update Profile" ON public.maitres FOR UPDATE TO authenticated USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Owner: Insert Profile" ON public.maitres;
+CREATE POLICY "Owner: Insert Profile" ON public.maitres FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);
+
 DROP POLICY IF EXISTS "Owner: My Pets" ON public.patients;
 CREATE POLICY "Owner: My Pets" ON public.patients FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
+
+DROP POLICY IF EXISTS "Owner: Insert Pets" ON public.patients;
+CREATE POLICY "Owner: Insert Pets" ON public.patients FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
+
+DROP POLICY IF EXISTS "Owner: Update Pets" ON public.patients;
+CREATE POLICY "Owner: Update Pets" ON public.patients FOR UPDATE TO authenticated USING (auth.uid() = maitre_id);
+
+DROP POLICY IF EXISTS "Owner: Delete Pets" ON public.patients;
+CREATE POLICY "Owner: Delete Pets" ON public.patients FOR DELETE TO authenticated USING (auth.uid() = maitre_id);
 
 DROP POLICY IF EXISTS "Owner: Book" ON public.rendez_vous;
 CREATE POLICY "Owner: Book" ON public.rendez_vous FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
@@ -183,14 +214,28 @@ CREATE POLICY "Owner: Book" ON public.rendez_vous FOR INSERT TO authenticated WI
 DROP POLICY IF EXISTS "Owner: View Bookings" ON public.rendez_vous;
 CREATE POLICY "Owner: View Bookings" ON public.rendez_vous FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
 
+DROP POLICY IF EXISTS "Owner: Cancel Bookings" ON public.rendez_vous;
+CREATE POLICY "Owner: Cancel Bookings" ON public.rendez_vous FOR DELETE TO authenticated USING (auth.uid() = maitre_id);
+
+DROP POLICY IF EXISTS "Owner: View Consultations" ON public.consultations;
+CREATE POLICY "Owner: View Consultations" ON public.consultations FOR SELECT TO authenticated 
+USING (EXISTS (SELECT 1 FROM public.patients WHERE id = consultations.patient_id AND maitre_id = auth.uid()));
+
+DROP POLICY IF EXISTS "Owner: View Prescriptions" ON public.prescriptions;
+CREATE POLICY "Owner: View Prescriptions" ON public.prescriptions FOR SELECT TO authenticated 
+USING (EXISTS (SELECT 1 FROM public.patients WHERE id = prescriptions.patient_id AND maitre_id = auth.uid()));
+
 DROP POLICY IF EXISTS "Owner: My Docs" ON public.medical_documents;
 CREATE POLICY "Owner: My Docs" ON public.medical_documents FOR SELECT TO authenticated 
 USING (EXISTS (SELECT 1 FROM public.patients WHERE id = medical_documents.patient_id AND maitre_id = auth.uid()));
 
 DROP POLICY IF EXISTS "Owner: Add Docs" ON public.medical_documents;
-CREATE POLICY "Owner: Add Docs" ON public.medical_documents 
-FOR INSERT TO authenticated 
+CREATE POLICY "Owner: Add Docs" ON public.medical_documents FOR INSERT TO authenticated 
 WITH CHECK (EXISTS (SELECT 1 FROM public.patients WHERE id = patient_id AND maitre_id = auth.uid()));
+
+DROP POLICY IF EXISTS "Owner: Delete Docs" ON public.medical_documents;
+CREATE POLICY "Owner: Delete Docs" ON public.medical_documents FOR DELETE TO authenticated 
+USING (EXISTS (SELECT 1 FROM public.patients WHERE id = medical_documents.patient_id AND maitre_id = auth.uid()));
 
 -- Storage Bucket and Object Policies
 INSERT INTO storage.buckets (id, name, public) VALUES ('health-records', 'health-records', true) ON CONFLICT (id) DO UPDATE SET public = true;
