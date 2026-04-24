@@ -16,7 +16,9 @@ export function EditPatientModal({ pet, onClose, onSuccess }: EditPatientModalPr
     species: pet.species || '',
     breed: pet.breed || '',
     weight: pet.weight || '',
-    status: pet.status || 'En bonne santé'
+    status: pet.status || 'En bonne santé',
+    allergies: pet.allergies || '',
+    chronic_conditions: pet.chronic_conditions || ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +31,9 @@ export function EditPatientModal({ pet, onClose, onSuccess }: EditPatientModalPr
         species: formData.species,
         breed: formData.breed,
         weight: formData.weight,
-        status: formData.status
+        status: formData.status,
+        allergies: formData.allergies,
+        chronic_conditions: formData.chronic_conditions
       })
       .eq('id', pet.id);
 
@@ -77,6 +81,16 @@ export function EditPatientModal({ pet, onClose, onSuccess }: EditPatientModalPr
               <option value="Convalescence">Convalescence</option>
               <option value="Suivi régulier">Suivi régulier</option>
             </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Allergies</label>
+            <textarea value={formData.allergies} onChange={(e) => setFormData({...formData, allergies: e.target.value})} placeholder="Pénicilline, pollens..." className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all min-h-[60px]" />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Pathologies Chroniques</label>
+            <textarea value={formData.chronic_conditions} onChange={(e) => setFormData({...formData, chronic_conditions: e.target.value})} placeholder="Diabète, arthrose..." className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm focus:ring-2 focus:ring-veto-yellow/20 outline-none transition-all min-h-[60px]" />
           </div>
 
           <Button type="submit" variant="yellow" disabled={loading} className="w-full py-4 text-xs font-bold rounded-xl mt-6">

@@ -28,6 +28,8 @@ export function ConsultationModal({ pet, appointmentId, onClose, onSuccess }: Co
     diagnosis: '',
     treatment: '',
     notes: '',
+    weight: pet.weight || '',
+    temperature: '',
     status: pet.status || 'En bonne santé'
   });
 
@@ -90,6 +92,7 @@ export function ConsultationModal({ pet, appointmentId, onClose, onSuccess }: Co
         .from('patients')
         .update({
           status: formData.status,
+          weight: formData.weight,
           last_visit: new Date().toISOString()
         })
         .eq('id', pet.id);
@@ -147,6 +150,17 @@ export function ConsultationModal({ pet, appointmentId, onClose, onSuccess }: Co
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Traitement & Soins</label>
                   <textarea value={formData.treatment} onChange={e => setFormData({...formData, treatment: e.target.value})} className="w-full px-5 py-4 bg-gray-50 border border-gray-100 rounded-xl font-medium focus:bg-white focus:ring-2 focus:ring-veto-yellow/20 outline-none min-h-[100px]" required placeholder="Injections réalisées, nettoyage..."></textarea>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="space-y-2">
+                     <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Poids (kg)</label>
+                     <input type="text" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-veto-yellow/20" placeholder="Ex: 5.2" />
+                   </div>
+                   <div className="space-y-2">
+                     <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 ml-1">Température (°C)</label>
+                     <input type="text" value={formData.temperature} onChange={e => setFormData({...formData, temperature: e.target.value})} className="w-full px-5 py-3.5 bg-gray-50 border border-gray-100 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-veto-yellow/20" placeholder="Ex: 38.5" />
+                   </div>
                 </div>
 
                 <div className="space-y-2">

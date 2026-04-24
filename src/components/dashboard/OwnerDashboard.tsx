@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Calendar, Stethoscope, HeartPulse, Clock, Activity, X, ChevronRight, Trash2 } from 'lucide-react';
 import { HealthRecord } from './HealthRecord';
 import { useAuth } from '../../hooks/useAuth';
+import { useI18n } from '../../context/I18nContext';
 import { supabase } from '../../lib/supabase';
 import { api } from '../../lib/api';
 import { cn } from '../../lib/utils';
@@ -35,6 +36,7 @@ interface Appointment {
 
 export function OwnerDashboard() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [pets, setPets] = useState<Pet[]>([]);
   const [nextAppointment, setNextAppointment] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -167,7 +169,7 @@ export function OwnerDashboard() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-gray-200 pb-6">
         <div>
-           <Heading level={2} className="text-3xl font-bold tracking-tight">Mon Espace Santé</Heading>
+           <Heading level={2} className="text-3xl font-bold tracking-tight">{t('dash.welcome')}</Heading>
            <p className="text-gray-500 text-sm mt-1">Gérez vos animaux et vos rendez-vous en un seul endroit.</p>
         </div>
         
@@ -180,7 +182,7 @@ export function OwnerDashboard() {
                 activeTab === 'pets' ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-black"
               )}
             >
-              Mes Animaux
+              {t('dash.pets')}
             </button>
             <button 
               onClick={() => setActiveTab('agenda')}
@@ -189,7 +191,7 @@ export function OwnerDashboard() {
                 activeTab === 'agenda' ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-black"
               )}
             >
-              Agenda
+              {t('dash.agenda')}
             </button>
             <button 
               onClick={() => setActiveTab('vets')}
@@ -198,7 +200,7 @@ export function OwnerDashboard() {
                 activeTab === 'vets' ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-black"
               )}
             >
-              L'Équipe
+              {t('dash.team')}
             </button>
           </div>
           <Button 
@@ -207,7 +209,7 @@ export function OwnerDashboard() {
             className="w-full sm:w-auto font-bold h-10 px-6 rounded-xl text-xs"
             onClick={() => setShowAddModal(true)}
           >
-            + Nouvel Animal
+            {t('dash.add_pet')}
           </Button>
         </div>
       </div>
@@ -257,7 +259,7 @@ export function OwnerDashboard() {
                         <div className="p-2.5 bg-gray-100 rounded-xl">
                            <Calendar size={18} className="text-gray-600" />
                         </div>
-                        <span className="font-bold text-xs text-gray-500 uppercase tracking-wider">Prochain Rendez-vous</span>
+                        <span className="font-bold text-xs text-gray-500 uppercase tracking-wider">{t('dash.next_apt')}</span>
                      </div>
                      
                      {nextAppointment ? (
@@ -365,10 +367,10 @@ export function OwnerDashboard() {
                       <HeartPulse size={40} />
                    </div>
                    <div>
-                      <p className="text-black font-bold text-lg mb-1">Aucun compagnon enregistré</p>
+                      <p className="text-black font-bold text-lg mb-1">{t('dash.no_pets')}</p>
                       <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Commencez par ajouter votre premier animal</p>
                    </div>
-                   <Button variant="yellow" className="rounded-xl px-10 py-4 shadow-premium" onClick={() => setShowAddModal(true)}>+ Ajouter mon premier animal</Button>
+                   <Button variant="yellow" className="rounded-xl px-10 py-4 shadow-premium" onClick={() => setShowAddModal(true)}>{t('dash.add_pet')}</Button>
                 </div>
               ) : (
                 activePets.map((p) => (

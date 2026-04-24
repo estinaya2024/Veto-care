@@ -3,15 +3,17 @@ import { ChevronDown, Menu, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import logo from '../../assets/images/logo-icon-only.png';
 import { useAuth } from '../../hooks/useAuth';
+import { useI18n } from '../../context/I18nContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function Navbar() {
   const { user } = useAuth();
+  const { language, setLanguage, t } = useI18n();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: 'ACCUEIL', href: '/', hasDropdown: false },
-    { name: 'À PROPOS', href: '/about', hasDropdown: false },
+    { name: t('nav.home'), href: '/', hasDropdown: false },
+    { name: t('nav.about'), href: '/about', hasDropdown: false },
     { name: 'SERVICES', href: '/#services', hasDropdown: false },
   ];
 
@@ -41,19 +43,26 @@ export function Navbar() {
 
       {/* Right Content */}
       <div className="flex flex-1 items-center justify-end gap-3 xl:gap-5">
+        <button 
+          onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
+          className="p-2 text-[10px] font-black hover:text-veto-yellow transition-colors border border-black/10 rounded-lg bg-white/50 backdrop-blur-sm"
+        >
+          {language === 'fr' ? 'EN' : 'FR'}
+        </button>
+
         <Button 
           variant="outline" 
           className="hidden md:flex font-bold px-6 py-2.5 rounded-xl text-[10px] uppercase tracking-wider border-2 border-black text-black hover:bg-black hover:text-white transition-all whitespace-nowrap" 
           onClick={() => window.location.href = user ? '/dashboard' : '/login'}
         >
-          {user ? 'MON COMPTE' : 'CONNEXION / COMPTE'}
+          {user ? t('nav.dashboard') : t('nav.login')}
         </Button>
         <Button 
           variant="yellow" 
           className="hidden sm:flex font-bold px-6 py-2.5 rounded-xl text-[10px] uppercase tracking-wider shadow-sm whitespace-nowrap" 
           onClick={() => window.location.href = user ? '/dashboard' : '/login'}
         >
-          PRENDRE RDV
+          {t('hero.cta')}
         </Button>
 
         {/* Mobile Menu Toggle */}

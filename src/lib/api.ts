@@ -213,5 +213,55 @@ export const api = {
       .single();
     if (error) throw error;
     return data;
+  },
+
+  async getPetDocuments(petId: string) {
+    const { data, error } = await supabase
+      .from('medical_documents')
+      .select('*')
+      .eq('patient_id', petId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+
+  async uploadPetDocument(petId: string, userId: string, file: File, name: string, type: string) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${userId}/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('health-records')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('health-records')
+      .getPublicUrl(filePath);
+
+    const { data, error } = await supabase
+      .from('medical_documents')
+      .insert([{
+        patient_id: petId,
+        uploader_id: userId,
+        name: name,
+        file_url: publicUrl,
+        doc_type: type
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deletePetDocument(docId: string) {
+    const { error } = await supabase
+      .from('medical_documents')
+      .delete()
+      .eq('id', docId);
+    if (error) throw error;
+    return { success: true };
   }
 };

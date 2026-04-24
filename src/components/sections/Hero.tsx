@@ -6,7 +6,10 @@ import medIllustration2 from '../../assets/images/med-illu-2.svg';
 import heroMainImage from '../../assets/images/hero-cat.webp';
 import heroDog from '../../assets/images/hero_dog.png';
 
+import { useI18n } from '../../context/I18nContext';
+
 export function Hero() {
+  const { t } = useI18n();
   return (
     <section className="relative w-full min-h-screen bg-[#E3EAF7] overflow-hidden flex flex-col justify-between">
 
@@ -25,16 +28,15 @@ export function Hero() {
         {/* Left Typography */}
         <div className="max-w-2xl animate-fadeInRight text-center md:text-left">
           <Heading className="mb-8 md:mb-12 text-[48px] sm:text-[60px] md:text-[80px] lg:text-[7.5rem] tracking-tighter leading-[0.95] font-black text-veto-black drop-shadow-sm">
-            Your pet, <br />
-            our priority
+            {t('hero.title')}
           </Heading>
 
           <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 md:gap-5">
             <Button variant="black" className="w-full sm:w-auto px-12 py-5 rounded-full hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest shadow-xl" onClick={() => window.location.href = '#services'}>
-              Learn more
+              {t('nav.about')}
             </Button>
             <Button variant="yellow" className="w-full sm:w-auto px-12 py-5 rounded-full shadow-[0_10px_30px_rgba(255,213,0,0.4)] hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest" onClick={() => window.location.href = '/login'}>
-              Make a reservation
+              {t('hero.cta')}
             </Button>
           </div>
         </div>

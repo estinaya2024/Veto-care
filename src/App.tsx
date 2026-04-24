@@ -10,6 +10,7 @@ import { About } from './pages/About';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthProvider';
+import { I18nProvider } from './context/I18nContext';
 
 function Home() {
   return (
@@ -51,7 +52,9 @@ export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <I18nProvider>
+          <AppContent />
+        </I18nProvider>
       </AuthProvider>
     </Router>
   );

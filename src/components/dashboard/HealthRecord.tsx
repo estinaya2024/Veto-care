@@ -16,7 +16,8 @@ import {
   Image as ImageIcon,
   FileCheck,
   Download,
-  User
+  User,
+  Trash2
 } from 'lucide-react';
  
 import { format } from 'date-fns';
@@ -40,6 +41,7 @@ interface HealthRecordProps {
 export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   const [history, setHistory] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'folder' | 'imagerie'>('history');
   const [showConsultModal, setShowConsultModal] = useState(false);
@@ -47,7 +49,8 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
   const [prescribingVet, setPrescribingVet] = useState('');
-  const { role } = useAuth();
+  const [uploading, setUploading] = useState(false);
+  const { role, user } = useAuth();
 
   useEffect(() => {
     fetchData();
@@ -81,14 +84,48 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { appointments, consultations } = await api.getPetClinicalHistory(pet.id);
-      setHistory(appointments);
-      setConsultations(consultations);
+      const [clinicalData, docsData] = await Promise.all([
+        api.getPetClinicalHistory(pet.id),
+        api.getPetDocuments(pet.id)
+      ]);
+      setHistory(clinicalData.appointments);
+      setConsultations(clinicalData.consultations);
+      setDocuments(docsData);
     } catch (err) {
       console.error('Error fetching clinical data:', err);
       toast.error('Erreur lors de la récupération des données');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setUploading(true);
+    try {
+      const docName = prompt('Nom du document (ex: Radiographie Thorax, Bilan Sanguin...)') || file.name;
+      const docType = file.type.includes('image') ? 'imaging' : 'report';
+      
+      await api.uploadPetDocument(pet.id, user.id, file, docName, docType);
+      toast.success('Document ajouté au dossier !');
+      fetchData();
+    } catch (err: any) {
+      toast.error(`Erreur d'upload: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDeleteDoc = async (id: string) => {
+    if (!confirm('Supprimer ce document ?')) return;
+    try {
+      await api.deletePetDocument(id);
+      toast.success('Document supprimé');
+      fetchData();
+    } catch {
+      toast.error('Erreur lors de la suppression');
     }
   };
 
@@ -330,96 +367,148 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
               </div>
             ) : activeTab === 'imagerie' ? (
               <div className="flex-1 space-y-6">
-                 {role === 'vet' && (
-                    <Button variant="outline" className="w-full py-3.5 rounded-xl border-dashed border-2 font-bold text-xs">
-                      + Ajouter un document médical
-                    </Button>
-                 )}
-
-                 <div className="grid sm:grid-cols-2 gap-4">
-                    {/* Mock Image 1: X-Ray */}
-                    <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 hover:bg-white transition-all cursor-pointer shadow-sm group">
-                       <div className="w-full h-40 bg-black rounded-xl overflow-hidden relative mb-4">
-                          <img src="https://images.unsplash.com/photo-1559595089-98e3d8108a8a?q=80&w=800&auto=format&fit=crop" alt="X-Ray" className="w-full h-full object-cover opacity-70" />
-                          <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg text-[9px] font-bold uppercase text-white tracking-wider">
-                             Radiographie
-                          </div>
-                       </div>
-                       <div className="flex justify-between items-center px-1">
-                          <div>
-                             <h4 className="font-bold text-sm text-black">Thorax Face</h4>
-                             <p className="text-[10px] font-bold text-gray-400 uppercase">14 Mars 2026</p>
-                          </div>
-                          <button className="w-8 h-8 bg-white border border-gray-100 rounded-lg flex items-center justify-center hover:bg-veto-yellow transition-colors">
-                             <Download size={14} className="text-black" />
-                          </button>
-                       </div>
-                    </div>
-
-                    {/* Mock Image 2: Blood Test */}
-                    <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 hover:bg-white transition-all cursor-pointer shadow-sm group">
-                       <div className="w-full h-40 bg-white rounded-xl overflow-hidden relative mb-4 border border-gray-100 flex items-center justify-center">
-                          <div className="text-center">
-                             <FileCheck size={32} className="text-red-400 mx-auto mb-2" />
-                             <p className="text-[9px] font-bold text-gray-400 uppercase">Document PDF</p>
-                          </div>
-                          <div className="absolute top-2 left-2 bg-gray-100 px-2 py-1 rounded-lg text-[9px] font-bold uppercase text-gray-600 tracking-wider">
-                             Bilan Sanguin
-                          </div>
-                       </div>
-                       <div className="flex justify-between items-center px-1">
-                          <div>
-                             <h4 className="font-bold text-sm text-black">Hémogramme</h4>
-                             <p className="text-[10px] font-bold text-gray-400 uppercase">02 Fév 2026</p>
-                          </div>
-                          <button className="w-8 h-8 bg-white border border-gray-100 rounded-lg flex items-center justify-center hover:bg-veto-yellow transition-colors">
-                             <Download size={14} className="text-black" />
-                          </button>
-                       </div>
-                    </div>
+                 <div className="relative">
+                    <input 
+                      type="file" 
+                      id="doc-upload" 
+                      className="hidden" 
+                      onChange={handleFileUpload} 
+                      disabled={uploading}
+                    />
+                    <label 
+                      htmlFor="doc-upload"
+                      className="w-full py-6 rounded-3xl border-dashed border-2 border-gray-200 bg-gray-50 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white hover:border-veto-yellow transition-all group"
+                    >
+                      <div className="p-3 bg-white rounded-2xl shadow-sm group-hover:bg-veto-yellow transition-colors">
+                        <ImageIcon size={24} className="text-gray-400 group-hover:text-black" />
+                      </div>
+                      <span className="font-bold text-sm text-gray-500">
+                        {uploading ? 'Envoi en cours...' : '+ Ajouter un document médical (Image ou PDF)'}
+                      </span>
+                    </label>
                  </div>
+
+                 {documents.length === 0 ? (
+                    <div className="py-20 text-center flex flex-col items-center gap-4 text-gray-300">
+                       <FolderHeart size={48} />
+                       <p className="font-bold text-sm uppercase tracking-wider">Aucun document dans le dossier</p>
+                    </div>
+                 ) : (
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {documents.map((doc) => (
+                        <div key={doc.id} className="bg-gray-50 rounded-2xl p-4 border border-gray-100 hover:bg-white transition-all shadow-sm group">
+                           <div className="w-full h-40 bg-gray-200 rounded-xl overflow-hidden relative mb-4 border border-gray-100 flex items-center justify-center">
+                              {doc.doc_type === 'imaging' ? (
+                                <img src={doc.file_url} alt={doc.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="text-center">
+                                   <FileCheck size={32} className="text-red-400 mx-auto mb-2" />
+                                   <p className="text-[9px] font-bold text-gray-400 uppercase">Document PDF / Rapport</p>
+                                </div>
+                              )}
+                              <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-lg text-[9px] font-bold uppercase text-white tracking-wider">
+                                 {doc.doc_type === 'imaging' ? 'Radiographie / Photo' : 'Analyse / Bilan'}
+                              </div>
+                           </div>
+                           <div className="flex justify-between items-center px-1">
+                              <div>
+                                 <h4 className="font-bold text-sm text-black truncate max-w-[150px]">{doc.name}</h4>
+                                 <p className="text-[10px] font-bold text-gray-400 uppercase">{format(new Date(doc.created_at), 'dd MMM yyyy', { locale: fr })}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                 <a 
+                                   href={doc.file_url} 
+                                   target="_blank" 
+                                   rel="noreferrer"
+                                   className="w-8 h-8 bg-white border border-gray-100 rounded-lg flex items-center justify-center hover:bg-veto-yellow transition-colors"
+                                 >
+                                    <Download size={14} className="text-black" />
+                                 </a>
+                                 {(role === 'vet' || doc.uploader_id === user?.id) && (
+                                   <button 
+                                     onClick={() => handleDeleteDoc(doc.id)}
+                                     className="w-8 h-8 bg-white border border-gray-100 rounded-lg flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors"
+                                   >
+                                      <Trash2 size={14} />
+                                   </button>
+                                 )}
+                              </div>
+                           </div>
+                        </div>
+                      ))}
+                    </div>
+                 )}
               </div>
             ) : (
-              <div className="flex-1 grid md:grid-cols-2 gap-6">
-                 <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 space-y-4">
-                    <div className="flex justify-between items-center">
-                       <h4 className="font-bold text-xs text-gray-400 uppercase tracking-widest">Informations</h4>
-                       <Button size="sm" variant="ghost" className="text-[10px] font-bold uppercase underline" onClick={() => setShowEditModal(true)}>
-                         Modifier
-                       </Button>
-                    </div>
-                    <div className="space-y-3">
-                       <div>
-                          <p className="text-[9px] font-bold text-gray-400 uppercase mb-0.5">Race / Variété</p>
-                          <p className="font-bold text-base">{pet.breed || 'Standard'}</p>
+              <div className="flex-1 space-y-8 animate-fadeIn">
+                 <div className="grid md:grid-cols-2 gap-8">
+                    {/* Medical Alert Box */}
+                    <div className="p-8 bg-red-50 rounded-[2.5rem] border border-red-100 space-y-4">
+                       <div className="flex items-center gap-3 pb-3 border-b border-red-100">
+                          <AlertCircle size={20} className="text-red-500" />
+                          <h4 className="font-bold text-sm uppercase tracking-widest text-red-700">Alertes Médicales</h4>
                        </div>
-                       <div>
-                          <p className="text-[9px] font-bold text-gray-400 uppercase mb-0.5">Poids</p>
-                          <p className="font-bold text-base">{pet.weight} kg</p>
+                       <div className="space-y-4">
+                          <div>
+                             <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider mb-1">Allergies connues</p>
+                             <p className="font-bold text-base text-red-900">{pet.allergies || 'Aucune allergie signalée.'}</p>
+                          </div>
+                          <div>
+                             <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider mb-1">Pathologies Chroniques</p>
+                             <p className="font-bold text-base text-red-900">{pet.chronic_conditions || 'Aucune pathologie chronique.'}</p>
+                          </div>
+                       </div>
+                    </div>
+
+                    <div className="p-8 bg-gray-50 rounded-[2.5rem] border border-gray-100 space-y-6">
+                       <div className="flex justify-between items-center">
+                          <h4 className="font-bold text-xs text-gray-400 uppercase tracking-widest">Informations Générales</h4>
+                          <Button size="sm" variant="ghost" className="text-[10px] font-bold uppercase underline" onClick={() => setShowEditModal(true)}>
+                            Modifier la fiche
+                          </Button>
+                       </div>
+                       <div className="grid grid-cols-2 gap-y-6">
+                          <div>
+                             <p className="text-[9px] font-bold text-gray-400 uppercase mb-0.5">Race / Variété</p>
+                             <p className="font-bold text-base">{pet.breed || 'Standard'}</p>
+                          </div>
+                          <div>
+                             <p className="text-[9px] font-bold text-gray-400 uppercase mb-0.5">Poids actuel</p>
+                             <p className="font-bold text-base">{pet.weight} kg</p>
+                          </div>
+                          <div>
+                             <p className="text-[9px] font-bold text-gray-400 uppercase mb-0.5">Espèce</p>
+                             <p className="font-bold text-base">{pet.species}</p>
+                          </div>
+                          <div>
+                             <p className="text-[9px] font-bold text-gray-400 uppercase mb-0.5">Dernière visite</p>
+                             <p className="font-bold text-base">{pet.last_visit ? format(new Date(pet.last_visit), 'dd/MM/yyyy') : '—'}</p>
+                          </div>
                        </div>
                     </div>
                  </div>
-                 <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 space-y-4">
-                    <h4 className="font-bold text-xs text-gray-400 uppercase tracking-widest">Notes</h4>
-                    <p className="text-sm font-medium text-gray-600 leading-relaxed">
-                       Suivi régulier à la clinique VetoCare. Historique vaccinal et parasitaire à jour.
+
+                 <div className="p-8 bg-white border border-gray-100 rounded-[2.5rem] space-y-4">
+                    <h4 className="font-bold text-xs text-gray-400 uppercase tracking-widest">Notes Cliniques & Observations</h4>
+                    <p className="text-sm font-medium text-gray-600 leading-relaxed italic">
+                       {pet.notes || "Suivi régulier à la clinique VetoCare. L'historique complet des consultations est disponible dans l'onglet 'Suivi'."}
                     </p>
                  </div>
 
                  {role === 'vet' && pet.maitres && (
-                    <div className="p-6 bg-veto-yellow/10 rounded-2xl border border-veto-yellow/20 md:col-span-2 space-y-4">
-                       <div className="flex items-center gap-2 pb-2 border-b border-veto-yellow/10">
-                          <User size={16} className="text-black" />
-                          <h4 className="font-bold text-xs uppercase tracking-widest text-black">Propriétaire</h4>
+                    <div className="p-8 bg-veto-yellow/10 rounded-[2.5rem] border border-veto-yellow/20 space-y-6">
+                       <div className="flex items-center gap-3 pb-3 border-b border-veto-yellow/20">
+                          <User size={20} className="text-black" />
+                          <h4 className="font-bold text-sm uppercase tracking-widest text-black">Coordonnées du Propriétaire</h4>
                        </div>
-                       <div className="grid sm:grid-cols-2 gap-4">
+                       <div className="grid sm:grid-cols-2 gap-8">
                           <div>
-                             <p className="text-[9px] font-bold text-gray-500 uppercase">Nom</p>
-                             <p className="font-bold text-base">{pet.maitres.full_name}</p>
+                             <p className="text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nom Complet</p>
+                             <p className="font-bold text-lg">{pet.maitres.full_name}</p>
                           </div>
                           <div>
-                             <p className="text-[9px] font-bold text-gray-500 uppercase">Email</p>
-                             <p className="font-bold text-base text-black underline decoration-veto-yellow/50">{pet.maitres.email}</p>
+                             <p className="text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Contact Email</p>
+                             <p className="font-bold text-lg text-black underline decoration-veto-yellow/50">{pet.maitres.email}</p>
                           </div>
                        </div>
                     </div>
