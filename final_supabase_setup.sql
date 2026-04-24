@@ -166,6 +166,9 @@ CREATE POLICY "Vet: Full Access Docs" ON public.medical_documents FOR ALL TO aut
 CREATE POLICY "Vet: Full Access Unavailability" ON public.indisponibilites_vet FOR ALL TO authenticated USING (is_vet());
 CREATE POLICY "Vet: View Owners" ON public.maitres FOR SELECT TO authenticated USING (is_vet());
 
+-- Public Access to Unavailability (So patients can see blocked slots)
+CREATE POLICY "Public: View Unavailability" ON public.indisponibilites_vet FOR SELECT TO authenticated USING (true);
+
 -- Owner Access
 CREATE POLICY "Owner: Manage Profile" ON public.maitres FOR ALL TO authenticated USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 CREATE POLICY "Owner: Manage Pets" ON public.patients FOR ALL TO authenticated USING (auth.uid() = maitre_id) WITH CHECK (auth.uid() = maitre_id);
