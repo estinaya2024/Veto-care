@@ -1,26 +1,36 @@
 -- ========================================================
--- VETOCARE: FINAL CONSOLIDATED MASTER SCHEMA
+-- VETOCARE: ULTIMATE COMPLETE MASTER SCHEMA
 -- ========================================================
 
--- 1. BASE TABLES
-CREATE TABLE IF NOT EXISTS public.maitres (
+-- 1. CLEANUP (Drop everything to ensure a perfect state)
+DROP TABLE IF EXISTS public.medical_documents CASCADE;
+DROP TABLE IF EXISTS public.prescriptions CASCADE;
+DROP TABLE IF EXISTS public.consultations CASCADE;
+DROP TABLE IF EXISTS public.rendez_vous CASCADE;
+DROP TABLE IF EXISTS public.indisponibilites_vet CASCADE;
+DROP TABLE IF EXISTS public.patients CASCADE;
+DROP TABLE IF EXISTS public.maitres CASCADE;
+DROP TABLE IF EXISTS public.veterinaires CASCADE;
+
+-- 2. CREATE TABLES
+CREATE TABLE public.maitres (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     full_name TEXT NOT NULL,
     phone TEXT,
     avatar_url TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS public.veterinaires (
+CREATE TABLE public.veterinaires (
     id UUID PRIMARY KEY,
     name TEXT NOT NULL,
     specialty TEXT DEFAULT 'Généraliste',
     description TEXT,
     image_url TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS public.patients (
+CREATE TABLE public.patients (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     maitre_id UUID REFERENCES public.maitres(id) ON DELETE CASCADE NOT NULL,
     name TEXT NOT NULL,
@@ -29,22 +39,22 @@ CREATE TABLE IF NOT EXISTS public.patients (
     weight TEXT,
     status TEXT DEFAULT 'En bonne santé',
     is_archived BOOLEAN DEFAULT false,
-    last_visit TIMESTAMP WITH TIME ZONE,
-    next_vax TIMESTAMP WITH TIME ZONE,
+    last_visit TIMESTAMPTZ,
+    next_vax TIMESTAMPTZ,
     primary_vet_id UUID REFERENCES public.veterinaires(id),
     clinic_notes TEXT,
     internal_id TEXT UNIQUE,
     allergies TEXT,
     chronic_conditions TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS public.rendez_vous (
+CREATE TABLE public.rendez_vous (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     maitre_id UUID REFERENCES public.maitres(id) ON DELETE CASCADE NOT NULL,
     veterinaire_id UUID REFERENCES public.veterinaires(id) ON DELETE CASCADE NOT NULL,
     patient_id UUID REFERENCES public.patients(id) ON DELETE CASCADE,
-    date_rdv TIMESTAMP WITH TIME ZONE NOT NULL,
+    date_rdv TIMESTAMPTZ NOT NULL,
     status TEXT DEFAULT 'planifié', 
     health_record_url TEXT,
     medical_notes TEXT,
@@ -52,108 +62,51 @@ CREATE TABLE IF NOT EXISTS public.rendez_vous (
     rejected_at TIMESTAMPTZ,
     cancellation_reason TEXT,
     checkin_at TIMESTAMPTZ,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS public.indisponibilites_vet (
+CREATE TABLE public.indisponibilites_vet (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     veterinaire_id UUID REFERENCES public.veterinaires(id) ON DELETE CASCADE NOT NULL,
-    start_time TIMESTAMP WITH TIME ZONE NOT NULL,
-    end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ NOT NULL,
     motif TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS public.consultations (
+CREATE TABLE public.consultations (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     patient_id UUID REFERENCES public.patients(id) ON DELETE CASCADE NOT NULL,
     veterinaire_id UUID REFERENCES public.veterinaires(id) ON DELETE CASCADE NOT NULL,
-    date_consultation TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    date_consultation TIMESTAMPTZ DEFAULT NOW(),
     symptoms TEXT,
     diagnosis TEXT,
     treatment TEXT,
     notes TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS public.prescriptions (
+CREATE TABLE public.prescriptions (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     consultation_id UUID REFERENCES public.consultations(id) ON DELETE CASCADE,
     patient_id UUID REFERENCES public.patients(id) ON DELETE CASCADE NOT NULL,
     medications JSONB NOT NULL DEFAULT '[]',
-    issued_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    expires_at TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    issued_at TIMESTAMPTZ DEFAULT NOW(),
+    expires_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS public.medical_documents (
+CREATE TABLE public.medical_documents (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     patient_id UUID REFERENCES public.patients(id) ON DELETE CASCADE NOT NULL,
     uploader_id UUID REFERENCES auth.users(id) NOT NULL,
     name TEXT NOT NULL,
     file_url TEXT NOT NULL,
     doc_type TEXT DEFAULT 'autre', 
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. VIEWS
-CREATE OR REPLACE VIEW public.waiting_room AS
-SELECT r.id, r.date_rdv, r.checkin_at, p.name as patient_name, p.species, p.id as patient_id, v.name as vet_name, v.id as vet_id
-FROM public.rendez_vous r
-JOIN public.patients p ON r.patient_id = p.id
-JOIN public.veterinaires v ON r.veterinaire_id = v.id
-WHERE r.status = 'en_attente' AND r.date_rdv::date = CURRENT_DATE
-ORDER BY r.checkin_at ASC;
-
--- 3. CORE FUNCTIONS
-CREATE OR REPLACE FUNCTION public.is_vet()
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid());
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- 4. RPC OPERATIONS
-CREATE OR REPLACE FUNCTION public.check_conflict(v_id UUID, rdv_date TIMESTAMP WITH TIME ZONE)
-RETURNS BOOLEAN AS $$
-BEGIN
-  IF EXISTS (
-    SELECT 1 FROM public.rendez_vous WHERE veterinaire_id = v_id AND status NOT IN ('annulé', 'terminé')
-    AND ABS(EXTRACT(EPOCH FROM (date_rdv - rdv_date))) < 1800
-  ) OR EXISTS (
-    SELECT 1 FROM public.indisponibilites_vet WHERE veterinaire_id = v_id AND (rdv_date >= start_time AND rdv_date < end_time)
-  ) THEN
-    RETURN TRUE;
-  END IF;
-  RETURN FALSE;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE FUNCTION public.book_appointment(
-  p_maitre_id UUID, p_patient_id UUID, p_veterinaire_id UUID, p_date_rdv TIMESTAMP WITH TIME ZONE, p_health_record_url TEXT DEFAULT NULL
-)
-RETURNS JSON AS $$
-DECLARE
-  v_conflict BOOLEAN;
-  v_id UUID;
-BEGIN
-  v_conflict := public.check_conflict(p_veterinaire_id, p_date_rdv);
-  IF v_conflict THEN RETURN '{"success": false, "message": "Conflit"}'; END IF;
-  INSERT INTO public.rendez_vous (maitre_id, patient_id, veterinaire_id, date_rdv, status, health_record_url)
-  VALUES (p_maitre_id, p_patient_id, p_veterinaire_id, p_date_rdv, 'planifié', p_health_record_url) RETURNING id INTO v_id;
-  RETURN '{"success": true}';
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE FUNCTION public.check_in_patient(appointment_id UUID) RETURNS VOID AS $$
-BEGIN UPDATE public.rendez_vous SET status = 'en_attente', checkin_at = NOW() WHERE id = appointment_id; END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE OR REPLACE FUNCTION public.approve_appointment(appointment_id UUID) RETURNS VOID AS $$
-BEGIN UPDATE public.rendez_vous SET status = 'confirmé', approved_at = NOW() WHERE id = appointment_id; END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- 5. SECURITY (RLS)
+-- 3. SECURITY (RLS)
 ALTER TABLE public.maitres ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.patients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.veterinaires ENABLE ROW LEVEL SECURITY;
@@ -163,100 +116,32 @@ ALTER TABLE public.consultations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.prescriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.medical_documents ENABLE ROW LEVEL SECURITY;
 
--- Global Policies
-DROP POLICY IF EXISTS "Public Vets" ON public.veterinaires;
 CREATE POLICY "Public Vets" ON public.veterinaires FOR SELECT USING (true);
 
--- Vet Policies
-DROP POLICY IF EXISTS "Vet: Full Access Patients" ON public.patients;
-CREATE POLICY "Vet: Full Access Patients" ON public.patients FOR ALL TO authenticated USING (is_vet());
+-- Vet Access
+CREATE POLICY "Vet: Full Access" ON public.patients FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid()));
+CREATE POLICY "Vet: Full Access Apts" ON public.rendez_vous FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid()));
+CREATE POLICY "Vet: Full Access Consults" ON public.consultations FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid()));
+CREATE POLICY "Vet: Full Access Docs" ON public.medical_documents FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid()));
+CREATE POLICY "Vet: View Owners" ON public.maitres FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid()));
 
-DROP POLICY IF EXISTS "Vet: Full Access Appointments" ON public.rendez_vous;
-CREATE POLICY "Vet: Full Access Appointments" ON public.rendez_vous FOR ALL TO authenticated USING (is_vet());
-
-DROP POLICY IF EXISTS "Vet: Full Access Unavailability" ON public.indisponibilites_vet;
-CREATE POLICY "Vet: Full Access Unavailability" ON public.indisponibilites_vet FOR ALL TO authenticated USING (is_vet());
-
-DROP POLICY IF EXISTS "Vet: Full Access Consultations" ON public.consultations;
-CREATE POLICY "Vet: Full Access Consultations" ON public.consultations FOR ALL TO authenticated USING (is_vet());
-
-DROP POLICY IF EXISTS "Vet: Full Access Prescriptions" ON public.prescriptions;
-CREATE POLICY "Vet: Full Access Prescriptions" ON public.prescriptions FOR ALL TO authenticated USING (is_vet());
-
-DROP POLICY IF EXISTS "Vet: Manage Docs" ON public.medical_documents;
-CREATE POLICY "Vet: Manage Docs" ON public.medical_documents FOR ALL TO authenticated USING (is_vet());
-
-DROP POLICY IF EXISTS "Vet: View Owners" ON public.maitres;
-CREATE POLICY "Vet: View Owners" ON public.maitres FOR SELECT TO authenticated USING (is_vet());
-
--- Owner Policies
-DROP POLICY IF EXISTS "Owner: View Profile" ON public.maitres;
-CREATE POLICY "Owner: View Profile" ON public.maitres FOR SELECT TO authenticated USING (auth.uid() = id);
-
-DROP POLICY IF EXISTS "Owner: Update Profile" ON public.maitres;
-CREATE POLICY "Owner: Update Profile" ON public.maitres FOR UPDATE TO authenticated USING (auth.uid() = id);
-
-DROP POLICY IF EXISTS "Owner: Insert Profile" ON public.maitres;
-CREATE POLICY "Owner: Insert Profile" ON public.maitres FOR INSERT TO authenticated WITH CHECK (auth.uid() = id);
-
-DROP POLICY IF EXISTS "Owner: My Pets" ON public.patients;
-CREATE POLICY "Owner: My Pets" ON public.patients FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
-
-DROP POLICY IF EXISTS "Owner: Insert Pets" ON public.patients;
-CREATE POLICY "Owner: Insert Pets" ON public.patients FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
-
-DROP POLICY IF EXISTS "Owner: Update Pets" ON public.patients;
-CREATE POLICY "Owner: Update Pets" ON public.patients FOR UPDATE TO authenticated USING (auth.uid() = maitre_id);
-
-DROP POLICY IF EXISTS "Owner: Delete Pets" ON public.patients;
-CREATE POLICY "Owner: Delete Pets" ON public.patients FOR DELETE TO authenticated USING (auth.uid() = maitre_id);
-
-DROP POLICY IF EXISTS "Owner: Book" ON public.rendez_vous;
-CREATE POLICY "Owner: Book" ON public.rendez_vous FOR INSERT WITH CHECK (true);
-
-DROP POLICY IF EXISTS "Owner: View Bookings" ON public.rendez_vous;
-CREATE POLICY "Owner: View Bookings" ON public.rendez_vous FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
-
-DROP POLICY IF EXISTS "Owner: Cancel Bookings" ON public.rendez_vous;
-CREATE POLICY "Owner: Cancel Bookings" ON public.rendez_vous FOR DELETE TO authenticated USING (auth.uid() = maitre_id);
-
-DROP POLICY IF EXISTS "Owner: View Consultations" ON public.consultations;
-CREATE POLICY "Owner: View Consultations" ON public.consultations FOR SELECT TO authenticated 
-USING (EXISTS (SELECT 1 FROM public.patients WHERE id = consultations.patient_id AND maitre_id = auth.uid()));
-
-DROP POLICY IF EXISTS "Owner: View Prescriptions" ON public.prescriptions;
-CREATE POLICY "Owner: View Prescriptions" ON public.prescriptions FOR SELECT TO authenticated 
-USING (EXISTS (SELECT 1 FROM public.patients WHERE id = prescriptions.patient_id AND maitre_id = auth.uid()));
-
-DROP POLICY IF EXISTS "Owner: My Docs" ON public.medical_documents;
-CREATE POLICY "Owner: My Docs" ON public.medical_documents FOR SELECT TO authenticated 
+-- Owner Access
+CREATE POLICY "Owner: Manage Profile" ON public.maitres FOR ALL TO authenticated USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+CREATE POLICY "Owner: Manage Pets" ON public.patients FOR ALL TO authenticated USING (auth.uid() = maitre_id) WITH CHECK (auth.uid() = maitre_id);
+CREATE POLICY "Owner: Book Apts" ON public.rendez_vous FOR INSERT WITH CHECK (true);
+CREATE POLICY "Owner: View Apts" ON public.rendez_vous FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
+CREATE POLICY "Owner: View Docs" ON public.medical_documents FOR SELECT TO authenticated 
 USING (EXISTS (SELECT 1 FROM public.patients WHERE id = medical_documents.patient_id AND maitre_id = auth.uid()));
-
-DROP POLICY IF EXISTS "Owner: Add Docs" ON public.medical_documents;
 CREATE POLICY "Owner: Add Docs" ON public.medical_documents FOR INSERT WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Owner: Delete Docs" ON public.medical_documents;
-CREATE POLICY "Owner: Delete Docs" ON public.medical_documents FOR DELETE TO authenticated 
-USING (EXISTS (SELECT 1 FROM public.patients WHERE id = medical_documents.patient_id AND maitre_id = auth.uid()));
+-- 4. STORAGE
+INSERT INTO storage.buckets (id, name, public) VALUES ('health-records', 'health-records', true) ON CONFLICT (id) DO UPDATE SET public = true;
+CREATE POLICY "Universal Storage Access" ON storage.objects FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
--- 6. EMERGENCY STORAGE FIX
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('health-records', 'health-records', true) 
-ON CONFLICT (id) DO UPDATE SET public = true;
-
-DROP POLICY IF EXISTS "Universal Storage Access" ON storage.objects;
-CREATE POLICY "Universal Storage Access" ON storage.objects 
-FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
--- 7. YOUR VET ACCOUNT REGISTRATION
+-- 5. REGISTER YOUR VET ACCOUNT
 INSERT INTO public.veterinaires (id, name, specialty, description)
-VALUES (
-  'eb8bc3d3-3241-40fd-aa37-f5df08e348ed', 
-  'Dr. Clinique Veto', 
-  'Vétérinaire Principal', 
-  'Expert en soins'
-) ON CONFLICT (id) DO UPDATE SET specialty = 'Vétérinaire Principal';
+VALUES ('eb8bc3d3-3241-40fd-aa37-f5df08e348ed', 'Dr. Clinique Veto', 'Vétérinaire Principal', 'Expert en soins')
+ON CONFLICT (id) DO UPDATE SET specialty = 'Vétérinaire Principal';
 
-INSERT INTO public.maitres (id, full_name, phone)
-VALUES ('eb8bc3d3-3241-40fd-aa37-f5df08e348ed', 'Administrateur', '0550 00 00 00')
-ON CONFLICT (id) DO NOTHING;
+-- 6. CACHE REFRESH
+NOTIFY pgrst, 'reload schema';
