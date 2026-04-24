@@ -27,14 +27,16 @@ interface HealthRecordProps {
 }
 
 export function HealthRecord({ pet, onBack }: HealthRecordProps) {
-  const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'imaging' | 'documents' | 'prescriptions'>('history');
-  const [history, setHistory] = useState<any[]>([]);
-  const [consultations, setConsultations] = useState<any[]>([]);
-  const [documents, setDocuments] = useState<any[]>([]);
-  const [prescriptions, setPrescriptions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const { user } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValues, setEditValues] = useState({
+    weight: pet.weight || '',
+    next_vax: pet.next_vax || '',
+    allergies: pet.allergies || '',
+    breed: pet.breed || '',
+    species: pet.species || ''
+  });
+  const { user, role } = useAuth();
+  const isVet = role === 'vet';
 
   const fetchPetData = async () => {
     setLoading(true);
@@ -64,6 +66,17 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   useEffect(() => {
     fetchPetData();
   }, [pet.id]);
+
+  const handleUpdatePet = async () => {
+    try {
+      await api.updatePatient(pet.id, editValues);
+      toast.success('Dossier mis à jour');
+      setIsEditing(false);
+      fetchPetData();
+    } catch {
+      toast.error('Erreur lors de la mise à jour');
+    }
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -105,18 +118,50 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             <div className="flex items-center gap-3 mb-1">
               <Heading level={2} className="text-4xl font-bold text-gray-900">{pet.name}</Heading>
               <span className="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-green-100">Dossier Actif</span>
+              {isVet && (
+                <button 
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                >
+                  {isEditing ? 'Annuler' : 'Modifier'}
+                </button>
+              )}
             </div>
-            <p className="text-gray-500 flex items-center gap-2">
-              <span className="font-medium">{pet.species}</span>
-              <span className="text-gray-300">•</span>
-              <span className="font-medium">{pet.breed || 'Race non précisée'}</span>
-            </p>
+            {isEditing ? (
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={editValues.species} 
+                  onChange={(e) => setEditValues({...editValues, species: e.target.value})}
+                  className="px-3 py-1 text-xs border rounded-lg w-24"
+                  placeholder="Espèce"
+                />
+                <input 
+                  type="text" 
+                  value={editValues.breed} 
+                  onChange={(e) => setEditValues({...editValues, breed: e.target.value})}
+                  className="px-3 py-1 text-xs border rounded-lg w-32"
+                  placeholder="Race"
+                />
+              </div>
+            ) : (
+              <p className="text-gray-500 flex items-center gap-2">
+                <span className="font-medium">{pet.species}</span>
+                <span className="text-gray-300">•</span>
+                <span className="font-medium">{pet.breed || 'Race non précisée'}</span>
+              </p>
+            )}
           </div>
         </div>
 
         <div className="flex gap-3">
+          {isEditing && (
+            <Button onClick={handleUpdatePet} variant="black" className="rounded-xl shadow-lg">
+              Enregistrer les modifications
+            </Button>
+          )}
           <input type="file" id="doc-upload" className="hidden" onChange={handleFileUpload} />
-          <Button variant="black" className="rounded-xl shadow-lg" onClick={() => document.getElementById('doc-upload')?.click()} disabled={uploading}>
+          <Button variant="black" className={cn("rounded-xl shadow-lg", isEditing && "hidden")} onClick={() => document.getElementById('doc-upload')?.click()} disabled={uploading}>
             {uploading ? <Clock className="animate-spin mr-2" size={18} /> : <Plus size={18} className="mr-2" />}
             Ajouter un Document
           </Button>
@@ -132,19 +177,49 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             <div className="space-y-6">
               <div>
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Dernier Poids</p>
-                <p className="text-2xl font-black text-gray-900">{pet.weight || '--'} <span className="text-lg">kg</span></p>
+                {isEditing ? (
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="text" 
+                      value={editValues.weight} 
+                      onChange={(e) => setEditValues({...editValues, weight: e.target.value})}
+                      className="px-3 py-1 border rounded-lg w-20"
+                    />
+                    <span className="text-sm font-bold">kg</span>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-black text-gray-900">{pet.weight || '--'} <span className="text-lg">kg</span></p>
+                )}
               </div>
               <div>
                 <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Prochain Vaccin</p>
-                <p className={cn("text-lg font-bold", pet.next_vax ? "text-blue-600" : "text-gray-400")}>
-                  {pet.next_vax ? format(new Date(pet.next_vax), 'dd MMM yyyy', { locale: fr }) : 'Non planifié'}
-                </p>
+                {isEditing ? (
+                  <input 
+                    type="date" 
+                    value={editValues.next_vax?.split('T')[0]} 
+                    onChange={(e) => setEditValues({...editValues, next_vax: e.target.value})}
+                    className="px-3 py-1 border rounded-lg w-full text-xs"
+                  />
+                ) : (
+                  <p className={cn("text-lg font-bold", pet.next_vax ? "text-blue-600" : "text-gray-400")}>
+                    {pet.next_vax ? format(new Date(pet.next_vax), 'dd MMM yyyy', { locale: fr }) : 'Non planifié'}
+                  </p>
+                )}
               </div>
               <div className="p-4 bg-red-50 border border-red-100 rounded-2xl">
                 <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1 flex items-center gap-1">
                   <AlertCircle size={10} /> Allergies
                 </p>
-                <p className="text-sm font-bold text-red-800">{pet.allergies || 'Aucune signalée'}</p>
+                {isEditing ? (
+                  <textarea 
+                    value={editValues.allergies} 
+                    onChange={(e) => setEditValues({...editValues, allergies: e.target.value})}
+                    className="w-full bg-transparent border-b border-red-200 text-sm focus:outline-none"
+                    rows={2}
+                  />
+                ) : (
+                  <p className="text-sm font-bold text-red-800">{pet.allergies || 'Aucune signalée'}</p>
+                )}
               </div>
             </div>
           </div>
