@@ -18,6 +18,7 @@ import { FileText, Upload } from 'lucide-react';
 
 interface BookingCalendarProps {
   maitreId: string;
+  onBookingComplete?: () => void;
 }
 
 interface BookingEvent {
@@ -34,7 +35,7 @@ interface BookingEvent {
   };
 }
 
-export function BookingCalendar({ maitreId }: BookingCalendarProps) {
+export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendarProps) {
   const [events, setEvents] = useState<BookingEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -176,6 +177,7 @@ export function BookingCalendar({ maitreId }: BookingCalendarProps) {
       setSelectedFile(null);
       fetchData();
       toast.success('Rendez-vous envoyé pour confirmation !');
+      if (onBookingComplete) onBookingComplete();
     } catch (err: any) {
       toast.error(`${err.message || 'Erreur lors de la réservation.'}`);
     } finally {

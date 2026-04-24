@@ -10,7 +10,6 @@ import {
   CheckCircle2, 
   XCircle, 
   UserPlus,
-  Stethoscope,
   ChevronRight
 } from 'lucide-react';
 import { HealthRecord } from './HealthRecord';
@@ -24,7 +23,6 @@ import { cn } from '../../lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export function VetDashboard() {
   const [selectedPet, setSelectedPet] = useState<any | null>(null);

@@ -4,13 +4,11 @@ import { Button } from '../ui/Button';
 import { 
   Heart, 
   Calendar as CalendarIcon, 
-  History, 
+  Clock, 
   Shield, 
-  Activity, 
   Trash2,
   ChevronRight,
-  PlusCircle,
-  FileText
+  PlusCircle
 } from 'lucide-react';
 import { BookingCalendar } from './BookingCalendar';
 import { supabase } from '../../lib/supabase';

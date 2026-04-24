@@ -5,7 +5,6 @@ import {
   ChevronLeft, 
   Plus, 
   Calendar, 
-  FileText, 
   Activity, 
   Image as ImageIcon,
   Clock,
@@ -16,7 +15,6 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { api } from '../../lib/api';
-import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
