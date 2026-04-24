@@ -117,10 +117,19 @@ export function VetDashboard() {
     }
   };
 
-  const filteredPatients = patients.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.maitres?.full_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPatients = patients.filter(p => {
+    const pName = (p.name || '').toLowerCase();
+    const oName = (p.maitres?.full_name || '').toLowerCase();
+    const search = searchTerm.toLowerCase();
+    return pName.includes(search) || oName.includes(search);
+  });
+
+  const stats = {
+    total: patients.length,
+    today: todayAppointments.length,
+    waiting: waitingRoom.length,
+    pending: pendingApprovals.length
+  };
 
   if (selectedPet) {
     return <HealthRecord pet={selectedPet} onBack={() => setSelectedPet(null)} />;
@@ -326,19 +335,29 @@ export function VetDashboard() {
                       <Heading level={3} className="text-xl flex items-center gap-2">
                          <Activity size={20} /> Vue Rapide
                       </Heading>
-                      <div className="grid grid-cols-2 gap-4">
-                         <div className="p-5 bg-white rounded-3xl border border-gray-100 shadow-sm">
-                            <Users size={16} className="text-gray-300 mb-2" />
-                            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400">Clients</p>
-                            <p className="text-2xl font-black">{patients.length}</p>
-                         </div>
-                         <div className="p-5 bg-veto-yellow rounded-3xl shadow-premium">
-                            <Activity size={16} className="text-black/30 mb-2" />
-                            <p className="text-[9px] font-black uppercase tracking-widest text-black/40">Visites</p>
-                            <p className="text-2xl font-black text-black">{todayAppointments.length}</p>
-                         </div>
-                      </div>
-                   </div>
+                       <div className="grid grid-cols-2 gap-4">
+                          <div className="p-5 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                             <Users size={16} className="text-gray-300 mb-2" />
+                             <p className="text-[9px] font-black uppercase tracking-widest text-gray-400">Total Patients</p>
+                             <p className="text-2xl font-black">{stats.total}</p>
+                          </div>
+                          <div className="p-5 bg-veto-yellow rounded-3xl shadow-premium">
+                             <Activity size={16} className="text-black/30 mb-2" />
+                             <p className="text-[9px] font-black uppercase tracking-widest text-black/40">Visites Jour</p>
+                             <p className="text-2xl font-black text-black">{stats.today}</p>
+                          </div>
+                       </div>
+                    </div>
+                    <div className="space-y-4">
+                       <div className="p-5 bg-gray-100 rounded-3xl flex justify-between items-center">
+                          <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">En attente</p>
+                          <span className="text-lg font-black text-black">{stats.waiting}</span>
+                       </div>
+                       <div className="p-5 bg-gray-100 rounded-3xl flex justify-between items-center">
+                          <p className="text-[9px] font-black uppercase tracking-widest text-gray-500">À Approuver</p>
+                          <span className="text-lg font-black text-black">{stats.pending}</span>
+                       </div>
+                    </div>
                    <div className="pt-8 border-t border-gray-200 mt-8">
                       <Button variant="outline" className="w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2">
                          Générer Rapport Global
