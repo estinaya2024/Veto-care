@@ -212,7 +212,18 @@ export function VetDashboard() {
                       <p className="text-xs text-gray-500">Arrivé à {format(new Date(item.checkin_at), 'HH:mm')}</p>
                     </div>
                   </div>
-                  <Button onClick={() => setSelectedPet({ id: item.patient_id, name: item.patient_name, species: item.species })} variant="black" size="sm">Ouvrir Dossier</Button>
+                  <div className="flex gap-2">
+                    <Button onClick={() => setSelectedPet({ id: item.patient_id, name: item.patient_name, species: item.species })} variant="outline" size="sm">Ouvrir Dossier</Button>
+                    <Button onClick={async () => {
+                      try {
+                        await api.updateAppointmentStatus(item.appointment_id, 'terminé');
+                        toast.success('Consultation terminée !');
+                        fetchData();
+                      } catch {
+                        toast.error('Erreur lors de la clôture');
+                      }
+                    }} variant="black" size="sm">Terminer</Button>
+                  </div>
                 </div>
               ))}
             </div>
