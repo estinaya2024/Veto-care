@@ -302,7 +302,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
 
             if (isMine) {
               return (
-                <div className="w-full h-full bg-white rounded-xl p-3 flex flex-col justify-between shadow-[0_10px_20px_rgba(255,213,0,0.1)] group transition-all hover:scale-[1.02] border border-gray-100">
+                <div className="w-full h-full bg-white rounded-xl p-3 flex flex-col justify-between shadow-[0_10px_20px_rgba(255,213,0,0.1)] border border-veto-yellow/20 group transition-all hover:scale-[1.02]">
                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 bg-veto-yellow/10 rounded-lg flex items-center justify-center">
