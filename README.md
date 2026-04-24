@@ -6,85 +6,88 @@
 
 ---
 
+## ✨ Points Forts du Projet
+- **Système Double Dashboard** : Interfaces distinctes et sécurisées pour les Vétérinaires (Gestion clinique) et les Propriétaires (Suivi & Réservation).
+- **Architecture Serverless** : Déploiement sur **Vercel** avec backend **Supabase** (PostgreSQL, Auth, Storage).
+- **Multilingue Natif** : Support complet du Français et de l'Anglais.
+- **Sécurité RLS (Row Level Security)** : Isolation totale des données patients et accès granulaire pour le personnel médical.
+- **UI Premium** : Design moderne avec Glassmorphism, micro-animations (Framer Motion) et expérience utilisateur fluide.
+
+---
+
 ## 🏗️ Architecture du Système
 
 ```mermaid
 graph TD
-    User((Utilisateur)) -- HTTPS/Vercel --> Frontend[Vite + React App]
+    User((Utilisateur)) -- "HTTPS (Vercel)" --> Frontend[Vite + React App]
     Frontend -- "Auth / SQL / Storage" --> Supabase[Supabase BaaS]
     
     subgraph "Cloud Layer (Vercel)"
         Frontend
-        CI[CI/CD Pipeline]
+        CI[CI/CD Pipeline GitHub]
     end
     
     subgraph "Data Layer (Supabase)"
         DB[(PostgreSQL)]
         Auth[GoTrue Auth]
-        Storage[Object Storage]
-        RLS{Row Level Security}
+        Storage[S3 Object Storage]
+        RLS{RLS Policies}
         DB --- RLS
         Storage --- RLS
     end
-    
-    GitHub[Dépôt GitHub] -- "Push Event" --> CI
-    CI -- "Build & Deploy" --> Frontend
 ```
 
 ---
 
-## 🛠️ Mission 4 : Le README "Architecte"
+## 🛠️ Mapping Technique & Cloud
 
-### 🎯 Mapping du Thème : Clinique Vétérinaire 🐾
-Pour faciliter la correction, voici le mapping strict de nos entités :
-
-| Concept Sujet | Entité Application | Table / Ressource |
+| Concept Sujet | Entité Application | Implémentation Supabase |
 | :--- | :--- | :--- |
-| **Table A (Utilisateurs)** | Maîtres (Owners) | `public.maitres` (lié à `auth.users`) |
-| **Table B (Ressources)** | Vétérinaires (Docs) | `public.veterinaires` |
-| **Table C (Interactions)** | Rendez-vous (Agenda) | `public.rendez_vous` |
-| **Storage (Fichiers)** | Carnet de santé | Bucket `health-records` |
+| **Profil Utilisateur** | Maîtres & Vets | `public.maitres` / `public.veterinaires` |
+| **Gestion Médicale** | Patients & Dossiers | `public.patients` / `public.medical_documents` |
+| **Agenda Temps Réel** | RDV & Absences | `public.rendez_vous` / `public.indisponibilites_vet` |
+| **Fichiers Lourds** | Carnets de santé | Bucket `health-records` (S3) |
+
+---
 
 ### 🏛️ Analyse d'Architecture (Concepts Cloud)
 
 #### 1. Justification Financière : CAPEX vs OPEX
-Lancer **Veto-Care** avec un serveur classique (On-premise) nécessiterait un **CAPEX** (Capital Expenditure) massif : acquisition de serveurs physiques, mise en place d'un réseau sécurisé et frais d'installation. C'est un coût fixe risqué.
-En choisissant **Vercel + Supabase**, nous adoptons un modèle **OPEX** (Operating Expenditure). Le coût est proportionnel à l'usage réel (Pay-as-you-go). Cela permet de démarrer avec un budget nul (Tier gratuit) tout en garantissant une infrastructure de classe entreprise dès le premier jour.
+Lancer **Veto-Care** avec un modèle **OPEX** (Vercel + Supabase) permet une réduction drastique du **CAPEX**. Pas d'investissement initial en serveurs. Le coût est indexé sur la croissance réelle de la clinique (Pay-as-you-go).
 
-#### 2. Scalabilité Serverless vs Data Center Physique
-Dans un **Data Center physique**, la scalabilité est limitée par le matériel disponible. Ajouter de la capacité est un processus lent et manuel.
-**Vercel** utilise une architecture **Edge Computing** : notre code est déployé au plus proche de l'utilisateur. **Supabase** gère la base de données de manière élastique. Si le trafic augmente soudainement, l'infrastructure "Serverless" alloue automatiquement les ressources nécessaires sans intervention humaine, offrant une scalabilité horizontale instantanée.
+#### 2. Scalabilité & Disponibilité
+L'utilisation de **Vercel Edge Functions** et de la scalabilité horizontale de **Supabase** garantit que la plateforme reste fluide même lors des pics de prises de rendez-vous (ex: campagnes de vaccination).
 
-#### 3. Données Structurées vs Non-structurées
-- **Données Structurées** : Les profils, planning et dossiers médicaux sont stockés dans **PostgreSQL**. Ils suivent un schéma relationnel strict, permettant des jointures complexes et une intégrité référentielle totale.
-- **Données Non-structurées** : Les scans de **Carnets de santé** (images, PDF) n'ont pas de schéma fixe. Ils sont stockés dans le **Supabase Storage** (Object Storage). Nous ne stockons dans la base de données que l'URL (métadonnée) pointant vers ces fichiers.
+#### 3. Sécurité & Intégrité
+L'intégrité des données est gérée par **PostgreSQL** (Contraintes FK), tandis que la confidentialité est assurée par des **Politiques RLS** strictes : un propriétaire ne peut voir que ses propres animaux, tandis qu'un vétérinaire a une vue globale.
 
-### 📊 Modèle de Données (ERD)
+---
+
+## 📊 Modèle de Données (ERD)
 
 ```mermaid
 erDiagram
     MAITRES ||--o{ PATIENTS : "possède"
-    MAITRES ||--o{ RENDEZ_VOUS : "prend"
-    VETERINAIRES ||--o{ RENDEZ_VOUS : "reçoit"
+    MAITRES ||--o{ RENDEZ_VOUS : "réserve"
+    VETERINAIRES ||--o{ RENDEZ_VOUS : "gère"
+    VETERINAIRES ||--o{ INDISPONIBILITES : "bloque"
     PATIENTS ||--o{ RENDEZ_VOUS : "concerne"
-    PATIENTS ||--o{ CONSULTATIONS : "historique"
-    VETERINAIRES ||--o{ CONSULTATIONS : "effectue"
-    CONSULTATIONS ||--o{ PRESCRIPTIONS : "génère"
+    PATIENTS ||--o{ DOCUMENTS : "historique"
 ```
 
 ---
 
 ## 🚀 Accès & Test
-- **URL de Production** : [https://votre-projet.vercel.app](https://votre-projet.vercel.app)
-- **Identifiants de Test (Enseignant)** :
-  - **Email** : `enseignant@vetocare.dz`
-  - **Password** : `VetoTest2026!`
-  - *Note : Cet utilisateur "Maître" a déjà un animal enregistré pour tester le flux.*
+- **URL de Production** : [https://veto-care-ten.vercel.app](https://veto-care-ten.vercel.app)
+- **Comptes de Test** :
+  - **Vétérinaire** : `veto@vetocare.com` / `veto123`
+  - **Propriétaire** : `owner@vetocare.com` / `owner123`
 
 ---
 
 ## 🛠️ Installation Locale
 1. `npm install`
-2. Configurer `.env` (Supabase URL & Key)
-3. Exécuter `supabase_schema.sql` dans le SQL Editor de Supabase.
+2. Configurer `.env` avec vos clés Supabase.
+3. **Important** : Exécuter le script `final_supabase_setup.sql` dans le SQL Editor de Supabase pour initialiser toute la structure, les fonctions RPC et les politiques de sécurité.
 4. `npm run dev`
+
