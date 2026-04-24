@@ -15,7 +15,7 @@ const translations = {
     'nav.dashboard': 'Tableau de Bord',
     'nav.login': 'Connexion',
     'nav.logout': 'Déconnexion',
-    'hero.title': 'Votre animal\nnotre priorité',
+    'hero.title': 'Votre animal notre priorité',
     'hero.subtitle': 'L\'extranet vétérinaire nouvelle génération : simple, rapide et sécurisé.',
     'hero.cta': 'Prendre Rendez-vous',
     'dash.welcome': 'Bienvenue',
