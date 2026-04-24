@@ -189,5 +189,17 @@ CREATE POLICY "Owner: Add Docs" ON public.medical_documents
 FOR INSERT TO authenticated 
 WITH CHECK (EXISTS (SELECT 1 FROM public.patients WHERE id = patient_id AND maitre_id = auth.uid()));
 
--- Storage Bucket
-INSERT INTO storage.buckets (id, name, public) VALUES ('health-records', 'health-records', false) ON CONFLICT (id) DO NOTHING;
+-- Storage Bucket and Object Policies
+INSERT INTO storage.buckets (id, name, public) VALUES ('health-records', 'health-records', true) ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Docs Read Access" ON storage.objects;
+CREATE POLICY "Docs Read Access" ON storage.objects FOR SELECT USING (bucket_id = 'health-records');
+
+DROP POLICY IF EXISTS "Docs Insert Access" ON storage.objects;
+CREATE POLICY "Docs Insert Access" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'health-records');
+
+DROP POLICY IF EXISTS "Docs Update Access" ON storage.objects;
+CREATE POLICY "Docs Update Access" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'health-records');
+
+DROP POLICY IF EXISTS "Docs Delete Access" ON storage.objects;
+CREATE POLICY "Docs Delete Access" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'health-records');
