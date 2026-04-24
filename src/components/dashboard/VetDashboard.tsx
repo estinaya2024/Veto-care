@@ -38,20 +38,28 @@ export function VetDashboard() {
   const fetchData = async () => {
     if (!user) return;
     setLoading(true);
+    console.log('Fetching data for Vet UID:', user.id);
     try {
-      const [patientsData, todayAptsData, pendingData, waitingData] = await Promise.all([
+      const [patientsRes, todayAptsData, pendingData, waitingData] = await Promise.all([
         supabase.from('patients').select('*, maitres(*)').order('name', { ascending: true }),
         api.getTodayAppointments(user.id),
         api.getPendingAppointments(user.id),
         api.getWaitingRoom(user.id)
       ]);
 
-      setPatients(patientsData.data || []);
+      if (patientsRes.error) {
+        console.error('Patients Fetch Error:', patientsRes.error);
+        toast.error(`Erreur Patients: ${patientsRes.error.message}`);
+      }
+
+      console.log('Patients found:', patientsRes.data?.length || 0);
+      setPatients(patientsRes.data || []);
       setTodayAppointments(todayAptsData);
       setPendingApprovals(pendingData);
       setWaitingRoom(waitingData);
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+    } catch (err: any) {
+      console.error('General Fetch Error:', err);
+      toast.error('Erreur de connexion à la base de données');
     } finally {
       setLoading(false);
     }
