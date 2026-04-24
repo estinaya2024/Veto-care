@@ -80,8 +80,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
 
       const { data: allApts } = await supabase
         .from('rendez_vous')
-        .select('*, patients(name)')
-        .neq('status', 'annulé');
+        .select('*, patients(name)');
 
       const { data: blocks } = await supabase
         .from('indisponibilites_vet')
@@ -90,15 +89,21 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
       const formattedApts: BookingEvent[] = (allApts || []).map((apt: any) => {
         const isMine = apt.maitre_id === maitreId;
         const petName = apt.patients?.name || 'Animal';
+        const isCancelled = apt.status === 'annulé';
         return {
           id: `apt-${apt.id}`,
-          title: isMine ? `RDV: ${petName}` : 'Réservé',
+          title: isMine ? (isCancelled ? `Refusé: ${petName}` : `RDV: ${petName}`) : 'Réservé',
           start: apt.date_rdv,
           end: new Date(new Date(apt.date_rdv).getTime() + 30 * 60000).toISOString(),
-          backgroundColor: isMine ? '#FFD500' : '#f3f4f6',
-          borderColor: 'transparent',
-          textColor: isMine ? '#000000' : '#9ca3af',
-          extendedProps: { type: isMine ? 'mine' : 'reserved', petName, status: apt.status }
+          backgroundColor: isMine ? (isCancelled ? '#fee2e2' : '#FFD500') : '#f3f4f6',
+          borderColor: isCancelled ? '#ef4444' : 'transparent',
+          textColor: isMine ? (isCancelled ? '#991b1b' : '#000000') : '#9ca3af',
+          extendedProps: { 
+            type: isMine ? 'mine' : 'reserved', 
+            petName, 
+            status: apt.status,
+            reason: apt.cancellation_reason
+          }
         };
       });
 
@@ -299,6 +304,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
             const isMine = type === 'mine';
             const isBlocked = type === 'blocked';
             const status = arg.event.extendedProps.status;
+            const reason = arg.event.extendedProps.reason;
 
             if (isBlocked) {
               return (
@@ -321,10 +327,15 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
                       <CalendarIcon size={14} className="text-veto-yellow" />
                       <span className="text-[11px] font-black text-black uppercase tracking-tighter truncate max-w-[80px]">{arg.event.title}</span>
                     </div>
-                    <ShieldCheck size={14} className="text-green-500" />
+                    <ShieldCheck size={14} className={status === 'annulé' ? 'text-red-500' : 'text-green-500'} />
                   </div>
                   <div className="flex justify-between items-end">
-                    <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{status || 'Confirmé'}</span>
+                    <div className="flex flex-col">
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{status || 'Confirmé'}</span>
+                      {status === 'annulé' && reason && (
+                        <span className="text-[8px] font-bold text-red-600 truncate max-w-[100px]">{reason}</span>
+                      )}
+                    </div>
                     <span className="text-[10px] font-black text-black">{format(new Date(arg.event.start!), 'HH:mm')}</span>
                   </div>
                 </div>
