@@ -163,6 +163,7 @@ CREATE POLICY "Vet: Full Access" ON public.patients FOR ALL TO authenticated USI
 CREATE POLICY "Vet: Full Access Apts" ON public.rendez_vous FOR ALL TO authenticated USING (is_vet());
 CREATE POLICY "Vet: Full Access Consults" ON public.consultations FOR ALL TO authenticated USING (is_vet());
 CREATE POLICY "Vet: Full Access Docs" ON public.medical_documents FOR ALL TO authenticated USING (is_vet());
+CREATE POLICY "Vet: Full Access Unavailability" ON public.indisponibilites_vet FOR ALL TO authenticated USING (is_vet());
 CREATE POLICY "Vet: View Owners" ON public.maitres FOR SELECT TO authenticated USING (is_vet());
 
 -- Owner Access
