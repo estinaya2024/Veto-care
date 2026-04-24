@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
 import { cn } from '../../lib/utils';
+import { InvoiceViewer } from './InvoiceViewer';
 
 interface HealthRecordProps {
   pet: any;
@@ -27,6 +28,8 @@ interface HealthRecordProps {
 }
 
 export function HealthRecord({ pet, onBack }: HealthRecordProps) {
+  const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'imaging' | 'documents' | 'prescriptions'>('history');
+  const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({
     weight: pet.weight || '',
@@ -285,6 +288,42 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                   ))
                 )}
 
+                {activeTab === 'consultations' && (
+                  consultations.length === 0 ? (
+                    <div className="text-center py-20 text-gray-400">Aucune consultation détaillée.</div>
+                  ) : consultations.map((c) => (
+                    <div key={c.id} className="p-8 border border-gray-100 rounded-3xl space-y-6 hover:shadow-md transition-all bg-white">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Date de consultation</p>
+                          <p className="text-xl font-bold">{format(new Date(c.date_consultation), 'dd MMMM yyyy', { locale: fr })}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                           <p className="text-xs font-bold bg-gray-100 px-4 py-2 rounded-xl">Dr. {c.veterinaires?.name}</p>
+                           {c.price > 0 && (
+                             <button 
+                               onClick={() => setSelectedInvoice(c)}
+                               className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:underline"
+                             >
+                               Voir la facture ({c.price} DA)
+                             </button>
+                           )}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                          <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">Diagnostic</p>
+                          <p className="text-gray-900 font-medium">{c.diagnosis || 'Non spécifié'}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-green-600 uppercase tracking-widest mb-2">Traitement</p>
+                          <p className="text-gray-900 font-medium">{c.treatment || 'Non spécifié'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+
                 {activeTab === 'prescriptions' && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {prescriptions.length === 0 ? (
@@ -356,6 +395,13 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
           </div>
         </div>
       </div>
+      {selectedInvoice && (
+        <InvoiceViewer 
+          consultation={selectedInvoice} 
+          petName={pet.name} 
+          onClose={() => setSelectedInvoice(null)} 
+        />
+      )}
     </div>
   );
 }

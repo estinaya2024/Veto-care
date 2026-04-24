@@ -23,9 +23,11 @@ import { cn } from '../../lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
+import { ConsultationModal } from './ConsultationModal';
 
 export function VetDashboard() {
   const [selectedPet, setSelectedPet] = useState<any | null>(null);
+  const [consultingApt, setConsultingApt] = useState<any | null>(null);
   const [patients, setPatients] = useState<any[]>([]);
   const [todayAppointments, setTodayAppointments] = useState<any[]>([]);
   const [pendingApprovals, setPendingApprovals] = useState<any[]>([]);
@@ -214,15 +216,7 @@ export function VetDashboard() {
                   </div>
                   <div className="flex gap-2">
                     <Button onClick={() => setSelectedPet({ id: item.patient_id, name: item.patient_name, species: item.species })} variant="outline" size="sm">Ouvrir Dossier</Button>
-                    <Button onClick={async () => {
-                      try {
-                        await api.updateAppointmentStatus(item.appointment_id, 'terminé');
-                        toast.success('Consultation terminée !');
-                        fetchData();
-                      } catch {
-                        toast.error('Erreur lors de la clôture');
-                      }
-                    }} variant="black" size="sm">Terminer</Button>
+                    <Button onClick={() => setConsultingApt(item)} variant="black" size="sm">Terminer</Button>
                   </div>
                 </div>
               ))}
@@ -304,6 +298,17 @@ export function VetDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {consultingApt && (
+        <ConsultationModal 
+          appointment={consultingApt} 
+          onClose={() => setConsultingApt(null)}
+          onSuccess={() => {
+            setConsultingApt(null);
+            fetchData();
+          }}
+        />
       )}
     </div>
   );

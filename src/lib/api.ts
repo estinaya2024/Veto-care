@@ -108,6 +108,17 @@ export const api = {
     return data || [];
   },
 
+  async updatePatient(patientId: string, updates: Record<string, any>) {
+    const { data, error } = await supabase
+      .from('patients')
+      .update(updates)
+      .eq('id', patientId)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
   async deletePatient(id: string) {
     const { error } = await supabase
       .from('patients')
@@ -255,6 +266,16 @@ export const api = {
 
     if (error) throw error;
     return data;
+  },
+
+  async createConsultation(data: any) {
+    const { data: result, error } = await supabase
+      .from('consultations')
+      .insert([data])
+      .select()
+      .single();
+    if (error) throw error;
+    return result;
   },
 
   async deletePetDocument(docId: string) {
