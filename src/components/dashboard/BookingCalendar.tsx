@@ -45,6 +45,8 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
   const [appointmentToCancel, setAppointmentToCancel] = useState<{ id: string; date: string } | null>(null);
   const calendarRef = useRef<FullCalendar>(null);
   const [vetExists, setVetExists] = useState<boolean | null>(null);
+  const [selectedVetId, setSelectedVetId] = useState<string | null>(null);
+  const [vets, setVets] = useState<any[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -69,11 +71,12 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
   const fetchData = async () => {
     setLoading(true);
     try {
-      const { count } = await supabase
-        .from('veterinaires')
-        .select('*', { count: 'exact', head: true });
-
-      setVetExists(count !== null && count > 0);
+      const vetsData = await api.getVets();
+      setVets(vetsData);
+      setVetExists(vetsData.length > 0);
+      if (vetsData.length > 0 && !selectedVetId) {
+        setSelectedVetId(vetsData[0].id);
+      }
 
       const { data: allApts } = await supabase
         .from('rendez_vous')
@@ -133,8 +136,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
     setLoading(true);
     setUploading(true);
     try {
-      const vet = await api.getPrimaryVet();
-      if (!vet) throw new Error('Aucun vétérinaire disponible.');
+      if (!selectedVetId) throw new Error('Veuillez choisir un vétérinaire.');
 
       let healthRecordUrl = null;
 
@@ -152,7 +154,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
       const { data: bookingData, error: bookingError } = await supabase.rpc('book_appointment', {
         p_maitre_id: maitreId,
         p_patient_id: selectedPet,
-        p_veterinaire_id: vet.id,
+        p_veterinaire_id: selectedVetId,
         p_date_rdv: selectedSlot.start,
         p_health_record_url: healthRecordUrl
       });
@@ -234,7 +236,18 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
           </div>
           <div>
             <h3 className="text-2xl font-black text-black tracking-tighter mb-1">Planifier un Soin</h3>
-            <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Réservation instantanée • Confirmation clinique</p>
+            <div className="flex items-center gap-3 mt-2">
+              <p className="text-gray-400 font-black uppercase tracking-widest text-[10px]">Avec :</p>
+              <select 
+                value={selectedVetId || ''} 
+                onChange={(e) => setSelectedVetId(e.target.value)}
+                className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-black outline-none cursor-pointer hover:text-veto-yellow transition-colors"
+              >
+                {vets.map(v => (
+                  <option key={v.id} value={v.id} className="text-black bg-white capitalize">Dr. {v.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
