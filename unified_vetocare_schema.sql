@@ -73,6 +73,8 @@ CREATE TABLE IF NOT EXISTS public.consultations (
     diagnosis TEXT,
     treatment TEXT,
     notes TEXT,
+    price NUMERIC DEFAULT 0,
+    is_paid BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
