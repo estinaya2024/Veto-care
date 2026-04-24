@@ -6,13 +6,8 @@ import {
   Users, 
   Activity, 
   HeartPulse, 
-  Clock, 
-  CheckCircle2, 
-  XCircle, 
-  ChevronRight,
-  ShieldCheck,
-  TrendingUp,
-  AlertCircle
+  UserPlus,
+  ChevronRight
 } from 'lucide-react';
 import { HealthRecord } from './HealthRecord';
 import { VetCalendar } from './VetCalendar';

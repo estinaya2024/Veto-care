@@ -10,7 +10,6 @@ import { Button } from '../ui/Button';
 import { X, Calendar as CalendarIcon, Clock, User, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { cn } from '../../lib/utils';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
