@@ -1,6 +1,6 @@
 # Clinique Vétérinaire - Veto-Care 🐾
 
-**Binôme :** [Prénom NOM 1] & [Prénom NOM 2]  
+**Binôme :** Karoou aya malak & Bourenane Soundous & Boucherire Yasser  
 **Thème :** Clinique Vétérinaire ("Veto-Care")  
 **Module :** Build & Ship - Architecture Cloud
 
