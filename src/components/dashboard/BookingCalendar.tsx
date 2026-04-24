@@ -85,26 +85,32 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
         .from('indisponibilites_vet')
         .select('*');
 
-      const formattedApts: BookingEvent[] = (allApts || []).map((apt: any) => {
-        const isMine = apt.maitre_id === maitreId;
-        const petName = apt.patients?.name || 'Animal';
-        const isCancelled = apt.status === 'annulé';
-        return {
-          id: `apt-${apt.id}`,
-          title: isMine ? (isCancelled ? `Refusé: ${petName}` : `RDV: ${petName}`) : 'Réservé',
-          start: apt.date_rdv,
-          end: new Date(new Date(apt.date_rdv).getTime() + 30 * 60000).toISOString(),
-          backgroundColor: isMine ? (isCancelled ? '#fee2e2' : '#FFD500') : '#f3f4f6',
-          borderColor: isCancelled ? '#ef4444' : 'transparent',
-          textColor: isMine ? (isCancelled ? '#991b1b' : '#000000') : '#9ca3af',
-          extendedProps: { 
-            type: isMine ? 'mine' : 'reserved', 
-            petName, 
-            status: apt.status,
-            reason: apt.cancellation_reason
-          }
-        };
-      });
+      const formattedApts: BookingEvent[] = (allApts || [])
+        .filter((apt: any) => {
+          // Hide cancelled appointments if they don't belong to me
+          if (apt.status === 'annulé' && apt.maitre_id !== maitreId) return false;
+          return true;
+        })
+        .map((apt: any) => {
+          const isMine = apt.maitre_id === maitreId;
+          const petName = apt.patients?.name || 'Animal';
+          const isCancelled = apt.status === 'annulé';
+          return {
+            id: `apt-${apt.id}`,
+            title: isMine ? (isCancelled ? `Refusé: ${petName}` : `RDV: ${petName}`) : 'Réservé',
+            start: apt.date_rdv,
+            end: new Date(new Date(apt.date_rdv).getTime() + 30 * 60000).toISOString(),
+            backgroundColor: isMine ? (isCancelled ? '#fee2e2' : '#FFD500') : '#f3f4f6',
+            borderColor: isCancelled ? '#ef4444' : 'transparent',
+            textColor: isMine ? (isCancelled ? '#991b1b' : '#000000') : '#9ca3af',
+            extendedProps: { 
+              type: isMine ? 'mine' : 'reserved', 
+              petName, 
+              status: apt.status,
+              reason: apt.cancellation_reason
+            }
+          };
+        });
 
       const formattedBlocks: BookingEvent[] = (blocks || []).map((block: any) => ({
         id: `block-${block.id}`,
@@ -291,6 +297,9 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
             if (start < (now - 5 * 60 * 1000)) return false;
             return !events.some(event => {
               if (!event.start || !event.end) return false;
+              // Ignore cancelled appointments for collision detection
+              if (event.extendedProps?.status === 'annulé') return false;
+              
               const eStart = new Date(event.start).getTime();
               const eEnd = new Date(event.end).getTime();
               const sStart = start;
