@@ -289,7 +289,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
             
             if (isBlocked) {
               return (
-                <div className="w-full h-full bg-veto-black rounded-xl border-l-4 border-gray-500 p-3 flex flex-col justify-center relative overflow-hidden group">
+                <div className="w-full h-full bg-veto-black rounded-xl p-3 flex flex-col justify-center relative overflow-hidden group">
                   <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }}></div>
                   <div className="flex items-center gap-2 relative z-10">
                     <ShieldCheck size={14} className="text-gray-400" />
@@ -302,7 +302,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
 
             if (isMine) {
               return (
-                <div className="w-full h-full bg-white rounded-xl border-l-4 border-veto-yellow p-3 flex flex-col justify-between shadow-[0_10px_20px_rgba(255,213,0,0.1)] group transition-all hover:scale-[1.02]">
+                <div className="w-full h-full bg-white rounded-xl p-3 flex flex-col justify-between shadow-[0_10px_20px_rgba(255,213,0,0.1)] group transition-all hover:scale-[1.02] border border-gray-100">
                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 bg-veto-yellow/10 rounded-lg flex items-center justify-center">
@@ -323,7 +323,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
             }
 
             return (
-              <div className="w-full h-full bg-gray-50/50 rounded-xl border-l-4 border-gray-200 p-3 flex flex-col justify-center opacity-60">
+              <div className="w-full h-full bg-gray-50/50 rounded-xl p-3 flex flex-col justify-center opacity-60 border border-gray-100">
                 <div className="flex items-center gap-2">
                   <Clock size={12} className="text-gray-300" />
                   <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Réservé</span>
