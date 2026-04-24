@@ -26,8 +26,8 @@ export function Hero() {
       {/* Main Content Area */}
       <div className="flex-1 relative z-20 max-w-[1400px] mx-auto w-full px-6 md:px-16 pt-[120px] md:pt-[160px] pb-64 lg:pb-32 flex flex-col">
         {/* Left Typography */}
-        <div className="max-w-2xl animate-fadeInRight text-center md:text-left">
-          <Heading className="mb-8 md:mb-12 text-[48px] sm:text-[60px] md:text-[80px] lg:text-[7.5rem] tracking-tighter leading-[0.95] font-black text-veto-black drop-shadow-sm whitespace-pre-line">
+        <div className="max-w-4xl animate-fadeInRight text-center md:text-left">
+          <Heading className="mb-8 md:mb-12 text-[48px] sm:text-[60px] md:text-[80px] lg:text-[6.5rem] tracking-tighter leading-[0.9] font-black text-veto-black drop-shadow-sm whitespace-nowrap">
             {t('hero.title')}
           </Heading>
 
