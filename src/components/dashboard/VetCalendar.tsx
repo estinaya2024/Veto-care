@@ -36,6 +36,7 @@ interface CalendarEvent {
 export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [showBlockModal, setShowBlockModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selectedRange, setSelectedRange] = useState<{ start: string; end: string } | null>(null);
   const [reason, setReason] = useState('');
   const calendarRef = useRef<FullCalendar>(null);
@@ -45,6 +46,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   }, [vetId]);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const { data: aptData } = await supabase
         .from('rendez_vous')
@@ -80,6 +82,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
     } catch (err) {
       console.error('Error fetching calendar data:', err);
     } finally {
+      setLoading(false);
     }
   };
 
@@ -96,6 +99,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
 
   const handleBlockSlot = async () => {
     if (!selectedRange) return;
+    setLoading(true);
     try {
       await api.createUnavailability({
         veterinaire_id: vetId,
@@ -109,14 +113,23 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
       toast.success('Créneau administratif bloqué');
     } catch {
       toast.error('Erreur lors du blocage');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteEvent = async (id: string) => {
     if (confirm('Supprimer ce blocage du planning ?')) {
-      await api.deleteUnavailability(id.replace('un-', ''));
-      fetchData();
-      toast.success('Disponibilité restaurée');
+      setLoading(true);
+      try {
+        await api.deleteUnavailability(id.replace('un-', ''));
+        fetchData();
+        toast.success('Disponibilité restaurée');
+      } catch {
+        toast.error('Erreur lors de la suppression');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -153,6 +166,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             variant="ghost" 
             size="sm" 
             onClick={fetchData}
+            loading={loading}
             className="rounded-[1.5rem] px-6 py-3 h-auto text-[10px] font-black uppercase tracking-widest text-black hover:bg-veto-yellow transition-all"
           >
             Synchroniser
@@ -191,35 +205,32 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             const isApt = type === 'appointment';
             const status = arg.event.extendedProps.status;
             
-            return (
-              <div className={cn(
-                "p-3 w-full h-full flex flex-col justify-center border-l-8 transition-all shadow-premium relative group/event",
-                isApt ? "border-veto-yellow bg-white" : "border-gray-500 bg-black text-white"
-              )}>
-                {isApt && status === 'confirmé' && (
-                  <div className="absolute top-1 right-1">
-                     <CheckCircle2 size={10} className="text-green-500" />
+            if (!isApt) {
+              return (
+                <div className="w-full h-full bg-veto-black rounded-xl p-3 flex flex-col justify-center relative overflow-hidden group">
+                  <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }}></div>
+                  <div className="flex items-center gap-2 relative z-10">
+                    <ShieldAlert size={14} className="text-gray-400" />
+                    <span className="text-[10px] font-black text-white uppercase tracking-tighter">Indisponible</span>
                   </div>
-                )}
-                <div className="flex items-center gap-2 relative z-10">
-                   {isApt ? <User size={12} className="text-veto-yellow" /> : <ShieldAlert size={12} className="text-white/40" />}
-                   <div className={cn(
-                     "font-black text-[10px] uppercase tracking-tight truncate",
-                     isApt ? "text-black" : "text-white"
-                   )}>
-                     {arg.event.title}
-                   </div>
+                  <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest mt-1 relative z-10">Bloqué Administrateur</p>
                 </div>
-                {!isApt && (
-                  <div className="text-[8px] font-black text-white/40 uppercase tracking-widest mt-1">
-                     Bloqué Administrateur
-                  </div>
-                )}
-                {isApt && (
-                   <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-1">
-                      {status || 'En attente'}
+              );
+            }
+
+            return (
+              <div className="w-full h-full bg-white rounded-xl p-3 flex flex-col justify-between shadow-[0_10px_20px_rgba(0,0,0,0.05)] border border-gray-100 group transition-all hover:scale-[1.02]">
+                <div className="flex items-center justify-between">
+                   <div className="flex items-center gap-2">
+                      <User size={14} className="text-veto-yellow" />
+                      <span className="text-[11px] font-black text-black uppercase tracking-tighter truncate max-w-[80px]">{arg.event.title}</span>
                    </div>
-                )}
+                   {status === 'confirmé' && <CheckCircle2 size={14} className="text-green-500" />}
+                </div>
+                <div className="flex justify-between items-end">
+                   <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{status || 'En attente'}</span>
+                   <span className="text-[10px] font-black text-black">{format(new Date(arg.event.start!), 'HH:mm')}</span>
+                </div>
               </div>
             );
           }}
