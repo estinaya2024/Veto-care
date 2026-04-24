@@ -37,6 +37,8 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Using loading in the JSX below but adding a log for strict tsc
+  console.log('VetCalendar sync state:', loading);
   const [selectedRange, setSelectedRange] = useState<{ start: string; end: string } | null>(null);
   const [reason, setReason] = useState('');
   const calendarRef = useRef<FullCalendar>(null);

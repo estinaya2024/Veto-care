@@ -9,8 +9,10 @@ import {
   Clock, 
   CheckCircle2, 
   XCircle, 
-  UserPlus,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck,
+  TrendingUp,
+  AlertCircle
 } from 'lucide-react';
 import { HealthRecord } from './HealthRecord';
 import { VetCalendar } from './VetCalendar';
