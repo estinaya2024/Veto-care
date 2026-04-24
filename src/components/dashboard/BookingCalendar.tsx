@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import { supabase } from '../../lib/supabase';
-import { Calendar as CalendarIcon, Clock, X, Zap, ShieldCheck } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, X, Zap, ShieldCheck, FileText, Upload } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Button } from '../ui/Button';
@@ -387,8 +387,16 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
                     <input type="file" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*,.pdf" />
                     <div className={cn("w-full px-6 py-6 bg-gray-50 rounded-[2rem] border-4 border-dashed transition-all flex items-center justify-between", selectedFile ? "border-veto-yellow bg-veto-yellow/5 shadow-inner" : "border-gray-100 group-hover:border-gray-200")}>
                       <div className="flex items-center gap-4">
-                        <div className={cn("p-4 rounded-2xl shadow-premium transition-all", selectedFile ? "bg-veto-yellow text-black scale-110" : "bg-white text-gray-300 border border-gray-100")}>
-                          {selectedFile ? <FileText size={24} /> : <Upload size={24} />}
+                        <div className={cn("p-4 rounded-2xl shadow-premium transition-all overflow-hidden w-14 h-14 flex items-center justify-center", selectedFile ? "bg-veto-yellow text-black scale-110" : "bg-white text-gray-300 border border-gray-100")}>
+                          {selectedFile ? (
+                            selectedFile.type.startsWith('image/') ? (
+                              <img src={URL.createObjectURL(selectedFile)} alt="preview" className="w-full h-full object-cover" />
+                            ) : (
+                              <FileText size={24} />
+                            )
+                          ) : (
+                            <Upload size={24} />
+                          )}
                         </div>
                         <div>
                           <p className="text-[10px] font-black text-black truncate max-w-[180px]">
