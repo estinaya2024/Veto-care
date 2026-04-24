@@ -1,4 +1,4 @@
-import { Cat, Dog, Rabbit, Bird, HeartPulse, Stethoscope } from 'lucide-react';
+import { Cat, Dog, Rabbit, Bird, HeartPulse, Stethoscope, Fish, Turtle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface PetAvatarProps {
@@ -31,6 +31,15 @@ export function PetAvatar({ species, name, className, size = 'md' }: PetAvatarPr
     Icon = Bird;
     bgClass = 'bg-sky-100 border-sky-200 text-sky-600';
     iconClass = 'text-sky-500';
+    iconClass = 'text-sky-500';
+  } else if (s.includes('poisson')) {
+    Icon = Fish;
+    bgClass = 'bg-blue-50 border-blue-100 text-blue-400';
+    iconClass = 'text-blue-400';
+  } else if (s.includes('reptile') || s.includes('tortue') || s.includes('serpent')) {
+    Icon = Turtle;
+    bgClass = 'bg-green-100 border-green-200 text-green-600';
+    iconClass = 'text-green-500';
   } else {
     Icon = Stethoscope;
     bgClass = 'bg-veto-yellow/20 border-veto-yellow/30 text-veto-black';
