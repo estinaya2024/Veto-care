@@ -7,7 +7,10 @@ import {
   Activity, 
   HeartPulse, 
   UserPlus,
-  ChevronRight
+  ChevronRight,
+  Clock,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { HealthRecord } from './HealthRecord';
 import { VetCalendar } from './VetCalendar';
