@@ -80,9 +80,7 @@ erDiagram
 ## 🚀 Accès & Test
 - **URL de Production** : [https://veto-care-ten.vercel.app](https://veto-care-murex.vercel.app/)
 - **Comptes de Test** :
-  - **Vétérinaire** : `veto@vetocare.com` / `veto123`
-  - **Propriétaire** : `owner@vetocare.com` / `owner123`
-
+ 
 ---
 
 ## 🛠️ Installation Locale
