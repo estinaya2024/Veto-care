@@ -287,25 +287,47 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
             const isBlocked = type === 'blocked';
             const status = arg.event.extendedProps.status;
             
-            return (
-              <div className={cn(
-                "p-3 w-full h-full flex flex-col justify-between rounded-xl border transition-all relative overflow-hidden group/event",
-                isMine ? "bg-white border-veto-yellow text-black shadow-premium" : 
-                isBlocked ? "bg-gray-100 border-gray-200 opacity-40 grayscale" : 
-                "bg-gray-50/50 border-gray-200 text-gray-400"
-              )}>
-                {isMine && <div className="absolute top-0 right-0 p-1"><ShieldCheck size={10} className="text-veto-yellow" /></div>}
-                <div className="flex items-center justify-between w-full overflow-hidden">
-                   <div className="font-black text-[10px] uppercase tracking-tight truncate">
-                     {arg.event.title}
+            if (isBlocked) {
+              return (
+                <div className="w-full h-full bg-veto-black rounded-xl border-l-4 border-gray-500 p-3 flex flex-col justify-center relative overflow-hidden group">
+                  <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }}></div>
+                  <div className="flex items-center gap-2 relative z-10">
+                    <ShieldCheck size={14} className="text-gray-400" />
+                    <span className="text-[10px] font-black text-white uppercase tracking-tighter">Indisponible</span>
+                  </div>
+                  <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest mt-1 relative z-10">Bloqué Administrateur</p>
+                </div>
+              );
+            }
+
+            if (isMine) {
+              return (
+                <div className="w-full h-full bg-white rounded-xl border-l-4 border-veto-yellow p-3 flex flex-col justify-between shadow-[0_10px_20px_rgba(255,213,0,0.1)] group transition-all hover:scale-[1.02]">
+                   <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-veto-yellow/10 rounded-lg flex items-center justify-center">
+                           <CalendarIcon size={12} className="text-veto-yellow" />
+                        </div>
+                        <span className="text-[11px] font-black text-black uppercase tracking-tighter truncate max-w-[80px]">{arg.event.title}</span>
+                      </div>
+                      <div className="w-4 h-4 bg-green-500/10 rounded-full flex items-center justify-center">
+                        <ShieldCheck size={10} className="text-green-500" />
+                      </div>
+                   </div>
+                   <div className="flex justify-between items-end">
+                      <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{status || 'Confirmé'}</span>
+                      <span className="text-[10px] font-black text-black">{format(new Date(arg.event.start!), 'HH:mm')}</span>
                    </div>
                 </div>
-                {isMine && (
-                  <div className="flex justify-between items-center mt-1">
-                    <span className="text-[8px] font-black opacity-40 uppercase">{status || 'En attente'}</span>
-                    <span className="text-[9px] font-black text-veto-yellow">{format(new Date(arg.event.start!), 'HH:mm')}</span>
-                  </div>
-                )}
+              );
+            }
+
+            return (
+              <div className="w-full h-full bg-gray-50/50 rounded-xl border-l-4 border-gray-200 p-3 flex flex-col justify-center opacity-60">
+                <div className="flex items-center gap-2">
+                  <Clock size={12} className="text-gray-300" />
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Réservé</span>
+                </div>
               </div>
             );
           }}
