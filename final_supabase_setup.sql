@@ -136,6 +136,7 @@ CREATE POLICY "Owner: Add Docs" ON public.medical_documents FOR INSERT WITH CHEC
 
 -- 4. STORAGE
 INSERT INTO storage.buckets (id, name, public) VALUES ('health-records', 'health-records', true) ON CONFLICT (id) DO UPDATE SET public = true;
+DROP POLICY IF EXISTS "Universal Storage Access" ON storage.objects;
 CREATE POLICY "Universal Storage Access" ON storage.objects FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- 5. REGISTER YOUR VET ACCOUNT
