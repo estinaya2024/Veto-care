@@ -430,6 +430,12 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
           background: transparent !important;
           box-shadow: none !important;
         }
+        .premium-calendar.owner-view .fc-v-event,
+        .premium-calendar.owner-view .fc-timegrid-event {
+          border: none !important;
+          box-shadow: none !important;
+          background: transparent !important;
+        }
         .premium-calendar.owner-view .fc-timegrid-event-harness { margin: 4px !important; }
         .premium-calendar.owner-view .fc-col-header-cell { padding: 20px 0 !important; background: transparent !important; }
         .premium-calendar.owner-view .fc-col-header-cell-cushion { font-size: 11px !important; font-weight: 900 !important; color: #000 !important; text-transform: uppercase; letter-spacing: 0.1em; }
