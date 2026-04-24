@@ -302,17 +302,13 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
 
             if (isMine) {
               return (
-                <div className="w-full h-full bg-white rounded-xl p-3 flex flex-col justify-between shadow-[0_10px_20px_rgba(255,213,0,0.1)] border border-veto-yellow/20 group transition-all hover:scale-[1.02]">
+                <div className="w-full h-full bg-white rounded-xl p-3 flex flex-col justify-between shadow-[0_10px_20px_rgba(0,0,0,0.05)] border border-gray-100 group transition-all hover:scale-[1.02]">
                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-veto-yellow/10 rounded-lg flex items-center justify-center">
-                           <CalendarIcon size={12} className="text-veto-yellow" />
-                        </div>
+                        <CalendarIcon size={14} className="text-veto-yellow" />
                         <span className="text-[11px] font-black text-black uppercase tracking-tighter truncate max-w-[80px]">{arg.event.title}</span>
                       </div>
-                      <div className="w-4 h-4 bg-green-500/10 rounded-full flex items-center justify-center">
-                        <ShieldCheck size={10} className="text-green-500" />
-                      </div>
+                      <ShieldCheck size={14} className="text-green-500" />
                    </div>
                    <div className="flex justify-between items-end">
                       <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{status || 'Confirmé'}</span>
@@ -427,7 +423,13 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
 
       <style>{`
         .premium-calendar.owner-view .fc-timegrid-slot { height: 6rem !important; }
-        .premium-calendar.owner-view .fc-event { border-radius: 12px; border: none !important; padding: 0 !important; }
+        .premium-calendar.owner-view .fc-event { 
+          border-radius: 12px; 
+          border: none !important; 
+          padding: 0 !important; 
+          background: transparent !important;
+          box-shadow: none !important;
+        }
         .premium-calendar.owner-view .fc-timegrid-event-harness { margin: 4px !important; }
         .premium-calendar.owner-view .fc-col-header-cell { padding: 20px 0 !important; background: transparent !important; }
         .premium-calendar.owner-view .fc-col-header-cell-cushion { font-size: 11px !important; font-weight: 900 !important; color: #000 !important; text-transform: uppercase; letter-spacing: 0.1em; }
