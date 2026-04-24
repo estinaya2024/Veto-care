@@ -8,9 +8,11 @@ import {
   Shield, 
   Trash2,
   ChevronRight,
-  PlusCircle
+  PlusCircle,
+  X
 } from 'lucide-react';
 import { BookingCalendar } from './BookingCalendar';
+import { HealthRecord } from './HealthRecord';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';
@@ -27,6 +29,16 @@ export function OwnerDashboard() {
   const [showBooking, setShowBooking] = useState(false);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'appointments' | 'history'>('overview');
+  const [selectedPet, setSelectedPet] = useState<any | null>(null);
+  
+  // Add Pet Modal States
+  const [showAddPet, setShowAddPet] = useState(false);
+  const [newPetName, setNewPetName] = useState('');
+  const [newSpecies, setNewSpecies] = useState('Chien');
+  const [newBreed, setNewBreed] = useState('');
+  const [newWeight, setNewWeight] = useState('');
+  const [addingPet, setAddingPet] = useState(false);
+  
   const { user } = useAuth();
 
   const fetchDashboardData = async () => {
@@ -72,6 +84,7 @@ export function OwnerDashboard() {
       await api.deletePatient(id);
       toast.success('Dossier supprimé');
       fetchDashboardData();
+      if (selectedPet?.id === id) setSelectedPet(null);
     } catch {
       toast.error('Erreur lors de la suppression');
     }
@@ -87,6 +100,37 @@ export function OwnerDashboard() {
     }
   };
 
+  const handleAddPet = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    setAddingPet(true);
+
+    try {
+      const { error } = await supabase.from('patients').insert([{
+        maitre_id: user.id,
+        name: newPetName,
+        species: newSpecies,
+        breed: newBreed,
+        weight: newWeight,
+        status: 'En bonne santé'
+      }]);
+
+      if (error) throw error;
+      
+      toast.success(`${newPetName} a été ajouté avec succès !`);
+      setNewPetName('');
+      setNewBreed('');
+      setNewWeight('');
+      setNewSpecies('Chien');
+      setShowAddPet(false);
+      fetchDashboardData();
+    } catch (err: any) {
+      toast.error(err.message || 'Erreur lors de l\'ajout du patient');
+    } finally {
+      setAddingPet(false);
+    }
+  };
+
   const upcomingAppointments = appointments.filter(a => 
     new Date(a.date_rdv) >= new Date() && a.status !== 'annulé'
   );
@@ -94,6 +138,10 @@ export function OwnerDashboard() {
   const pastAppointments = appointments.filter(a => 
     new Date(a.date_rdv) < new Date() || a.status === 'annulé'
   );
+
+  if (selectedPet) {
+    return <HealthRecord pet={selectedPet} onBack={() => setSelectedPet(null)} />;
+  }
 
   if (showBooking) {
     return (
@@ -108,7 +156,53 @@ export function OwnerDashboard() {
   }
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-8 pb-10 relative">
+      {/* Add Pet Modal */}
+      {showAddPet && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl relative">
+            <button onClick={() => setShowAddPet(false)} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-full transition-all">
+               <X size={20} />
+            </button>
+            <h3 className="text-2xl font-black text-gray-900 mb-6">Ajouter un Animal</h3>
+            
+            <form onSubmit={handleAddPet} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2">Nom de l'animal *</label>
+                <input type="text" required value={newPetName} onChange={(e) => setNewPetName(e.target.value)} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-bold text-sm focus:ring-2 focus:ring-gray-200 outline-none transition-all" />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2">Espèce *</label>
+                <select required value={newSpecies} onChange={(e) => setNewSpecies(e.target.value)} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-bold text-sm focus:ring-2 focus:ring-gray-200 outline-none transition-all appearance-none">
+                  <option value="Chien">Chien</option>
+                  <option value="Chat">Chat</option>
+                  <option value="Oiseau">Oiseau</option>
+                  <option value="Rongeur">Rongeur</option>
+                  <option value="Reptile">Reptile</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2">Race (Optionnel)</label>
+                  <input type="text" value={newBreed} onChange={(e) => setNewBreed(e.target.value)} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-bold text-sm focus:ring-2 focus:ring-gray-200 outline-none transition-all" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2">Poids (kg)</label>
+                  <input type="text" value={newWeight} onChange={(e) => setNewWeight(e.target.value)} placeholder="Ex: 5" className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-bold text-sm focus:ring-2 focus:ring-gray-200 outline-none transition-all" />
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full py-4 mt-6 rounded-2xl" variant="black" disabled={addingPet}>
+                 {addingPet ? 'Enregistrement...' : 'Ajouter le dossier'}
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <Heading level={2} className="text-3xl font-bold text-gray-900">Bienvenue, {user?.user_metadata?.full_name || 'Ami des Animaux'}</Heading>
@@ -149,7 +243,7 @@ export function OwnerDashboard() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <Heading level={3} className="text-xl font-bold">Vos Compagnons</Heading>
-            <Button variant="black" size="sm" onClick={() => window.location.href = '/add-pet'}><PlusCircle size={18} className="mr-2" /> Ajouter un animal</Button>
+            <Button variant="black" size="sm" onClick={() => setShowAddPet(true)}><PlusCircle size={18} className="mr-2" /> Ajouter un animal</Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -177,7 +271,7 @@ export function OwnerDashboard() {
                     <span className="font-bold">{pet.weight || '--'} kg</span>
                   </div>
                 </div>
-                <Button variant="outline" className="w-full mt-6 group-hover:bg-gray-900 group-hover:text-white transition-all">Consulter Dossier</Button>
+                <Button onClick={() => setSelectedPet(pet)} variant="outline" className="w-full mt-6 group-hover:bg-gray-900 group-hover:text-white transition-all">Consulter Dossier</Button>
               </div>
             ))}
           </div>
