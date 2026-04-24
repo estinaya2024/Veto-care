@@ -263,5 +263,55 @@ export const api = {
       .eq('id', docId);
     if (error) throw error;
     return { success: true };
+  },
+
+  // --- NEW PROFESSIONAL CLINIC METHODS ---
+
+  async getWaitingRoom(vetId: string) {
+    const { data, error } = await supabase
+      .from('waiting_room')
+      .select('*')
+      .eq('vet_id', vetId);
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getPendingAppointments(vetId: string) {
+    const { data, error } = await supabase
+      .from('rendez_vous')
+      .select('*, patients(*), maitres(*)')
+      .eq('veterinaire_id', vetId)
+      .eq('status', 'planifié')
+      .is('approved_at', null)
+      .order('date_rdv', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  },
+
+  async approveAppointment(id: string) {
+    const { data, error } = await supabase.rpc('approve_appointment', { appointment_id: id });
+    if (error) throw error;
+    return data;
+  },
+
+  async rejectAppointment(id: string, reason: string) {
+    const { data, error } = await supabase
+      .from('rendez_vous')
+      .update({ 
+        status: 'annulé', 
+        rejected_at: new Date().toISOString(),
+        cancellation_reason: reason 
+      })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async checkInPatient(id: string) {
+    const { data, error } = await supabase.rpc('check_in_patient', { appointment_id: id });
+    if (error) throw error;
+    return data;
   }
 };
