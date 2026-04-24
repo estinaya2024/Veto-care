@@ -106,7 +106,47 @@ CREATE TABLE public.medical_documents (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. SECURITY (RLS)
+-- 3. VIEWS
+CREATE OR REPLACE VIEW public.waiting_room AS
+SELECT r.id, r.date_rdv, r.checkin_at, p.name as patient_name, p.species, p.id as patient_id, v.name as vet_name, v.id as vet_id
+FROM public.rendez_vous r
+JOIN public.patients p ON r.patient_id = p.id
+JOIN public.veterinaires v ON r.veterinaire_id = v.id
+WHERE r.status = 'en_attente' AND r.date_rdv::date = CURRENT_DATE
+ORDER BY r.checkin_at ASC;
+
+-- 4. CORE FUNCTIONS
+CREATE OR REPLACE FUNCTION public.is_vet()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid());
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION public.check_conflict(v_id UUID, rdv_date TIMESTAMP WITH TIME ZONE)
+RETURNS BOOLEAN AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM public.rendez_vous WHERE veterinaire_id = v_id AND status NOT IN ('annulé', 'terminé')
+    AND ABS(EXTRACT(EPOCH FROM (date_rdv - rdv_date))) < 1800
+  ) OR EXISTS (
+    SELECT 1 FROM public.indisponibilites_vet WHERE veterinaire_id = v_id AND (rdv_date >= start_time AND rdv_date < end_time)
+  ) THEN
+    RETURN TRUE;
+  END IF;
+  RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION public.approve_appointment(appointment_id UUID) RETURNS VOID AS $$
+BEGIN UPDATE public.rendez_vous SET status = 'confirmé', approved_at = NOW() WHERE id = appointment_id; END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION public.check_in_patient(appointment_id UUID) RETURNS VOID AS $$
+BEGIN UPDATE public.rendez_vous SET status = 'en_attente', checkin_at = NOW() WHERE id = appointment_id; END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 5. SECURITY (RLS)
 ALTER TABLE public.maitres ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.patients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.veterinaires ENABLE ROW LEVEL SECURITY;
@@ -119,11 +159,11 @@ ALTER TABLE public.medical_documents ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public Vets" ON public.veterinaires FOR SELECT USING (true);
 
 -- Vet Access
-CREATE POLICY "Vet: Full Access" ON public.patients FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid()));
-CREATE POLICY "Vet: Full Access Apts" ON public.rendez_vous FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid()));
-CREATE POLICY "Vet: Full Access Consults" ON public.consultations FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid()));
-CREATE POLICY "Vet: Full Access Docs" ON public.medical_documents FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid()));
-CREATE POLICY "Vet: View Owners" ON public.maitres FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.veterinaires WHERE id = auth.uid()));
+CREATE POLICY "Vet: Full Access" ON public.patients FOR ALL TO authenticated USING (is_vet());
+CREATE POLICY "Vet: Full Access Apts" ON public.rendez_vous FOR ALL TO authenticated USING (is_vet());
+CREATE POLICY "Vet: Full Access Consults" ON public.consultations FOR ALL TO authenticated USING (is_vet());
+CREATE POLICY "Vet: Full Access Docs" ON public.medical_documents FOR ALL TO authenticated USING (is_vet());
+CREATE POLICY "Vet: View Owners" ON public.maitres FOR SELECT TO authenticated USING (is_vet());
 
 -- Owner Access
 CREATE POLICY "Owner: Manage Profile" ON public.maitres FOR ALL TO authenticated USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
@@ -134,21 +174,20 @@ CREATE POLICY "Owner: View Docs" ON public.medical_documents FOR SELECT TO authe
 USING (EXISTS (SELECT 1 FROM public.patients WHERE id = medical_documents.patient_id AND maitre_id = auth.uid()));
 CREATE POLICY "Owner: Add Docs" ON public.medical_documents FOR INSERT WITH CHECK (true);
 
--- 4. STORAGE
+-- 6. STORAGE
 INSERT INTO storage.buckets (id, name, public) VALUES ('health-records', 'health-records', true) ON CONFLICT (id) DO UPDATE SET public = true;
 DROP POLICY IF EXISTS "Universal Storage Access" ON storage.objects;
 CREATE POLICY "Universal Storage Access" ON storage.objects FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
--- 5. REGISTER YOUR VET ACCOUNT
+-- 7. REGISTER YOUR VET ACCOUNT
 INSERT INTO public.veterinaires (id, name, specialty, description)
 VALUES ('eb8bc3d3-3241-40fd-aa37-f5df08e348ed', 'Dr. Clinique Veto', 'Vétérinaire Principal', 'Expert en soins')
 ON CONFLICT (id) DO UPDATE SET specialty = 'Vétérinaire Principal';
 
--- 6. AUTO-REGISTER EXISTING USERS
--- This ensures anyone already logged in gets a profile so they can add pets
+-- 8. AUTO-REGISTER EXISTING USERS
 INSERT INTO public.maitres (id, full_name)
 SELECT id, COALESCE(email, 'Utilisateur Veto') FROM auth.users
 ON CONFLICT (id) DO NOTHING;
 
--- 7. CACHE REFRESH
+-- 9. CACHE REFRESH
 NOTIFY pgrst, 'reload schema';
