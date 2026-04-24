@@ -173,7 +173,7 @@ CREATE POLICY "Public: View Unavailability" ON public.indisponibilites_vet FOR S
 CREATE POLICY "Owner: Manage Profile" ON public.maitres FOR ALL TO authenticated USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 CREATE POLICY "Owner: Manage Pets" ON public.patients FOR ALL TO authenticated USING (auth.uid() = maitre_id) WITH CHECK (auth.uid() = maitre_id);
 CREATE POLICY "Owner: Book Apts" ON public.rendez_vous FOR INSERT WITH CHECK (true);
-CREATE POLICY "Owner: View Apts" ON public.rendez_vous FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
+CREATE POLICY "Public: View All Apts" ON public.rendez_vous FOR SELECT TO authenticated USING (true);
 CREATE POLICY "Owner: View Docs" ON public.medical_documents FOR SELECT TO authenticated 
 USING (EXISTS (SELECT 1 FROM public.patients WHERE id = medical_documents.patient_id AND maitre_id = auth.uid()));
 CREATE POLICY "Owner: Add Docs" ON public.medical_documents FOR INSERT WITH CHECK (true);
