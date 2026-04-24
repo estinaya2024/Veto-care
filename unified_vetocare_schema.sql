@@ -1,5 +1,5 @@
 -- ========================================================
--- VETOCARE: UNIFIED PROJECT DATABASE SCHEMA (IDEMPOTENT)
+-- VETOCARE: FINAL UNIFIED DATABASE SCHEMA (RELIABLE)
 -- ========================================================
 
 -- 1. BASE TABLES
@@ -163,7 +163,7 @@ ALTER TABLE public.consultations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.prescriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.medical_documents ENABLE ROW LEVEL SECURITY;
 
--- Idempotent Policies
+-- Vet Policies
 DROP POLICY IF EXISTS "Vet: Full Access" ON public.patients;
 CREATE POLICY "Vet: Full Access" ON public.patients FOR ALL TO authenticated USING (is_vet());
 
@@ -173,6 +173,7 @@ CREATE POLICY "Vet: Full Agenda Access" ON public.rendez_vous FOR ALL TO authent
 DROP POLICY IF EXISTS "Vet: Manage Docs" ON public.medical_documents;
 CREATE POLICY "Vet: Manage Docs" ON public.medical_documents FOR ALL TO authenticated USING (is_vet());
 
+-- Owner Policies
 DROP POLICY IF EXISTS "Owner: My Pets" ON public.patients;
 CREATE POLICY "Owner: My Pets" ON public.patients FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
 
@@ -182,6 +183,11 @@ CREATE POLICY "Owner: Book" ON public.rendez_vous FOR INSERT TO authenticated WI
 DROP POLICY IF EXISTS "Owner: My Docs" ON public.medical_documents;
 CREATE POLICY "Owner: My Docs" ON public.medical_documents FOR SELECT TO authenticated 
 USING (EXISTS (SELECT 1 FROM public.patients WHERE id = medical_documents.patient_id AND maitre_id = auth.uid()));
+
+DROP POLICY IF EXISTS "Owner: Add Docs" ON public.medical_documents;
+CREATE POLICY "Owner: Add Docs" ON public.medical_documents 
+FOR INSERT TO authenticated 
+WITH CHECK (EXISTS (SELECT 1 FROM public.patients WHERE id = patient_id AND maitre_id = auth.uid()));
 
 -- Storage Bucket
 INSERT INTO storage.buckets (id, name, public) VALUES ('health-records', 'health-records', false) ON CONFLICT (id) DO NOTHING;
