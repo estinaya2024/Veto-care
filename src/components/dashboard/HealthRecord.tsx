@@ -301,7 +301,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {history.map((record, idx) => (
+                      {history.map((record) => (
                         <div key={record.id} className="group border border-gray-50 rounded-[2.5rem] p-8 hover:bg-gray-50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm hover:shadow-xl relative overflow-hidden">
                           <div className="absolute left-0 top-0 w-1 h-full bg-veto-yellow opacity-0 group-hover:opacity-100 transition-all"></div>
                           <div className="flex items-center gap-6">

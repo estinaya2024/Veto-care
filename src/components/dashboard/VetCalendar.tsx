@@ -35,7 +35,6 @@ interface CalendarEvent {
 
 export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [selectedRange, setSelectedRange] = useState<{ start: string; end: string } | null>(null);
   const [reason, setReason] = useState('');

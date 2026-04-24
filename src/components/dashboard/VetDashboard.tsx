@@ -3,7 +3,6 @@ import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
 import { 
   Search, 
-  FileText, 
   Users, 
   Activity, 
   HeartPulse, 
@@ -13,7 +12,6 @@ import {
   UserPlus,
   Stethoscope,
   ChevronRight,
-  MoreVertical
 } from 'lucide-react';
 import { HealthRecord } from './HealthRecord';
 import { VetCalendar } from './VetCalendar';
