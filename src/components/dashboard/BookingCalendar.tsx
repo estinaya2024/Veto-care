@@ -72,7 +72,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
       const { count } = await supabase
         .from('veterinaires')
         .select('*', { count: 'exact', head: true });
-      
+
       setVetExists(count !== null && count > 0);
 
       const { data: allApts } = await supabase
@@ -129,13 +129,13 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
       toast.error("Veuillez d'abord ajouter un animal.");
       return;
     }
-    
+
     setLoading(true);
     setUploading(true);
     try {
       const vet = await api.getPrimaryVet();
       if (!vet) throw new Error('Aucun vétérinaire disponible.');
-      
+
       let healthRecordUrl = null;
 
       if (selectedFile) {
@@ -220,10 +220,10 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
     <div className="bg-white rounded-[3.5rem] p-10 border border-gray-100 shadow-premium animate-fadeIn relative overflow-hidden min-h-[900px]">
       {vetExists === false && (
         <div className="mb-10 p-6 bg-red-50 border border-red-100 rounded-[2rem] flex items-center gap-4 animate-pulse">
-           <Zap className="text-red-500" size={24} />
-           <p className="text-red-800 text-xs font-black uppercase tracking-widest">
-             Clinique en attente d'activation : Aucun vétérinaire disponible.
-           </p>
+          <Zap className="text-red-500" size={24} />
+          <p className="text-red-800 text-xs font-black uppercase tracking-widest">
+            Clinique en attente d'activation : Aucun vétérinaire disponible.
+          </p>
         </div>
       )}
 
@@ -239,14 +239,14 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-           <div className="flex items-center gap-3 px-6 py-3 bg-gray-50 rounded-2xl border border-gray-100 text-[10px] font-black uppercase tracking-widest transition-all">
-              <div className="w-3 h-3 rounded-full bg-veto-yellow shadow-premium"></div> 
-              <span className="text-black">Mes Demandes</span>
-           </div>
-           <div className="flex items-center gap-3 px-6 py-3 bg-gray-50 rounded-2xl border border-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-400">
-              <div className="w-3 h-3 rounded-full bg-gray-200"></div> 
-              <span>Indisponible</span>
-           </div>
+          <div className="flex items-center gap-3 px-6 py-3 bg-gray-50 rounded-2xl border border-gray-100 text-[10px] font-black uppercase tracking-widest transition-all">
+            <div className="w-3 h-3 rounded-full bg-veto-yellow shadow-premium"></div>
+            <span className="text-black">Mes Demandes</span>
+          </div>
+          <div className="flex items-center gap-3 px-6 py-3 bg-gray-50 rounded-2xl border  text-[10px] font-black uppercase tracking-widest text-gray-400">
+            <div className="w-3 h-3 rounded-full bg-gray-200"></div>
+            <span>Indisponible</span>
+          </div>
         </div>
       </div>
 
@@ -286,7 +286,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
             const isMine = type === 'mine';
             const isBlocked = type === 'blocked';
             const status = arg.event.extendedProps.status;
-            
+
             if (isBlocked) {
               return (
                 <div className="w-full h-full bg-veto-black rounded-xl p-3 flex flex-col justify-center relative overflow-hidden group">
@@ -303,17 +303,17 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
             if (isMine) {
               return (
                 <div className="w-full h-full bg-white rounded-xl p-3 flex flex-col justify-between shadow-[0_10px_20px_rgba(0,0,0,0.05)] border border-gray-100 group transition-all hover:scale-[1.02]">
-                   <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <CalendarIcon size={14} className="text-veto-yellow" />
-                        <span className="text-[11px] font-black text-black uppercase tracking-tighter truncate max-w-[80px]">{arg.event.title}</span>
-                      </div>
-                      <ShieldCheck size={14} className="text-green-500" />
-                   </div>
-                   <div className="flex justify-between items-end">
-                      <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{status || 'Confirmé'}</span>
-                      <span className="text-[10px] font-black text-black">{format(new Date(arg.event.start!), 'HH:mm')}</span>
-                   </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon size={14} className="text-veto-yellow" />
+                      <span className="text-[11px] font-black text-black uppercase tracking-tighter truncate max-w-[80px]">{arg.event.title}</span>
+                    </div>
+                    <ShieldCheck size={14} className="text-green-500" />
+                  </div>
+                  <div className="flex justify-between items-end">
+                    <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{status || 'Confirmé'}</span>
+                    <span className="text-[10px] font-black text-black">{format(new Date(arg.event.start!), 'HH:mm')}</span>
+                  </div>
                 </div>
               );
             }
@@ -338,26 +338,26 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
               <button onClick={() => setShowBookingModal(false)} className="absolute top-8 right-8 p-3 hover:bg-gray-100 rounded-2xl transition-colors">
                 <X size={24} className="text-gray-400" />
               </button>
-              
+
               <div className="mb-10 text-center">
-                 <h3 className="text-3xl font-black text-black tracking-tighter mb-2">Finaliser le RDV</h3>
-                 <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Confirmation requise par la clinique</p>
+                <h3 className="text-3xl font-black text-black tracking-tighter mb-2">Finaliser le RDV</h3>
+                <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Confirmation requise par la clinique</p>
               </div>
-              
+
               <div className="space-y-8">
                 <div className="p-6 bg-gray-50 rounded-[2rem] border border-gray-100 flex items-center gap-5 shadow-inner">
-                    <div className="p-3 bg-white rounded-2xl shadow-sm">
-                       <Clock size={24} className="text-veto-yellow" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Créneau réservé</p>
-                      <p className="text-sm font-black text-black">{format(new Date(selectedSlot!.start), 'EEEE d MMMM HH:mm', { locale: fr })}</p>
-                    </div>
+                  <div className="p-3 bg-white rounded-2xl shadow-sm">
+                    <Clock size={24} className="text-veto-yellow" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Créneau réservé</p>
+                    <p className="text-sm font-black text-black">{format(new Date(selectedSlot!.start), 'EEEE d MMMM HH:mm', { locale: fr })}</p>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2">Patient concerné</label>
-                  <select 
+                  <select
                     value={selectedPet}
                     onChange={(e) => setSelectedPet(e.target.value)}
                     className="w-full px-6 py-4 bg-gray-50 rounded-2xl border border-gray-100 outline-none focus:ring-4 focus:ring-veto-yellow/10 transition-all font-black text-base shadow-sm"
@@ -389,7 +389,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
                 </div>
 
                 <Button onClick={handleConfirmBooking} className="w-full py-6 text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-premium" variant="yellow" loading={loading} disabled={loading || !selectedFile} >
-                    {uploading ? 'TRANSMISSION...' : 'ENVOYER LA DEMANDE'}
+                  {uploading ? 'TRANSMISSION...' : 'ENVOYER LA DEMANDE'}
                 </Button>
               </div>
             </motion.div>
@@ -398,22 +398,22 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
 
         {appointmentToCancel && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setAppointmentToCancel(null)} className="absolute inset-0 bg-black/40 backdrop-blur-xl" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setAppointmentToCancel(null)} className="absolute inset-0 bg-black/40 backdrop-blur-xl" />
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="bg-white w-full max-w-sm rounded-[3rem] p-10 shadow-2xl relative text-center border border-gray-100" >
               <div className="w-20 h-20 bg-red-50 text-red-500 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 shadow-inner border border-red-100">
-                 <X size={40} />
+                <X size={40} />
               </div>
               <h3 className="text-2xl font-black text-black mb-2 tracking-tighter">Révoquer le RDV ?</h3>
               <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-8 leading-relaxed">
-                 Le {format(new Date(appointmentToCancel.date), 'EEEE d MMMM à HH:mm', { locale: fr })}
+                Le {format(new Date(appointmentToCancel.date), 'EEEE d MMMM à HH:mm', { locale: fr })}
               </p>
-              
+
               <div className="flex flex-col gap-3">
                 <Button onClick={handleCancelAppointment} className="w-full py-5 font-black bg-black text-white hover:bg-red-500 rounded-2xl text-[10px] uppercase tracking-widest shadow-premium transition-all">
-                   Confirmer l'annulation
+                  Confirmer l'annulation
                 </Button>
                 <Button onClick={() => setAppointmentToCancel(null)} variant="ghost" className="w-full py-4 text-gray-400 text-[9px] font-black uppercase tracking-widest hover:text-black">
-                   Annuler / Retour
+                  Annuler / Retour
                 </Button>
               </div>
             </motion.div>
