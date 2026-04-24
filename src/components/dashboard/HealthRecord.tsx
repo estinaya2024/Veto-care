@@ -27,10 +27,11 @@ interface HealthRecordProps {
 }
 
 export function HealthRecord({ pet, onBack }: HealthRecordProps) {
-  const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'imaging'>('history');
+  const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'imaging' | 'documents' | 'prescriptions'>('history');
   const [history, setHistory] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [documents, setDocuments] = useState<any[]>([]);
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const { user } = useAuth();
@@ -44,6 +45,13 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
       ]);
       setHistory(clinicalData.appointments);
       setConsultations(clinicalData.consultations);
+      
+      // Extract prescriptions from consultations
+      const allPrescriptions = clinicalData.consultations
+        .filter((c: any) => c.prescriptions && c.prescriptions.length > 0)
+        .flatMap((c: any) => c.prescriptions.map((p: any) => ({ ...p, vetName: c.veterinaires?.name })));
+      
+      setPrescriptions(allPrescriptions);
       setDocuments(docsData);
     } catch (err) {
       console.error('Error fetching pet data:', err);
@@ -126,15 +134,17 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Dernier Poids</p>
                 <p className="text-2xl font-black text-gray-900">{pet.weight || '--'} <span className="text-lg">kg</span></p>
               </div>
+              <div>
+                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Prochain Vaccin</p>
+                <p className={cn("text-lg font-bold", pet.next_vax ? "text-blue-600" : "text-gray-400")}>
+                  {pet.next_vax ? format(new Date(pet.next_vax), 'dd MMM yyyy', { locale: fr }) : 'Non planifié'}
+                </p>
+              </div>
               <div className="p-4 bg-red-50 border border-red-100 rounded-2xl">
                 <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1 flex items-center gap-1">
                   <AlertCircle size={10} /> Allergies
                 </p>
                 <p className="text-sm font-bold text-red-800">{pet.allergies || 'Aucune signalée'}</p>
-              </div>
-              <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl">
-                <p className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">Chroniques</p>
-                <p className="text-sm font-bold text-orange-800">{pet.chronic_conditions || 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -146,8 +156,14 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             <button onClick={() => setActiveTab('consultations')} className={cn("w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all mt-1", activeTab === 'consultations' ? "bg-gray-900 text-white shadow-lg" : "text-gray-500 hover:bg-gray-50")}>
               <Stethoscope size={18} /> Consultations
             </button>
+            <button onClick={() => setActiveTab('prescriptions')} className={cn("w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all mt-1", activeTab === 'prescriptions' ? "bg-gray-900 text-white shadow-lg" : "text-gray-500 hover:bg-gray-50")}>
+              <FileCheck size={18} /> Ordonnances
+            </button>
             <button onClick={() => setActiveTab('imaging')} className={cn("w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all mt-1", activeTab === 'imaging' ? "bg-gray-900 text-white shadow-lg" : "text-gray-500 hover:bg-gray-50")}>
-              <ImageIcon size={18} /> Imagerie & Labo
+              <ImageIcon size={18} /> Imagerie
+            </button>
+            <button onClick={() => setActiveTab('documents')} className={cn("w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all mt-1", activeTab === 'documents' ? "bg-gray-900 text-white shadow-lg" : "text-gray-500 hover:bg-gray-50")}>
+              <Download size={18} /> Documents
             </button>
           </div>
         </div>
@@ -159,6 +175,8 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                 {activeTab === 'history' && "Chronologie des Visites"}
                 {activeTab === 'consultations' && "Journal de Consultation"}
                 {activeTab === 'imaging' && "Hub d'Imagerie Médicale"}
+                {activeTab === 'prescriptions' && "Vos Ordonnances Numériques"}
+                {activeTab === 'documents' && "Coffre-fort Numérique"}
               </h3>
             </div>
 
@@ -170,7 +188,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                   history.length === 0 ? (
                     <div className="text-center py-20 text-gray-400">Aucun rendez-vous enregistré.</div>
                   ) : history.map((record) => (
-                    <div key={record.id} className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                    <div key={record.id} className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl border border-gray-100 group hover:bg-white hover:shadow-md transition-all">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-100">
                           {record.status === 'terminé' ? <FileCheck className="text-green-600" /> : <Clock className="text-blue-600" />}
@@ -180,41 +198,34 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                           <p className="font-bold text-gray-900">{format(new Date(record.date_rdv), 'dd MMMM yyyy', { locale: fr })}</p>
                         </div>
                       </div>
-                      <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase", record.status === 'terminé' ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700")}>{record.status}</span>
+                      <div className="flex items-center gap-4">
+                        {record.health_record_url && (
+                          <a href={record.health_record_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1 bg-veto-yellow/10 text-veto-black text-[10px] font-black uppercase tracking-widest rounded-lg border border-veto-yellow/20 hover:bg-veto-yellow transition-all">
+                            <Download size={12} /> Voir Document
+                          </a>
+                        )}
+                        <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase", record.status === 'terminé' ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700")}>{record.status}</span>
+                      </div>
                     </div>
                   ))
                 )}
 
-                {activeTab === 'consultations' && (
-                  consultations.length === 0 ? (
-                    <div className="text-center py-20 text-gray-400">Aucune consultation détaillée.</div>
-                  ) : consultations.map((c) => (
-                    <div key={c.id} className="p-8 border border-gray-100 rounded-3xl space-y-6 hover:shadow-md transition-all">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Date de consultation</p>
-                          <p className="text-xl font-bold">{format(new Date(c.date_consultation), 'dd MMMM yyyy', { locale: fr })}</p>
+                {activeTab === 'prescriptions' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {prescriptions.length === 0 ? (
+                      <div className="col-span-2 text-center py-20 text-gray-400">Aucune ordonnance émise.</div>
+                    ) : prescriptions.map((p) => (
+                      <div key={p.id} className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="p-2 bg-blue-50 text-blue-600 rounded-lg"><FileCheck size={20} /></div>
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{format(new Date(p.issued_at), 'dd/MM/yyyy')}</p>
                         </div>
-                        <p className="text-xs font-bold bg-gray-100 px-4 py-2 rounded-xl">Dr. {c.veterinaires?.name}</p>
+                        <h4 className="font-bold text-gray-900 mb-1">Ordonnance Médicale</h4>
+                        <p className="text-xs text-gray-500 mb-4">Par Dr. {p.vetName}</p>
+                        <Button variant="outline" size="sm" className="w-full text-[10px] font-black" onClick={() => window.open(`/prescription/${p.id}`, '_blank')}>Consulter / Imprimer</Button>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                          <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">Diagnostic</p>
-                          <p className="text-gray-900 font-medium">{c.diagnosis || 'Non spécifié'}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black text-green-600 uppercase tracking-widest mb-2">Traitement</p>
-                          <p className="text-gray-900 font-medium">{c.treatment || 'Non spécifié'}</p>
-                        </div>
-                      </div>
-                      {c.notes && (
-                        <div className="pt-4 border-t border-gray-50">
-                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Notes Médicales</p>
-                          <p className="text-sm text-gray-600 italic">"{c.notes}"</p>
-                        </div>
-                      )}
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
 
                 {activeTab === 'imaging' && (
@@ -224,7 +235,34 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                     ) : documents.filter(d => d.doc_type === 'imaging').map((doc) => (
                       <div key={doc.id} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 group flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-100"><ImageIcon className="text-gray-400" /></div>
+                          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-100">
+                             {doc.file_url.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? 
+                               <img src={doc.file_url} className="w-full h-full object-cover rounded-lg" alt="" /> : 
+                               <ImageIcon className="text-gray-400" />
+                             }
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-gray-900 truncate max-w-[150px]">{doc.name}</p>
+                            <p className="text-[10px] text-gray-400">{format(new Date(doc.created_at), 'dd/MM/yyyy')}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <a href={doc.file_url} target="_blank" rel="noreferrer" className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-blue-600 shadow-sm"><Download size={16} /></a>
+                          <button onClick={() => handleDeleteDoc(doc.id)} className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-red-600 shadow-sm"><Trash2 size={16} /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {activeTab === 'documents' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {documents.filter(d => d.doc_type !== 'imaging').length === 0 ? (
+                      <div className="col-span-2 text-center py-20 text-gray-400">Aucun document administratif.</div>
+                    ) : documents.filter(d => d.doc_type !== 'imaging').map((doc) => (
+                      <div key={doc.id} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 group flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-100"><FileCheck className="text-gray-400" /></div>
                           <div>
                             <p className="text-sm font-bold text-gray-900 truncate max-w-[150px]">{doc.name}</p>
                             <p className="text-[10px] text-gray-400">{format(new Date(doc.created_at), 'dd/MM/yyyy')}</p>
