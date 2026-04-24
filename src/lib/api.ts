@@ -147,6 +147,7 @@ export const api = {
       .select('*, patients(*), maitres(full_name)')
       .eq('veterinaire_id', vetId)
       .neq('status', 'annulé')
+      .neq('status', 'terminé')
       .gte('date_rdv', today.toISOString())
       .lt('date_rdv', tomorrow.toISOString())
       .order('date_rdv', { ascending: true });
