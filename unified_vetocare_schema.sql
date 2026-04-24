@@ -180,6 +180,9 @@ CREATE POLICY "Owner: My Pets" ON public.patients FOR SELECT TO authenticated US
 DROP POLICY IF EXISTS "Owner: Book" ON public.rendez_vous;
 CREATE POLICY "Owner: Book" ON public.rendez_vous FOR INSERT TO authenticated WITH CHECK (auth.uid() = maitre_id);
 
+DROP POLICY IF EXISTS "Owner: View Bookings" ON public.rendez_vous;
+CREATE POLICY "Owner: View Bookings" ON public.rendez_vous FOR SELECT TO authenticated USING (auth.uid() = maitre_id);
+
 DROP POLICY IF EXISTS "Owner: My Docs" ON public.medical_documents;
 CREATE POLICY "Owner: My Docs" ON public.medical_documents FOR SELECT TO authenticated 
 USING (EXISTS (SELECT 1 FROM public.patients WHERE id = medical_documents.patient_id AND maitre_id = auth.uid()));
@@ -196,10 +199,10 @@ DROP POLICY IF EXISTS "Docs Read Access" ON storage.objects;
 CREATE POLICY "Docs Read Access" ON storage.objects FOR SELECT USING (bucket_id = 'health-records');
 
 DROP POLICY IF EXISTS "Docs Insert Access" ON storage.objects;
-CREATE POLICY "Docs Insert Access" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'health-records');
+CREATE POLICY "Docs Insert Access" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'health-records');
 
 DROP POLICY IF EXISTS "Docs Update Access" ON storage.objects;
-CREATE POLICY "Docs Update Access" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'health-records');
+CREATE POLICY "Docs Update Access" ON storage.objects FOR UPDATE USING (bucket_id = 'health-records');
 
 DROP POLICY IF EXISTS "Docs Delete Access" ON storage.objects;
-CREATE POLICY "Docs Delete Access" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'health-records');
+CREATE POLICY "Docs Delete Access" ON storage.objects FOR DELETE USING (bucket_id = 'health-records');
