@@ -45,7 +45,6 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   }, [vetId]);
 
   const fetchData = async () => {
-    setLoading(true);
     try {
       const { data: aptData } = await supabase
         .from('rendez_vous')
@@ -81,7 +80,6 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
     } catch (err) {
       console.error('Error fetching calendar data:', err);
     } finally {
-      setLoading(false);
     }
   };
 
