@@ -1,7 +1,7 @@
 import { Button } from '../ui/Button';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { X, Printer, Download } from 'lucide-react';
+import { X, Printer } from 'lucide-react';
 import logo from '../../assets/images/logo-icon-only.png';
 
 interface InvoiceViewerProps {

@@ -30,6 +30,12 @@ interface HealthRecordProps {
 export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'imaging' | 'documents' | 'prescriptions'>('history');
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [consultations, setConsultations] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [prescriptions, setPrescriptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({
     weight: pet.weight || '',
