@@ -192,20 +192,19 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
 
         {/* View toggle + nav row */}
         <div className="flex items-center justify-between gap-2">
-          {/* Prev / Today / Next navigation (mobile) */}
-          {isMobile && (
-            <div className="flex items-center gap-1">
-              <button onClick={() => navigate('prev')} className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all">
-                <ChevronLeft size={16} />
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-gray-100/80 backdrop-blur-md p-1 rounded-xl md:rounded-[2rem] border border-white/50 shadow-sm">
+              <button onClick={() => navigate('prev')} className="p-2 rounded-lg md:rounded-2xl hover:bg-white text-gray-400 hover:text-black transition-all">
+                <ChevronLeft size={18} />
               </button>
-              <button onClick={() => navigate('today')} className="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-[10px] font-black uppercase tracking-widest transition-all">
-                Auj.
+              <button onClick={() => navigate('today')} className="px-3 md:px-4 py-1.5 md:py-2 text-[10px] font-black uppercase tracking-widest text-black hover:bg-white rounded-lg md:rounded-2xl transition-all">
+                {isMobile ? 'Auj.' : "Aujourd'hui"}
               </button>
-              <button onClick={() => navigate('next')} className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all">
-                <ChevronRight size={16} />
+              <button onClick={() => navigate('next')} className="p-2 rounded-lg md:rounded-2xl hover:bg-white text-gray-400 hover:text-black transition-all">
+                <ChevronRight size={18} />
               </button>
             </div>
-          )}
+          </div>
 
           {/* View switcher */}
           <div className="flex p-1 bg-gray-100/80 backdrop-blur-md rounded-xl md:rounded-[2rem] border border-white/50 shadow-sm ml-auto">
