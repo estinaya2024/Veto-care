@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, X, Send, Sparkles, Calendar as CalendarIcon } from 'lucide-react';
+import { X, Send, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
 import { api } from '../../lib/api';
