@@ -24,7 +24,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
     {
       id: 'welcome',
       sender: 'ai',
-      text: "Bonjour ! Je suis l'assistant vétérinaire IA de VetoCare. Quels symptômes présente votre animal aujourd'hui ?",
+      text: "Bonjour ! Je suis l'assistant IA de VetoCare. Je peux évaluer les symptômes de votre animal ou vous guider sur notre site. Comment puis-je vous aider aujourd'hui ?",
     }
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
