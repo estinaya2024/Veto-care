@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
 import logo from '../../assets/images/logo-icon-only.png';
+import { useI18n } from '../../context/I18nContext';
 
 interface SidebarProps {
   role: 'owner' | 'vet' | null;
@@ -30,6 +31,7 @@ interface SidebarContentProps {
   filteredItems: any[];
   onLogout: () => void;
   setIsMobileOpen: (open: boolean) => void;
+  logoutLabel: string;
 }
 
 const SidebarContent = ({ 
@@ -38,7 +40,8 @@ const SidebarContent = ({
   setActiveTab, 
   filteredItems, 
   onLogout, 
-  setIsMobileOpen 
+  setIsMobileOpen,
+  logoutLabel
 }: SidebarContentProps) => (
   <div className="flex flex-col h-full py-8">
     {/* Logo Section */}
@@ -92,7 +95,6 @@ const SidebarContent = ({
             )}
           </AnimatePresence>
 
-          {/* Active Indicator Dot (Collapsed) */}
           {activeTab === item.id && isCollapsed && (
             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-white rounded-full mr-2" />
           )}
@@ -111,7 +113,7 @@ const SidebarContent = ({
         )}
       >
         <LogOut size={20} className="group-hover:scale-105 transition-transform" />
-        {!isCollapsed && <span className="text-sm">Se Déconnecter</span>}
+        {!isCollapsed && <span className="text-sm">{logoutLabel}</span>}
       </button>
     </div>
   </div>
@@ -120,16 +122,19 @@ const SidebarContent = ({
 export function Sidebar({ role, onLogout, activeTab, setActiveTab }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { t } = useI18n();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['owner', 'vet'] },
-    { id: 'owner', label: 'Maîtres', icon: Users, roles: ['owner', 'vet'] },
-    { id: 'vet', label: 'Vétérinaires', icon: Stethoscope, roles: ['vet'] },
-    { id: 'appointments', label: 'Rendez-vous', icon: Calendar, roles: ['vet'] },
-    { id: 'settings', label: 'Mon Compte', icon: Settings, roles: ['owner', 'vet'] },
+    { id: 'dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard, roles: ['owner', 'vet'] },
+    { id: 'owner',     labelKey: 'sidebar.owners',       icon: Users,          roles: ['owner', 'vet'] },
+    { id: 'vet',       labelKey: 'sidebar.vets',          icon: Stethoscope,    roles: ['vet'] },
+    { id: 'appointments', labelKey: 'sidebar.appointments', icon: Calendar,    roles: ['vet'] },
+    { id: 'settings', labelKey: 'sidebar.settings',      icon: Settings,       roles: ['owner', 'vet'] },
   ];
 
-  const filteredItems = menuItems.filter(item => item.roles.includes(role || ''));
+  const filteredItems = menuItems
+    .filter(item => item.roles.includes(role || ''))
+    .map(item => ({ ...item, label: t(item.labelKey) }));
 
   return (
     <>
@@ -160,8 +165,8 @@ export function Sidebar({ role, onLogout, activeTab, setActiveTab }: SidebarProp
           filteredItems={filteredItems}
           onLogout={onLogout}
           setIsMobileOpen={setIsMobileOpen}
+          logoutLabel={t('sidebar.logout')}
         />
-        {/* Toggle Button (Desktop Only) */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="absolute -right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white border border-black/5 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all z-50 hidden md:flex"
@@ -189,13 +194,14 @@ export function Sidebar({ role, onLogout, activeTab, setActiveTab }: SidebarProp
               className="fixed inset-y-0 left-0 w-[280px] bg-white z-[201] md:hidden shadow-2xl"
             >
               <SidebarContent 
-                isCollapsed={isCollapsed}
+                isCollapsed={false}
                 role={role}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 filteredItems={filteredItems}
                 onLogout={onLogout}
                 setIsMobileOpen={setIsMobileOpen}
+                logoutLabel={t('sidebar.logout')}
               />
               <button 
                 onClick={() => setIsMobileOpen(false)}
