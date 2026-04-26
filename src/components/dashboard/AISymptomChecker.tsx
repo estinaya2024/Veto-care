@@ -182,7 +182,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
           onClick={() => setIsOpen(true)}
           className="bg-veto-yellow text-veto-black p-2 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] hover:scale-105 transition-transform flex items-center justify-center relative group border-2 border-white"
         >
-          <img src={aiPawIcon} alt="AI" className="w-16 h-16 object-contain scale-125" />
+          <img src={aiPawIcon} alt="AI" className="w-12 h-12 object-contain scale-125" />
 
           {/* Tooltip / Badge */}
           <span className="absolute -top-10 right-0 bg-white text-veto-black text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
