@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
 import { api } from '../../lib/api';
 import aiPawIcon from '../../assets/ai_paw.png';
+import { useI18n } from '../../context/I18nContext';
 
 type Message = {
   id: string;
@@ -17,6 +18,7 @@ interface AISymptomCheckerProps {
 }
 
 export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
+  const { t } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -24,7 +26,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
     {
       id: 'welcome',
       sender: 'ai',
-      text: "Bonjour ! Je suis l'assistant IA de VetoCare. Je peux évaluer les symptômes de votre animal ou vous guider sur notre site. Comment puis-je vous aider aujourd'hui ?",
+      text: t('ai.welcome'),
     }
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -57,8 +59,8 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: response.reply || "Je suis désolé, je n'ai pas pu analyser ces symptômes.",
-        showAction: true, // Toujours encourager la prise de RDV
+        text: response.reply || t('ai.no_reply'),
+        showAction: true,
       };
 
       setMessages((prev) => [...prev, aiMsg]);
@@ -67,7 +69,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: "Désolé, il y a eu un problème de connexion avec l'IA. Veuillez réessayer plus tard ou prendre rendez-vous directement.",
+        text: t('ai.error'),
         showAction: true,
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -89,9 +91,9 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
                 <img src={aiPawIcon} alt="AI" className="w-8 h-8 object-contain scale-125" />
               </div>
               <div>
-                <h3 className="font-bold text-sm">Assistant Santé IA</h3>
+                <h3 className="font-bold text-sm">{t('ai.title')}</h3>
                 <p className="text-[10px] text-gray-300 flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-green-400"></span> En ligne
+                  <span className="w-2 h-2 rounded-full bg-green-400"></span> {t('ai.online')}
                 </p>
               </div>
             </div>
@@ -135,7 +137,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
                         }}
                       >
                         <CalendarIcon size={14} className="mr-2" />
-                        Prendre Rendez-vous
+                        {t('ai.book_btn')}
                       </Button>
                     </div>
                   )}
@@ -159,7 +161,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
           <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-50 flex gap-2 items-center">
             <input
               type="text"
-              placeholder="Décrivez les symptômes..."
+              placeholder={t('ai.placeholder')}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-veto-yellow transition-all"
@@ -186,7 +188,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
 
           {/* Tooltip / Badge */}
           <span className="absolute -top-10 right-0 bg-white text-veto-black text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-            Assistant IA
+            {t('ai.tooltip')}
           </span>
 
           {/* Notification Dot */}

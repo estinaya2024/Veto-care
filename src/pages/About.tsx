@@ -1,34 +1,45 @@
 import { Heading } from '../components/ui/Heading';
 import { Stethoscope, ShieldCheck, Clock, Award } from 'lucide-react';
 import aboutImg from '../assets/images/about-clinic.png';
+import { useI18n } from '../context/I18nContext';
 
 export function About() {
+  const { t } = useI18n();
+
+  const features = [
+    t('about.feature1'),
+    t('about.feature2'),
+    t('about.feature3'),
+    t('about.feature4'),
+  ];
+
+  const cards = [
+    { icon: Stethoscope, titleKey: 'about.card1_title', descKey: 'about.card1_desc' },
+    { icon: Clock,       titleKey: 'about.card2_title', descKey: 'about.card2_desc' },
+    { icon: Award,       titleKey: 'about.card3_title', descKey: 'about.card3_desc' },
+  ];
+
   return (
     <div className="pt-40 pb-24 px-6 md:px-16 max-w-[1400px] mx-auto min-h-screen">
        <div className="text-center mb-20 animate-fadeInUp">
          <Heading level={1} className="text-5xl md:text-7xl font-black tracking-tighter text-veto-black mb-6">
-           À Propos de <span className="text-veto-yellow">VetoCare</span>
+           {t('about.title')} <span className="text-veto-yellow">VetoCare</span>
          </Heading>
          <p className="text-veto-gray text-xl md:text-2xl font-bold max-w-3xl mx-auto leading-relaxed">
-           Notre clinique vétérinaire située à <span className="text-veto-black">Béjaïa</span> est dédiée à la santé, au bien-être et au bonheur de vos compagnons à quatre pattes.
+           {t('about.subtitle')}
          </p>
        </div>
 
        <div className="grid md:grid-cols-2 gap-16 items-center mb-24">
          <div className="space-y-8 animate-fadeInLeft">
            <Heading level={2} className="text-4xl lg:text-5xl font-black tracking-tight text-veto-black leading-tight">
-             Une passion pour <br/> la médecine vétérinaire
+             {t('about.passion_title')}
            </Heading>
            <p className="text-lg text-veto-gray leading-relaxed font-bold">
-             Fondée avec l'objectif d'offrir des soins d'excellence, la clinique combine une technologie vétérinaire de pointe avec une philosophie profondément humaine. Nous pensons que chaque animal mérite une attention personnalisée dans un environnement chaleureux, apaisant et sécurisant.
+             {t('about.passion_body')}
            </p>
            <ul className="space-y-4 pt-4">
-             {[
-               "Équipement de diagnostic moderne",
-               "Bloc chirurgical stérile de dernière génération",
-               "Chambres d'hospitalisation confortables",
-               "Suivi digitalisé complet de chaque patient"
-             ].map((item, i) => (
+             {features.map((item, i) => (
                <li key={i} className="flex items-center gap-4 text-veto-black font-black uppercase tracking-widest text-[11px]">
                  <div className="bg-veto-yellow/20 p-3 rounded-full">
                    <ShieldCheck className="text-veto-yellow" size={20} />
@@ -51,17 +62,13 @@ export function About() {
        </div>
 
        <div className="grid md:grid-cols-3 gap-8 pt-10 border-t-[12px] border-veto-blue-gray">
-          {[
-            { icon: Stethoscope, title: "Expertise Clinique", desc: "Des années d'expérience consolidée en médecine interne, dermatologie et chirurgie spécifique." },
-            { icon: Clock, title: "Disponibilité", desc: "Des rendez-vous adaptés à votre emploi du temps et des canaux dédiés pour les suivis post-opératoires." },
-            { icon: Award, title: "Qualité Certifiée", desc: "Des standards stricts d'hygiène et de sécurité protocolaire appliqués pour chaque intervention." }
-          ].map((feature, idx) => (
+          {cards.map((feature, idx) => (
              <div key={idx} className="bg-white p-10 rounded-[3rem] shadow-lg border border-black/5 hover:-translate-y-4 transition-transform duration-500 group">
                 <div className="bg-veto-blue-gray w-20 h-20 rounded-3xl flex items-center justify-center mb-8 text-veto-black group-hover:bg-veto-yellow transition-colors shadow-inner">
                    <feature.icon size={36} />
                 </div>
-                <h3 className="text-2xl font-black text-veto-black mb-4 tracking-tighter">{feature.title}</h3>
-                <p className="text-veto-gray font-bold leading-relaxed">{feature.desc}</p>
+                <h3 className="text-2xl font-black text-veto-black mb-4 tracking-tighter">{t(feature.titleKey)}</h3>
+                <p className="text-veto-gray font-bold leading-relaxed">{t(feature.descKey)}</p>
              </div>
           ))}
        </div>

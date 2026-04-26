@@ -1,32 +1,17 @@
 import { Heading } from '../ui/Heading';
 import { PawPrint } from 'lucide-react';
+import { useI18n } from '../../context/I18nContext';
 
 export function WhyRelyOnUs() {
+  const { t } = useI18n();
+
   const reasons = [
-    {
-      title: "Passion Médicale",
-      description: "Nous considérons chaque animal comme un membre précieux de votre famille nécessitant des soins irréprochables avec toute l'attention médicale qu'il mérite."
-    },
-    {
-      title: "Tranquillité d'esprit",
-      description: "Des normes d'hygiène strictes pour garantir un environnement serein, où votre compagnon reçoit les meilleurs traitements sans stress prolongé."
-    },
-    {
-      title: "Consultations Flexibles",
-      description: "En plus de nos plages horaires pratiques, nous vous proposons une prise de rendez-vous rapide via notre portail en ligne pour s'adapter à votre quotidien."
-    },
-    {
-      title: "Transparence Totale",
-      description: "Nous prenons le temps de vous expliquer nos diagnostics et procédures cliniques pour vous accompagner sereinement dans les décisions de santé."
-    },
-    {
-      title: "Prise en charge locale",
-      description: "Basés à Béjaïa, nous assurons des soins personnalisés et de proximité, bâtissant une relation de confiance durable avec nos patients du quartier."
-    },
-    {
-      title: "Urgences & Suivi",
-      description: "Notre équipe est préparée pour la gestion de toute pathologie, garantissant à la fois un rétablissement optimal et un suivi digitalisé (carnet de santé)."
-    }
+    { titleKey: 'why.reason1.title', descKey: 'why.reason1.desc' },
+    { titleKey: 'why.reason2.title', descKey: 'why.reason2.desc' },
+    { titleKey: 'why.reason3.title', descKey: 'why.reason3.desc' },
+    { titleKey: 'why.reason4.title', descKey: 'why.reason4.desc' },
+    { titleKey: 'why.reason5.title', descKey: 'why.reason5.desc' },
+    { titleKey: 'why.reason6.title', descKey: 'why.reason6.desc' },
   ];
 
   return (
@@ -34,7 +19,7 @@ export function WhyRelyOnUs() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-20">
           <Heading level={2} className="text-5xl md:text-7xl">
-            Pourquoi nous choisir ?
+            {t('why.heading')}
           </Heading>
         </div>
 
@@ -48,10 +33,10 @@ export function WhyRelyOnUs() {
               </div>
               <div className="space-y-2">
                 <Heading level={3} className="uppercase">
-                  {reason.title}
+                  {t(reason.titleKey)}
                 </Heading>
                 <p className="text-veto-gray font-medium leading-relaxed max-w-md">
-                  {reason.description}
+                  {t(reason.descKey)}
                 </p>
               </div>
             </div>

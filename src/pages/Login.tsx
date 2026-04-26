@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import logo from '../assets/images/logo-icon-only.png';
+import { useI18n } from '../context/I18nContext';
 
 export function Login() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -15,6 +16,7 @@ export function Login() {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   useEffect(() => {
     if (user) {
@@ -39,8 +41,6 @@ export function Login() {
           }
         });
         if (signupError) throw signupError;
-
-        // Note: Le profil dans 'maitres' est créé automatiquement par le trigger SQL
       } else {
         const { error: loginError } = await supabase.auth.signInWithPassword({
           email,
@@ -51,7 +51,7 @@ export function Login() {
 
       navigate('/');
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Une erreur est survenue';
+      const message = err instanceof Error ? err.message : t('login.error_generic');
       setError(message);
     } finally {
       setLoading(false);
@@ -64,7 +64,7 @@ export function Login() {
         <button
           onClick={() => navigate('/')}
           className="absolute top-6 left-6 p-2.5 bg-gray-50 text-black rounded-xl hover:bg-veto-yellow transition-all border border-gray-100"
-          title="Retourner à l'accueil"
+          title={t('login.back')}
         >
           <ArrowLeft size={18} />
         </button>
@@ -75,10 +75,10 @@ export function Login() {
         </div>
 
         <h2 className="text-2xl font-bold tracking-tight mb-2">
-          {mode === 'login' ? 'Bon retour !' : 'Créer un compte'}
+          {mode === 'login' ? t('login.welcome') : t('login.signup')}
         </h2>
         <p className="text-gray-400 font-bold text-sm mb-10">
-          {mode === 'login' ? 'Veuillez vous connecter à votre espace.' : 'Rejoignez la Clinique Veto-Care.'}
+          {mode === 'login' ? t('login.welcome_subtitle') : t('login.signup_subtitle')}
         </p>
 
         {error && (
@@ -90,7 +90,7 @@ export function Login() {
         <form onSubmit={handleAuth} className="space-y-6">
           {mode === 'signup' && (
             <div className="text-left space-y-2">
-              <label className="text-[10px] font-bold ml-1 uppercase tracking-widest text-gray-400">Nom complet</label>
+              <label className="text-[10px] font-bold ml-1 uppercase tracking-widest text-gray-400">{t('login.full_name')}</label>
               <input
                 type="text"
                 value={fullName}
@@ -103,7 +103,7 @@ export function Login() {
           )}
 
           <div className="text-left space-y-2">
-            <label className="text-[10px] font-bold ml-1 uppercase tracking-widest text-gray-400">Email</label>
+            <label className="text-[10px] font-bold ml-1 uppercase tracking-widest text-gray-400">{t('login.email')}</label>
             <input
               type="email"
               value={email}
@@ -115,7 +115,7 @@ export function Login() {
           </div>
 
           <div className="text-left space-y-2">
-            <label className="text-[10px] font-bold ml-1 uppercase tracking-widest text-gray-400">Mot de passe</label>
+            <label className="text-[10px] font-bold ml-1 uppercase tracking-widest text-gray-400">{t('login.password')}</label>
             <input
               type="password"
               value={password}
@@ -127,7 +127,7 @@ export function Login() {
           </div>
 
           <Button type="submit" className="w-full py-4 text-sm font-bold rounded-xl" variant="yellow" disabled={loading}>
-            {loading ? 'Chargement...' : mode === 'login' ? 'Se connecter' : "S'inscrire"}
+            {loading ? t('login.loading') : mode === 'login' ? t('login.submit_login') : t('login.submit_signup')}
           </Button>
 
           <div className="relative my-8">
@@ -135,7 +135,7 @@ export function Login() {
               <div className="w-full border-t border-gray-100"></div>
             </div>
             <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold">
-              <span className="bg-white px-2 text-gray-400">Ou continuer avec</span>
+              <span className="bg-white px-2 text-gray-400">{t('login.or')}</span>
             </div>
           </div>
 
@@ -161,7 +161,7 @@ export function Login() {
             onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
             className="text-gray-400 text-xs font-bold hover:text-black transition-colors uppercase tracking-widest"
           >
-            {mode === 'login' ? "Pas encore de compte ? S'inscrire" : 'Déjà un compte ? Se connecter'}
+            {mode === 'login' ? t('login.no_account') : t('login.has_account')}
           </button>
         </form>
       </div>

@@ -132,7 +132,7 @@ export function Navbar() {
                     onClick={installApp}
                   >
                     <Smartphone size={16} className="mr-2" />
-                    INSTALLER L'APP
+                    {t('nav.install_app')}
                   </Button>
                 )}
                 <Button 
@@ -140,14 +140,14 @@ export function Navbar() {
                   className="w-full font-bold py-4 rounded-xl text-[10px] uppercase tracking-widest" 
                   onClick={() => window.location.href = user ? '/dashboard' : '/login'}
                 >
-                  {user ? 'MON COMPTE' : 'CONNEXION'}
+                  {user ? t('nav.dashboard') : t('nav.login')}
                 </Button>
                 <Button 
                   variant="yellow" 
                   className="w-full font-bold py-4 rounded-xl text-[10px] uppercase tracking-widest" 
                   onClick={() => window.location.href = user ? '/dashboard' : '/login'}
                 >
-                  PRENDRE RDV
+                  {t('hero.cta')}
                 </Button>
               </div>
             </motion.div>

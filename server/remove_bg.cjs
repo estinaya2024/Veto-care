@@ -1,0 +1,1 @@
+const Jimp = require('jimp'); async function run() { const img = await Jimp.read(process.argv[2]); img.scan(0, 0, img.bitmap.width, img.bitmap.height, function(x,y,i) { if(this.bitmap.data[i]>240 && this.bitmap.data[i+1]>240 && this.bitmap.data[i+2]>240) { this.bitmap.data[i+3]=0; } }); await img.writeAsync(process.argv[3]); console.log('Done!'); } run().catch(console.error);

@@ -49,10 +49,10 @@ export function Hero() {
           <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-8">
             <div className="max-w-md text-center md:text-left">
               <h3 className="font-black text-xl md:text-2xl text-veto-black tracking-tight leading-tight mb-1">
-                Dog Walking & Pet Sitting Services
+                {t('hero.services_banner_title')}
               </h3>
               <p className="text-veto-gray font-bold text-base md:text-lg">
-                À travers <span className="underline decoration-veto-yellow decoration-2 cursor-pointer">Béjaïa, Algérie</span>
+                {t('hero.services_banner_location')}
               </p>
             </div>
           </div>
