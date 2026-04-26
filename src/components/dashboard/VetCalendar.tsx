@@ -268,24 +268,24 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
           events={events}
           selectable={true}
           selectMirror={true}
-          selectAllow={(selectInfo) => {
+          selectAllow={(selectInfo: any) => {
             const now = new Date();
             const buffer = 15 * 60 * 1000; 
             return new Date(selectInfo.start).getTime() >= (now.getTime() - buffer);
           }}
           longPressDelay={0}
-          select={handleSelect}
+          select={(info: any) => handleSelect(info)}
           locale={frLocale}
           height="auto"
           slotMinTime="08:00:00"
           slotMaxTime="20:00:00"
           allDaySlot={false}
-          eventClick={(info) => {
+          eventClick={(info: any) => {
             const { type, patients } = info.event.extendedProps;
             if (type === 'unavailability') handleDeleteEvent(info.event.id);
             if (type === 'appointment' && onSelectPatient) onSelectPatient(patients);
           }}
-          eventContent={(arg) => {
+          eventContent={(arg: any) => {
             const type = arg.event.extendedProps.type;
             const isApt = type === 'appointment';
             const status = arg.event.extendedProps.status;

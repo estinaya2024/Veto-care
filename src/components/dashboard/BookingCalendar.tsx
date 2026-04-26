@@ -284,14 +284,14 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
           selectMirror={true}
           unselectAuto={true}
           longPressDelay={0}
-          select={handleSelect}
-          eventClick={handleEventClick}
+          select={(info: any) => handleSelect(info)}
+          eventClick={(info: any) => handleEventClick(info)}
           locale={frLocale}
           height="auto"
           slotMinTime="08:00:00"
           slotMaxTime="20:00:00"
           allDaySlot={false}
-          selectAllow={(selectInfo) => {
+          selectAllow={(selectInfo: any) => {
             const now = new Date().getTime();
             const start = new Date(selectInfo.start).getTime();
             if (start < (now - 5 * 60 * 1000)) return false;
@@ -307,7 +307,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
               return (sStart < eEnd && sEnd > eStart);
             });
           }}
-          eventContent={(arg) => {
+          eventContent={(arg: any) => {
             const type = arg.event.extendedProps.type;
             const isMine = type === 'mine';
             const isBlocked = type === 'blocked';
