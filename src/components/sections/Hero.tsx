@@ -11,7 +11,7 @@ import { useI18n } from '../../context/I18nContext';
 export function Hero() {
   const { t } = useI18n();
   return (
-    <section className="relative w-full min-h-screen bg-[#E3EAF7] overflow-hidden flex flex-col justify-between">
+    <section className="relative w-full min-h-[85vh] md:min-h-screen bg-[#E3EAF7] overflow-hidden flex flex-col justify-between">
 
       {/* Background Dog Image */}
       <div className="absolute right-0 bottom-0 md:bottom-[10%] w-[80%] md:w-[60%] lg:w-[45%] flex items-end justify-end pointer-events-none z-0 translate-x-[15%] md:translate-x-[5%] lg:translate-x-[10%] opacity-40 md:opacity-90">
@@ -24,10 +24,10 @@ export function Hero() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 relative z-20 max-w-[1400px] mx-auto w-full px-6 md:px-16 pt-[120px] md:pt-[160px] pb-64 lg:pb-32 flex flex-col">
+      <div className="flex-1 relative z-20 max-w-[1400px] mx-auto w-full px-6 md:px-16 pt-24 md:pt-[160px] pb-32 md:pb-64 lg:pb-32 flex flex-col">
         {/* Left Typography */}
         <div className="max-w-4xl animate-fadeInRight text-center md:text-left">
-          <Heading className="mb-8 md:mb-12 text-[40px] sm:text-[60px] md:text-[80px] lg:text-[6.5rem] tracking-tighter leading-[0.9] font-black text-veto-black drop-shadow-sm whitespace-pre-line">
+          <Heading className="mb-6 md:mb-12 text-[40px] sm:text-[60px] md:text-[80px] lg:text-[6.5rem] tracking-tighter leading-[0.9] font-black text-veto-black drop-shadow-sm whitespace-pre-line">
             {t('hero.title')}
           </Heading>
 
