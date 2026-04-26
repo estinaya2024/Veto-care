@@ -7,6 +7,7 @@ import frLocale from '@fullcalendar/core/locales/fr';
 import { supabase } from '../../lib/supabase';
 import { api } from '../../lib/api';
 import { Button } from '../ui/Button';
+import { cn } from '../../lib/utils';
 import { X, Calendar as CalendarIcon, Clock, User, ShieldAlert, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
