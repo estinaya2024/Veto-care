@@ -21,6 +21,7 @@ import { fr } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
 import { cn } from '../../lib/utils';
 import { InvoiceViewer } from './InvoiceViewer';
+import { DocumentViewer } from './DocumentViewer';
 
 interface HealthRecordProps {
   pet: any;
@@ -30,6 +31,7 @@ interface HealthRecordProps {
 export function HealthRecord({ pet, onBack }: HealthRecordProps) {
   const [activeTab, setActiveTab] = useState<'history' | 'consultations' | 'imaging' | 'documents' | 'prescriptions'>('history');
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<any | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [documents, setDocuments] = useState<any[]>([]);
@@ -284,9 +286,12 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                       </div>
                       <div className="flex items-center gap-4">
                         {record.health_record_url && (
-                          <a href={record.health_record_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-1 bg-veto-yellow/10 text-veto-black text-[10px] font-black uppercase tracking-widest rounded-lg border border-veto-yellow/20 hover:bg-veto-yellow transition-all">
-                            <Download size={12} /> Voir Document
-                          </a>
+                          <button 
+                            onClick={() => setSelectedDoc({ url: record.health_record_url, name: `Compte-rendu - ${format(new Date(record.date_rdv), 'dd/MM/yyyy')}` })}
+                            className="flex items-center gap-2 px-3 py-1 bg-veto-yellow/10 text-veto-black text-[10px] font-black uppercase tracking-widest rounded-lg border border-veto-yellow/20 hover:bg-veto-yellow transition-all"
+                          >
+                            <Activity size={12} /> Voir Document
+                          </button>
                         )}
                         <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase", record.status === 'terminé' ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700")}>{record.status}</span>
                       </div>
@@ -367,7 +372,13 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                           </div>
                         </div>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                          <a href={doc.file_url} target="_blank" rel="noreferrer" className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-blue-600 shadow-sm"><Download size={16} /></a>
+                          <button 
+                            onClick={() => setSelectedDoc({ url: doc.file_url, name: doc.name })}
+                            className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-blue-600 shadow-sm"
+                          >
+                            <ImageIcon size={16} />
+                          </button>
+                          <a href={doc.file_url} download className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-veto-black shadow-sm"><Download size={16} /></a>
                           <button onClick={() => handleDeleteDoc(doc.id)} className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-red-600 shadow-sm"><Trash2 size={16} /></button>
                         </div>
                       </div>
@@ -389,7 +400,13 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                           </div>
                         </div>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                          <a href={doc.file_url} target="_blank" rel="noreferrer" className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-blue-600 shadow-sm"><Download size={16} /></a>
+                          <button 
+                            onClick={() => setSelectedDoc({ url: doc.file_url, name: doc.name })}
+                            className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-blue-600 shadow-sm"
+                          >
+                            <FileCheck size={16} />
+                          </button>
+                          <a href={doc.file_url} download className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-veto-black shadow-sm"><Download size={16} /></a>
                           <button onClick={() => handleDeleteDoc(doc.id)} className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-red-600 shadow-sm"><Trash2 size={16} /></button>
                         </div>
                       </div>
@@ -406,6 +423,13 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
           consultation={selectedInvoice} 
           petName={pet.name} 
           onClose={() => setSelectedInvoice(null)} 
+        />
+      )}
+      {selectedDoc && (
+        <DocumentViewer
+          url={selectedDoc.url}
+          name={selectedDoc.name}
+          onClose={() => setSelectedDoc(null)}
         />
       )}
     </div>
