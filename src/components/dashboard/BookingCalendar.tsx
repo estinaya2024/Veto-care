@@ -276,14 +276,14 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex p-1 bg-gray-50 rounded-xl border border-gray-100 shadow-inner mr-4">
-            <button onClick={() => navigate('prev')} className="p-2 hover:bg-white rounded-lg transition-all text-gray-400 hover:text-black">
+          <div className="flex items-center gap-1 bg-gray-50/80 backdrop-blur-md p-1 rounded-xl md:rounded-[2rem] border border-gray-100 shadow-inner mr-4">
+            <button onClick={() => navigate('prev')} className="p-2 rounded-lg md:rounded-2xl hover:bg-white text-gray-400 hover:text-black transition-all">
               <ChevronLeft size={18} />
             </button>
-            <button onClick={() => navigate('today')} className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black hover:bg-white rounded-lg transition-all">
+            <button onClick={() => navigate('today')} className="px-3 md:px-4 py-1.5 md:py-2 text-[10px] font-black uppercase tracking-widest text-black hover:bg-white rounded-lg md:rounded-2xl transition-all">
               Aujourd'hui
             </button>
-            <button onClick={() => navigate('next')} className="p-2 hover:bg-white rounded-lg transition-all text-gray-400 hover:text-black">
+            <button onClick={() => navigate('next')} className="p-2 rounded-lg md:rounded-2xl hover:bg-white text-gray-400 hover:text-black transition-all">
               <ChevronRight size={18} />
             </button>
           </div>
