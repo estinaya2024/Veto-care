@@ -7,7 +7,7 @@ import frLocale from '@fullcalendar/core/locales/fr';
 import { supabase } from '../../lib/supabase';
 import { api } from '../../lib/api';
 import { Button } from '../ui/Button';
-import { X, Calendar as CalendarIcon, Clock, User, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { X, Calendar as CalendarIcon, Clock, User, ShieldAlert, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
@@ -36,11 +36,36 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  // Using loading in the JSX below but adding a log for strict tsc
   console.log('VetCalendar sync state:', loading);
   const [selectedRange, setSelectedRange] = useState<{ start: string; end: string } | null>(null);
   const [reason, setReason] = useState('');
   const calendarRef = useRef<FullCalendar>(null);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [activeView, setActiveView] = useState<'dayGridMonth' | 'timeGridWeek' | 'timeGridDay'>(
+    window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek'
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const changeView = (view: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay') => {
+    setActiveView(view);
+    calendarRef.current?.getApi().changeView(view);
+  };
+
+  const navigate = (dir: 'prev' | 'next' | 'today') => {
+    const api = calendarRef.current?.getApi();
+    if (!api) return;
+    if (dir === 'prev') api.prev();
+    else if (dir === 'next') api.next();
+    else api.today();
+  };
 
   useEffect(() => {
     if (vetId) fetchData();
@@ -135,43 +160,102 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   };
 
   return (
-    <div className="bg-white rounded-[3.5rem] p-10 shadow-premium border border-gray-100 animate-fadeIn relative group/calendar min-h-[900px]">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-8 relative z-10">
-        <div className="flex items-center gap-6">
-          <div className="p-4 bg-gray-50 rounded-[1.5rem] shadow-sm border border-gray-100">
-            <CalendarIcon size={24} className="text-black" />
+    <div className="bg-white rounded-[2rem] md:rounded-[3.5rem] p-4 md:p-10 shadow-premium border border-gray-100 animate-fadeIn relative group/calendar min-h-[600px] md:min-h-[900px]">
+      {/* Header */}
+      <div className="flex flex-col gap-4 mb-6 md:mb-12 relative z-10">
+        {/* Title row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 md:gap-6">
+            <div className="p-2 md:p-4 bg-gray-50 rounded-xl md:rounded-[1.5rem] shadow-sm border border-gray-100">
+              <CalendarIcon size={isMobile ? 18 : 24} className="text-black" />
+            </div>
+            <div>
+              <h3 className="text-lg md:text-2xl font-black tracking-tighter text-black mb-0.5">Agenda Clinique</h3>
+              {!isMobile && (
+                <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-[10px]">
+                  Planification Interne & Gestion des Soins
+                </p>
+              )}
+            </div>
           </div>
-          <div>
-            <h3 className="text-2xl font-black tracking-tighter text-black mb-1">Agenda Clinique</h3>
-            <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-[10px]">
-               Planification Interne & Gestion des Soins
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex p-1.5 bg-gray-100/80 backdrop-blur-md rounded-[2rem] border border-white/50 shadow-sm">
-          <button 
-            onClick={() => calendarRef.current?.getApi().changeView('dayGridMonth')}
-            className="px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest hover:text-black transition-all text-gray-400"
-          >
-            Vue Mensuelle
-          </button>
-          <button 
-            onClick={() => calendarRef.current?.getApi().changeView('timeGridWeek')}
-            className="px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest bg-white text-black shadow-premium transition-all"
-          >
-            Hebdomadaire
-          </button>
-          <div className="w-[1px] h-6 bg-gray-200 mx-3 self-center"></div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={fetchData}
             loading={loading}
-            className="rounded-[1.5rem] px-6 py-3 h-auto text-[10px] font-black uppercase tracking-widest text-black hover:bg-veto-yellow transition-all"
+            className="rounded-xl md:rounded-[1.5rem] px-3 md:px-6 py-2 md:py-3 h-auto text-[10px] font-black uppercase tracking-widest text-black hover:bg-veto-yellow transition-all"
           >
-            Synchroniser
+            {isMobile ? '↻' : 'Synchroniser'}
           </Button>
+        </div>
+
+        {/* View toggle + nav row */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Prev / Today / Next navigation (mobile) */}
+          {isMobile && (
+            <div className="flex items-center gap-1">
+              <button onClick={() => navigate('prev')} className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all">
+                <ChevronLeft size={16} />
+              </button>
+              <button onClick={() => navigate('today')} className="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-[10px] font-black uppercase tracking-widest transition-all">
+                Auj.
+              </button>
+              <button onClick={() => navigate('next')} className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all">
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
+
+          {/* View switcher */}
+          <div className="flex p-1 bg-gray-100/80 backdrop-blur-md rounded-xl md:rounded-[2rem] border border-white/50 shadow-sm ml-auto">
+            {isMobile ? (
+              <>
+                <button
+                  onClick={() => changeView('timeGridDay')}
+                  className={`px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeView === 'timeGridDay' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'
+                  }`}
+                >
+                  Jour
+                </button>
+                <button
+                  onClick={() => changeView('dayGridMonth')}
+                  className={`px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeView === 'dayGridMonth' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'
+                  }`}
+                >
+                  Mois
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => changeView('dayGridMonth')}
+                  className={`px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeView === 'dayGridMonth' ? 'bg-white text-black shadow-premium' : 'text-gray-400 hover:text-black'
+                  }`}
+                >
+                  Mensuelle
+                </button>
+                <button
+                  onClick={() => changeView('timeGridWeek')}
+                  className={`px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeView === 'timeGridWeek' ? 'bg-white text-black shadow-premium' : 'text-gray-400 hover:text-black'
+                  }`}
+                >
+                  Hebdomadaire
+                </button>
+                <button
+                  onClick={() => changeView('timeGridDay')}
+                  className={`px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeView === 'timeGridDay' ? 'bg-white text-black shadow-premium' : 'text-gray-400 hover:text-black'
+                  }`}
+                >
+                  Journée
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -179,7 +263,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="timeGridWeek"
+          initialView={isMobile ? 'timeGridDay' : 'timeGridWeek'}
           headerToolbar={false}
           events={events}
           selectable={true}
@@ -289,6 +373,19 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
         .vet-calendar-theme .fc-timegrid-event-harness { margin: 4px !important; }
         .vet-calendar-theme .fc-col-header-cell { padding: 20px 0 !important; background: transparent !important; }
         .vet-calendar-theme .fc-col-header-cell-cushion { font-size: 11px !important; font-weight: 900 !important; color: #000 !important; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* ── Mobile overrides ── */
+        @media (max-width: 767px) {
+          .vet-calendar-theme .fc-timegrid-slot { height: 3.5rem !important; }
+          .vet-calendar-theme .fc-col-header-cell { padding: 10px 0 !important; }
+          .vet-calendar-theme .fc-col-header-cell-cushion { font-size: 9px !important; letter-spacing: 0.05em; }
+          .vet-calendar-theme .fc-timegrid-axis { width: 36px !important; }
+          .vet-calendar-theme .fc-timegrid-slot-label-cushion { font-size: 9px !important; font-weight: 900; color: #9ca3af; }
+          .vet-calendar-theme .fc-timegrid-event-harness { margin: 2px !important; }
+          .vet-calendar-theme .fc-event { border-radius: 8px; }
+          .vet-calendar-theme .fc-daygrid-day-number { font-size: 11px !important; font-weight: 900; }
+          .vet-calendar-theme .fc-daygrid-event { font-size: 9px !important; }
+        }
       `}</style>
     </div>
   );
