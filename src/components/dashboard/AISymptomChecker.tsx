@@ -83,7 +83,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
         <div className="bg-white/95 backdrop-blur-xl border border-gray-100 shadow-2xl rounded-3xl w-[350px] sm:w-[400px] h-[500px] mb-4 flex flex-col overflow-hidden animate-fadeInUp">
 
           {/* Header */}
-          <div className="bg-gradient-to-r from-veto-black to-gray-800 p-4 text-white flex justify-between items-center rounded-t-3xl">
+          <div className="bg-veto-black p-4 text-white flex justify-between items-center rounded-t-3xl">
             <div className="flex items-center gap-3">
               <div className="p-0.5 bg-veto-yellow rounded-full flex items-center justify-center">
                 <img src={aiPawIcon} alt="AI" className="w-8 h-8 object-contain scale-125" />

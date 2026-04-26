@@ -310,7 +310,6 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             if (!isApt) {
               return (
                 <div className="w-full h-full bg-veto-black rounded-xl p-3 flex flex-col justify-center relative overflow-hidden group">
-                  <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)', backgroundSize: '10px 10px' }}></div>
                   <div className="flex items-center gap-2 relative z-10">
                     <ShieldAlert size={14} className="text-gray-400" />
                     <span className="text-[10px] font-black text-white uppercase tracking-tighter">Indisponible</span>
