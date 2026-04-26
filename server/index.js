@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
 
 dotenv.config();
 
@@ -137,24 +137,30 @@ app.post('/api/appointments/check-conflict', async (req, res) => {
   res.json({ conflict: isBlocked, reason: isBlocked ? 'blocked' : null });
 });
 
-// --- AI Integration ---
+// --- AI Integration (Naga AI) ---
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const openai = new OpenAI({
+  baseURL: 'https://api.naga.ac/v1',
+  apiKey: process.env.NAGA_API_KEY || '',
+});
 
 app.post('/api/chat', async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'Message is required' });
 
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      systemInstruction: "Vous êtes un assistant vétérinaire virtuel pour la clinique VetoCare. Votre but est de rassurer les propriétaires d'animaux, de donner des conseils de base sur les symptômes décrits, et de toujours, à la fin, conseiller fermement de prendre un rendez-vous à la clinique pour un diagnostic précis par un vétérinaire. Soyez professionnel, emphatique, et concis."
+    const response = await openai.chat.completions.create({
+      model: 'gemini-2.5-flash',
+      messages: [
+        { 
+          role: 'system', 
+          content: "Vous êtes un assistant vétérinaire virtuel pour la clinique VetoCare. Votre but est de rassurer les propriétaires d'animaux, de donner des conseils de base sur les symptômes décrits, et de toujours, à la fin, conseiller fermement de prendre un rendez-vous à la clinique pour un diagnostic précis par un vétérinaire. Soyez professionnel, emphatique, et concis." 
+        },
+        { role: 'user', content: message }
+      ],
     });
 
-    const result = await model.generateContent(message);
-    const response = await result.response;
-    const text = response.text();
-    
+    const text = response.choices[0].message.content;
     res.json({ reply: text });
   } catch (error) {
     console.error('AI Error:', error);
