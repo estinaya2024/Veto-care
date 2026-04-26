@@ -45,7 +45,9 @@ function AppContent() {
         />
       </Routes>
       {!hideNavbar && <Footer />}
-      <AISymptomChecker onBookAppointment={() => window.location.href = '/login'} />
+      {location.pathname === '/' && (
+        <AISymptomChecker onBookAppointment={() => window.location.href = '/login'} />
+      )}
     </div>
   );
 }
