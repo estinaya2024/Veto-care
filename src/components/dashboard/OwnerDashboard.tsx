@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { BookingCalendar } from './BookingCalendar';
 import { HealthRecord } from './HealthRecord';
+import { AISymptomChecker } from './AISymptomChecker';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';
@@ -366,6 +367,9 @@ export function OwnerDashboard() {
           </div>
         </div>
       )}
+
+      {/* AI Symptom Checker Floating Widget */}
+      <AISymptomChecker onBookAppointment={() => setShowBooking(true)} />
     </div>
   );
 }
