@@ -85,7 +85,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
           {/* Header */}
           <div className="bg-gradient-to-r from-veto-black to-gray-800 p-4 text-white flex justify-between items-center rounded-t-3xl">
             <div className="flex items-center gap-3">
-              <div className="p-0.5 bg-white rounded-full flex items-center justify-center">
+              <div className="p-0.5 bg-veto-yellow rounded-full flex items-center justify-center">
                 <img src={aiPawIcon} alt="AI" className="w-8 h-8 object-contain scale-125" />
               </div>
               <div>
@@ -180,7 +180,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-white text-veto-black p-2 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] hover:scale-105 transition-transform flex items-center justify-center relative group border border-gray-100"
+          className="bg-veto-yellow text-veto-black p-2 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] hover:scale-105 transition-transform flex items-center justify-center relative group border-2 border-white"
         >
           <img src={aiPawIcon} alt="AI" className="w-16 h-16 object-contain scale-125" />
 
