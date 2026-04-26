@@ -280,6 +280,28 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
           slotMinTime="08:00:00"
           slotMaxTime="20:00:00"
           allDaySlot={false}
+          nowIndicator={true}
+          scrollTime={format(new Date(), 'HH:00:00')}
+          dayHeaderContent={(arg: any) => {
+            const isToday = arg.isToday;
+            return (
+              <div className={cn("flex flex-col items-center gap-1 py-2", isToday ? "text-veto-yellow" : "text-black")}>
+                <span className="text-[10px] font-black uppercase tracking-widest">{format(arg.date, 'EEE', { locale: fr })}</span>
+                <div className={cn("w-8 h-8 flex items-center justify-center rounded-full text-sm font-black transition-all", isToday ? "bg-veto-yellow text-black shadow-lg shadow-veto-yellow/20 scale-110" : "text-gray-400")}>
+                  {format(arg.date, 'd')}
+                </div>
+                {isToday && (
+                  <motion.span 
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-[8px] font-black bg-veto-yellow text-black px-2 py-0.5 rounded-full tracking-tighter"
+                  >
+                    LIVE
+                  </motion.span>
+                )}
+              </div>
+            );
+          }}
           eventClick={(info: any) => {
             const { type, patients } = info.event.extendedProps;
             if (type === 'unavailability') handleDeleteEvent(info.event.id);
@@ -373,6 +395,24 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
         .vet-calendar-theme .fc-timegrid-event-harness { margin: 4px !important; }
         .vet-calendar-theme .fc-col-header-cell { padding: 20px 0 !important; background: transparent !important; }
         .vet-calendar-theme .fc-col-header-cell-cushion { font-size: 11px !important; font-weight: 900 !important; color: #000 !important; text-transform: uppercase; letter-spacing: 0.1em; }
+        
+        .vet-calendar-theme .fc-day-today { 
+          background: rgba(255, 213, 0, 0.02) !important;
+        }
+        .vet-calendar-theme .fc-timegrid-col.fc-day-today {
+          box-shadow: inset 0 0 60px rgba(255, 213, 0, 0.04);
+          border-left: 2px solid rgba(255, 213, 0, 0.1) !important;
+          border-right: 2px solid rgba(255, 213, 0, 0.1) !important;
+        }
+        .vet-calendar-theme .fc-now-indicator-line {
+          border-color: #FFD500 !important;
+          border-width: 2px !important;
+        }
+        .vet-calendar-theme .fc-now-indicator-arrow {
+          border-color: #FFD500 !important;
+          border-top-color: transparent !important;
+          border-bottom-color: transparent !important;
+        }
 
         /* ── Mobile overrides ── */
         @media (max-width: 767px) {
