@@ -3,6 +3,7 @@ import { Bot, X, Send, Sparkles, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
 import { api } from '../../lib/api';
+import aiPawIcon from '../../assets/ai_paw.png';
 
 type Message = {
   id: string;
@@ -52,7 +53,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
 
     try {
       const response = await api.chatSymptom(userMsg.text);
-      
+
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
@@ -80,12 +81,12 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
       {/* Chat Window */}
       {isOpen && (
         <div className="bg-white/95 backdrop-blur-xl border border-gray-100 shadow-2xl rounded-3xl w-[350px] sm:w-[400px] h-[500px] mb-4 flex flex-col overflow-hidden animate-fadeInUp">
-          
+
           {/* Header */}
           <div className="bg-gradient-to-r from-veto-black to-gray-800 p-4 text-white flex justify-between items-center rounded-t-3xl">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/10 rounded-full">
-                <Bot size={20} className="text-veto-yellow" />
+              <div className="p-1 bg-white/10 rounded-full flex items-center justify-center">
+                <img src={aiPawIcon} alt="AI" className="w-5 h-5 object-contain" />
               </div>
               <div>
                 <h3 className="font-bold text-sm">Assistant Santé IA</h3>
@@ -94,7 +95,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
                 </p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => setIsOpen(false)}
               className="p-2 hover:bg-white/10 rounded-full transition-colors"
             >
@@ -105,28 +106,28 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
             {messages.map((msg) => (
-              <div 
-                key={msg.id} 
+              <div
+                key={msg.id}
                 className={cn(
                   "flex max-w-[85%]",
                   msg.sender === 'user' ? "ml-auto justify-end" : "mr-auto justify-start"
                 )}
               >
-                <div 
+                <div
                   className={cn(
                     "p-3 rounded-2xl text-sm shadow-sm",
-                    msg.sender === 'user' 
-                      ? "bg-veto-yellow text-veto-black rounded-br-sm font-medium" 
+                    msg.sender === 'user'
+                      ? "bg-veto-yellow text-veto-black rounded-br-sm font-medium"
                       : "bg-white border border-gray-100 text-gray-700 rounded-bl-sm"
                   )}
                 >
                   <p>{msg.text}</p>
-                  
+
                   {msg.showAction && (
                     <div className="mt-3 pt-3 border-t border-gray-100">
-                      <Button 
-                        size="sm" 
-                        variant="black" 
+                      <Button
+                        size="sm"
+                        variant="black"
                         className="w-full text-xs py-2 shadow-premium"
                         onClick={() => {
                           setIsOpen(false);
@@ -141,7 +142,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
                 </div>
               </div>
             ))}
-            
+
             {isTyping && (
               <div className="flex mr-auto justify-start max-w-[85%]">
                 <div className="p-4 bg-white border border-gray-100 rounded-2xl rounded-bl-sm shadow-sm flex gap-1 items-center">
@@ -156,14 +157,14 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
 
           {/* Input Area */}
           <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-50 flex gap-2 items-center">
-            <input 
-              type="text" 
-              placeholder="Décrivez les symptômes..." 
+            <input
+              type="text"
+              placeholder="Décrivez les symptômes..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-veto-yellow transition-all"
             />
-            <button 
+            <button
               type="submit"
               disabled={!inputText.trim() || isTyping}
               className="p-3 bg-veto-black text-white rounded-full hover:bg-gray-800 disabled:opacity-50 disabled:hover:bg-veto-black transition-colors"
@@ -177,17 +178,17 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
 
       {/* Floating Action Button */}
       {!isOpen && (
-        <button 
+        <button
           onClick={() => setIsOpen(true)}
-          className="bg-veto-black text-white p-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] hover:scale-105 transition-transform flex items-center justify-center relative group"
+          className="bg-veto-black text-white p-3 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] hover:scale-105 transition-transform flex items-center justify-center relative group"
         >
-          <Sparkles size={24} className="text-veto-yellow" />
-          
+          <img src={aiPawIcon} alt="AI" className="w-8 h-8 object-contain" />
+
           {/* Tooltip / Badge */}
           <span className="absolute -top-10 right-0 bg-white text-veto-black text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
             Assistant IA
           </span>
-          
+
           {/* Notification Dot */}
           <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-veto-black"></span>
         </button>
