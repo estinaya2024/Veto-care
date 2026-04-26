@@ -150,7 +150,7 @@ app.post('/api/chat', async (req, res) => {
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash:free',
       messages: [
         { 
           role: 'system', 
@@ -164,7 +164,7 @@ app.post('/api/chat', async (req, res) => {
     res.json({ reply: text });
   } catch (error) {
     console.error('AI Error:', error);
-    res.status(500).json({ error: "Erreur lors de la communication avec l'assistant IA." });
+    res.status(500).json({ error: "Erreur lors de la communication avec l'assistant IA.", details: error.message, stack: error.stack });
   }
 });
 
