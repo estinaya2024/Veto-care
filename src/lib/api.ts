@@ -335,5 +335,9 @@ export const api = {
     const { data, error } = await supabase.rpc('check_in_patient', { appointment_id: id });
     if (error) throw error;
     return data;
+  },
+
+  async chatSymptom(message: string) {
+    return this.post('/chat', { message });
   }
 };

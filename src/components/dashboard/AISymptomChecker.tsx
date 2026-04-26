@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send, Sparkles, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { cn } from '../../lib/utils';
+import { api } from '../../lib/api';
 
 type Message = {
   id: string;
@@ -35,7 +36,7 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
 
@@ -49,30 +50,29 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
     setInputText('');
     setIsTyping(true);
 
-    // Mock AI Response Logic
-    setTimeout(() => {
-      setIsTyping(false);
+    try {
+      const response = await api.chatSymptom(userMsg.text);
       
-      const textLower = userMsg.text.toLowerCase();
-      let replyText = "Je comprends. Bien que je sois une IA, ces symptômes méritent l'attention d'un vétérinaire pour un diagnostic précis.";
-      
-      if (textLower.includes('vomit') || textLower.includes('vomissement')) {
-        replyText = "Les vomissements peuvent être causés par une simple indigestion ou quelque chose de plus sérieux (comme une intoxication). Assurez-vous qu'il reste hydraté. Une consultation est fortement recommandée.";
-      } else if (textLower.includes('boite') || textLower.includes('patte')) {
-        replyText = "Une boiterie peut indiquer une entorse, une épine dans le coussinet, ou un problème articulaire. Évitez les longues promenades jusqu'à ce qu'un vétérinaire l'examine.";
-      } else if (textLower.includes('gratte') || textLower.includes('démangeaison')) {
-        replyText = "Les démangeaisons sont souvent liées à des allergies (puces, alimentaires ou environnementales). Un vétérinaire pourra prescrire un traitement pour le soulager rapidement.";
-      }
-
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        text: replyText,
-        showAction: true,
+        text: response.reply || "Je suis désolé, je n'ai pas pu analyser ces symptômes.",
+        showAction: true, // Toujours encourager la prise de RDV
       };
 
       setMessages((prev) => [...prev, aiMsg]);
-    }, 1500); // Simulate network delay
+    } catch (error) {
+      console.error('Error fetching AI response:', error);
+      const errorMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: 'ai',
+        text: "Désolé, il y a eu un problème de connexion avec l'IA. Veuillez réessayer plus tard ou prendre rendez-vous directement.",
+        showAction: true,
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   return (
