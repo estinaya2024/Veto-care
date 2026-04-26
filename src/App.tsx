@@ -11,6 +11,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthProvider';
 import { I18nProvider } from './context/I18nContext';
+import { AISymptomChecker } from './components/dashboard/AISymptomChecker';
 
 function Home() {
   return (
@@ -44,6 +45,7 @@ function AppContent() {
         />
       </Routes>
       {!hideNavbar && <Footer />}
+      <AISymptomChecker onBookAppointment={() => window.location.href = '/login'} />
     </div>
   );
 }
