@@ -88,7 +88,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
         title: `RDV: ${apt.patients?.name}`,
         start: apt.date_rdv,
         end: new Date(new Date(apt.date_rdv).getTime() + 30 * 60000).toISOString(),
-        backgroundColor: '#FFD500', 
+        backgroundColor: '#FFD500',
         borderColor: 'transparent',
         textColor: '#000000',
         extendedProps: { type: 'appointment', ...apt }
@@ -99,7 +99,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
         title: un.motif || 'Indisponible',
         start: un.start_time,
         end: un.end_time,
-        backgroundColor: '#111111', 
+        backgroundColor: '#111111',
         borderColor: 'transparent',
         textColor: '#ffffff',
         extendedProps: { type: 'unavailability', ...un }
@@ -212,17 +212,15 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
               <>
                 <button
                   onClick={() => changeView('timeGridDay')}
-                  className={`px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeView === 'timeGridDay' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'
-                  }`}
+                  className={`px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeView === 'timeGridDay' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'
+                    }`}
                 >
                   Jour
                 </button>
                 <button
                   onClick={() => changeView('dayGridMonth')}
-                  className={`px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeView === 'dayGridMonth' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'
-                  }`}
+                  className={`px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeView === 'dayGridMonth' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-black'
+                    }`}
                 >
                   Mois
                 </button>
@@ -231,25 +229,22 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
               <>
                 <button
                   onClick={() => changeView('dayGridMonth')}
-                  className={`px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeView === 'dayGridMonth' ? 'bg-white text-black shadow-premium' : 'text-gray-400 hover:text-black'
-                  }`}
+                  className={`px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeView === 'dayGridMonth' ? 'bg-white text-black shadow-premium' : 'text-gray-400 hover:text-black'
+                    }`}
                 >
                   Mensuelle
                 </button>
                 <button
                   onClick={() => changeView('timeGridWeek')}
-                  className={`px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeView === 'timeGridWeek' ? 'bg-white text-black shadow-premium' : 'text-gray-400 hover:text-black'
-                  }`}
+                  className={`px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeView === 'timeGridWeek' ? 'bg-white text-black shadow-premium' : 'text-gray-400 hover:text-black'
+                    }`}
                 >
                   Hebdomadaire
                 </button>
                 <button
                   onClick={() => changeView('timeGridDay')}
-                  className={`px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeView === 'timeGridDay' ? 'bg-white text-black shadow-premium' : 'text-gray-400 hover:text-black'
-                  }`}
+                  className={`px-6 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeView === 'timeGridDay' ? 'bg-white text-black shadow-premium' : 'text-gray-400 hover:text-black'
+                    }`}
                 >
                   Journée
                 </button>
@@ -270,7 +265,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
           selectMirror={true}
           selectAllow={(selectInfo: any) => {
             const now = new Date();
-            const buffer = 15 * 60 * 1000; 
+            const buffer = 15 * 60 * 1000;
             return new Date(selectInfo.start).getTime() >= (now.getTime() - buffer);
           }}
           longPressDelay={0}
@@ -291,7 +286,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
                   {format(arg.date, 'd')}
                 </div>
                 {isToday && (
-                  <motion.span 
+                  <motion.span
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="text-[8px] font-black bg-veto-yellow text-black px-2 py-0.5 rounded-full tracking-tighter"
@@ -311,7 +306,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             const type = arg.event.extendedProps.type;
             const isApt = type === 'appointment';
             const status = arg.event.extendedProps.status;
-            
+
             if (!isApt) {
               return (
                 <div className="w-full h-full bg-veto-black rounded-xl p-3 flex flex-col justify-center relative overflow-hidden group">
@@ -328,15 +323,15 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             return (
               <div className="w-full h-full bg-white rounded-xl p-3 flex flex-col justify-between shadow-[0_10px_20px_rgba(0,0,0,0.05)] border border-gray-100 group transition-all hover:scale-[1.02]">
                 <div className="flex items-center justify-between">
-                   <div className="flex items-center gap-2">
-                      <User size={14} className="text-veto-yellow" />
-                      <span className="text-[11px] font-black text-black uppercase tracking-tighter truncate max-w-[80px]">{arg.event.title}</span>
-                   </div>
-                   {status === 'confirmé' && <CheckCircle2 size={14} className="text-green-500" />}
+                  <div className="flex items-center gap-2">
+                    <User size={14} className="text-veto-yellow" />
+                    <span className="text-[11px] font-black text-black uppercase tracking-tighter truncate max-w-[80px]">{arg.event.title}</span>
+                  </div>
+                  {status === 'confirmé' && <CheckCircle2 size={14} className="text-green-500" />}
                 </div>
                 <div className="flex justify-between items-end">
-                   <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{status || 'En attente'}</span>
-                   <span className="text-[10px] font-black text-black">{format(new Date(arg.event.start!), 'HH:mm')}</span>
+                  <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{status || 'En attente'}</span>
+                  <span className="text-[10px] font-black text-black">{format(new Date(arg.event.start!), 'HH:mm')}</span>
                 </div>
               </div>
             );
@@ -353,26 +348,26 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
                 <X size={24} />
               </button>
               <div className="mb-10 text-center">
-                 <h3 className="text-3xl font-black tracking-tighter mb-2 text-black">Indisponibilité</h3>
-                 <p className="font-black text-gray-400 uppercase text-[9px] tracking-[0.2em]">Blocage Manuel du Planning</p>
+                <h3 className="text-3xl font-black tracking-tighter mb-2 text-black">Indisponibilité</h3>
+                <p className="font-black text-gray-400 uppercase text-[9px] tracking-[0.2em]">Blocage Manuel du Planning</p>
               </div>
-              
+
               <div className="space-y-8">
                 <div className="p-6 bg-gray-50 rounded-[2rem] border border-gray-100 space-y-4 shadow-inner">
-                   <div className="flex items-center gap-4 text-black font-black">
-                      <div className="p-2 bg-white rounded-xl shadow-sm"><CalendarIcon size={18} className="text-veto-yellow" /></div>
-                      <span className="text-sm">{format(new Date(selectedRange!.start), 'EEEE d MMMM', { locale: fr })}</span>
-                   </div>
-                   <div className="flex items-center gap-4 text-black font-black">
-                      <div className="p-2 bg-white rounded-xl shadow-sm"><Clock size={18} className="text-veto-yellow" /></div>
-                      <span className="text-sm">De {format(new Date(selectedRange!.start), 'HH:mm')} à {format(new Date(selectedRange!.end), 'HH:mm')}</span>
-                   </div>
+                  <div className="flex items-center gap-4 text-black font-black">
+                    <div className="p-2 bg-white rounded-xl shadow-sm"><CalendarIcon size={18} className="text-veto-yellow" /></div>
+                    <span className="text-sm">{format(new Date(selectedRange!.start), 'EEEE d MMMM', { locale: fr })}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-black font-black">
+                    <div className="p-2 bg-white rounded-xl shadow-sm"><Clock size={18} className="text-veto-yellow" /></div>
+                    <span className="text-sm">De {format(new Date(selectedRange!.start), 'HH:mm')} à {format(new Date(selectedRange!.end), 'HH:mm')}</span>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
                   <label className="text-[10px] font-black ml-2 text-gray-400 uppercase tracking-[0.2em]">Motif de l'absence</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     placeholder="Ex: Conférence, Chirurgie, Pause..."
@@ -381,7 +376,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
                 </div>
 
                 <Button onClick={handleBlockSlot} className="w-full py-6 text-[11px] font-black uppercase tracking-widest rounded-2xl shadow-premium" variant="yellow">
-                   Confirmer le blocage
+                  Confirmer le blocage
                 </Button>
               </div>
             </motion.div>
