@@ -147,7 +147,7 @@ app.post('/api/chat', async (req, res) => {
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       systemInstruction: "Vous êtes un assistant vétérinaire virtuel pour la clinique VetoCare. Votre but est de rassurer les propriétaires d'animaux, de donner des conseils de base sur les symptômes décrits, et de toujours, à la fin, conseiller fermement de prendre un rendez-vous à la clinique pour un diagnostic précis par un vétérinaire. Soyez professionnel, emphatique, et concis."
     });
 
@@ -168,3 +168,5 @@ app.listen(PORT, '0.0.0.0', () => {
 
 
 // Trigger Restart
+
+// Trigger Restart 2
