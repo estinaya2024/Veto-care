@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X, Smartphone } from 'lucide-react';
 import { Button } from '../ui/Button';
 import logo from '../../assets/images/logo-icon-only.png';
 import { useAuth } from '../../hooks/useAuth';
 import { useI18n } from '../../context/I18nContext';
+import { usePWA } from '../../hooks/usePWA';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function Navbar() {
   const { user } = useAuth();
   const { language, setLanguage, t } = useI18n();
+  const { installPrompt, installApp } = usePWA();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -43,6 +45,16 @@ export function Navbar() {
 
       {/* Right Content */}
       <div className="flex flex-1 items-center justify-end gap-3 xl:gap-5">
+        {installPrompt && (
+          <button 
+            onClick={installApp}
+            className="hidden sm:flex items-center gap-2 p-2 px-3 text-[10px] font-black hover:text-veto-yellow transition-colors border border-black/10 rounded-lg bg-white/50 backdrop-blur-sm"
+          >
+            <Smartphone size={14} />
+            APP
+          </button>
+        )}
+
         <button 
           onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
           className="p-2 text-[10px] font-black hover:text-veto-yellow transition-colors border border-black/10 rounded-lg bg-white/50 backdrop-blur-sm"
@@ -113,6 +125,16 @@ export function Navbar() {
               </div>
 
               <div className="mt-auto space-y-4">
+                {installPrompt && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full font-bold py-4 rounded-xl text-[10px] uppercase tracking-widest border-black" 
+                    onClick={installApp}
+                  >
+                    <Smartphone size={16} className="mr-2" />
+                    INSTALLER L'APP
+                  </Button>
+                )}
                 <Button 
                   variant="black" 
                   className="w-full font-bold py-4 rounded-xl text-[10px] uppercase tracking-widest" 
