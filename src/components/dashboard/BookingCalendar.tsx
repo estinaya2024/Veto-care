@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import { supabase } from '../../lib/supabase';
-import { Calendar as CalendarIcon, Clock, X, Zap, ShieldCheck, FileText, Upload } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, X, Zap, ShieldCheck, FileText, Upload, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Button } from '../ui/Button';
@@ -48,6 +48,20 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
   const [vets, setVets] = useState<any[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [activeView, setActiveView] = useState<'timeGridWeek' | 'dayGridMonth'>('timeGridWeek');
+
+  const navigate = (dir: 'prev' | 'next' | 'today') => {
+    const api = calendarRef.current?.getApi();
+    if (!api) return;
+    if (dir === 'prev') api.prev();
+    else if (dir === 'next') api.next();
+    else api.today();
+  };
+
+  const changeView = (view: 'timeGridWeek' | 'dayGridMonth') => {
+    setActiveView(view);
+    calendarRef.current?.getApi().changeView(view);
+  };
 
   useEffect(() => {
     fetchData();
@@ -262,6 +276,33 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
+          <div className="flex p-1 bg-gray-50 rounded-xl border border-gray-100 shadow-inner mr-4">
+            <button onClick={() => navigate('prev')} className="p-2 hover:bg-white rounded-lg transition-all text-gray-400 hover:text-black">
+              <ChevronLeft size={18} />
+            </button>
+            <button onClick={() => navigate('today')} className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-black hover:bg-white rounded-lg transition-all">
+              Aujourd'hui
+            </button>
+            <button onClick={() => navigate('next')} className="p-2 hover:bg-white rounded-lg transition-all text-gray-400 hover:text-black">
+              <ChevronRight size={18} />
+            </button>
+          </div>
+
+          <div className="flex p-1 bg-gray-50 rounded-xl border border-gray-100 shadow-inner mr-8">
+            <button 
+              onClick={() => changeView('timeGridWeek')} 
+              className={cn("px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all", activeView === 'timeGridWeek' ? "bg-white text-black shadow-sm" : "text-gray-400 hover:text-black")}
+            >
+              Semaine
+            </button>
+            <button 
+              onClick={() => changeView('dayGridMonth')} 
+              className={cn("px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all", activeView === 'dayGridMonth' ? "bg-white text-black shadow-sm" : "text-gray-400 hover:text-black")}
+            >
+              Mois
+            </button>
+          </div>
+
           <div className="flex items-center gap-3 px-6 py-3 bg-gray-50 rounded-2xl border border-gray-100 text-[10px] font-black uppercase tracking-widest transition-all">
             <div className="w-3 h-3 rounded-full bg-veto-yellow shadow-premium"></div>
             <span className="text-black">Mes Demandes</span>
