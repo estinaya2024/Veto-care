@@ -32,10 +32,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
   };
 
+  const VET_EMAILS = ['a_karou@estin.dz', 'yboucherir@gmail.com'];
+
   const value = {
     user,
     session,
-    role: user?.email === 'a_karou@estin.dz' 
+    role: VET_EMAILS.includes(user?.email || '') 
       ? 'vet' 
       : (user?.user_metadata?.role as 'owner' | 'vet') || 'owner',
     loading,
