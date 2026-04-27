@@ -258,3 +258,11 @@ DROP POLICY IF EXISTS "Docs Delete Access" ON storage.objects;
 DROP POLICY IF EXISTS "Permissive Storage All" ON storage.objects;
 CREATE POLICY "Permissive Storage All" ON storage.objects 
 FOR ALL USING (bucket_id = 'health-records') WITH CHECK (bucket_id = 'health-records');
+
+-- ==========================================
+-- REALTIME CONFIGURATION
+-- ==========================================
+-- This enables instant updates for calendars and availability
+DROP PUBLICATION IF EXISTS supabase_realtime;
+CREATE PUBLICATION supabase_realtime FOR TABLE public.rendez_vous, public.indisponibilites_vet;
+
