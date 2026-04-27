@@ -40,19 +40,26 @@ app.post('/api/remove-bg', upload.single('image'), (req, res) => {
 
   const inputPath = req.file.path;
   const outputPath = `${inputPath}_out.png`;
-  const scriptPath = path.join(__dirname, '..', 'rembg.py');
+  const scriptPath = path.join(__dirname, '..', 'remove_bg.py');
 
   // Ensure absolute paths for safety
   const absInput = path.resolve(inputPath);
   const absOutput = path.resolve(outputPath);
 
+  console.log(`AI Processing started for: ${absInput}`);
+
   exec(`python "${scriptPath}" "${absInput}" "${absOutput}"`, (error, stdout, stderr) => {
     if (error) {
-      console.error(`AI Background Removal Error: ${error.message}`);
+      console.error(`AI Background Removal EXEC Error: ${error.message}`);
+      console.error(`AI Background Removal STDERR: ${stderr}`);
       if (fs.existsSync(absInput)) fs.unlinkSync(absInput);
-      return res.status(500).json({ error: 'Failed to process image background' });
+      return res.status(500).json({ 
+        error: 'Failed to process image background',
+        details: stderr || error.message 
+      });
     }
     
+    console.log(`AI Processing success: ${absOutput}`);
     res.sendFile(absOutput, () => {
       // Cleanup temp files after sending
       if (fs.existsSync(absInput)) fs.unlinkSync(absInput);
