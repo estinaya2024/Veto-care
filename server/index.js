@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import multer from 'multer';
 import { exec } from 'child_process';
 import path from 'path';
@@ -183,36 +182,106 @@ app.post('/api/appointments/check-conflict', async (req, res) => {
   res.json({ conflict: isBlocked, reason: isBlocked ? 'blocked' : null });
 });
 
-// --- AI Integration ---
+// --- OpenRouter AI Integration ---
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const FREE_MODELS = [
+  'google/gemma-4-26b-a4b-it:free',
+  'google/gemma-3-27b-it:free',
+  'google/gemma-4-31b-it:free'
+];
+
+const conversations = new Map();
 
 app.post('/api/chat', async (req, res) => {
-  const { message, history } = req.body;
+  const { message, history, sessionId } = req.body;
   if (!message) return res.status(400).json({ error: 'Message is required' });
 
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'OpenRouter API key not configured' });
+  }
+
+  const conversationId = sessionId || 'default';
+  let conversation = conversations.get(conversationId);
+
+  if (!conversation) {
+    conversation = [];
+    conversations.set(conversationId, conversation);
+  }
+
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-flash-latest',
-      systemInstruction: "Vous êtes l'assistant IA de VetoCare. Aidez avec les symptômes animaux et guidez sur le site (carnet, rdv, dashboard). Soyez concis."
-    });
+    const systemMessage = {
+      role: 'system',
+      content: "Vous êtes l'assistant IA de VetoCare. Aidez avec les symptômes animaux et guidez sur le site (carnet, rdv, dashboard). Soyez concis."
+    };
 
-    // Format history for Gemini SDK
-    // Gemini expects: { role: 'user'|'model', parts: [{ text: '...' }] }
-    const formattedHistory = (history || []).map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.parts[0].text }]
-    }));
+    const messages = [
+      systemMessage,
+      ...conversation,
+      { role: 'user', content: message }
+    ];
 
-    const chat = model.startChat({
-      history: formattedHistory,
-    });
+    let response;
+    let lastError;
+    let attempt = 0;
+    let modelIndex = 0;
+    const maxAttempts = FREE_MODELS.length * 3;
 
-    const result = await chat.sendMessage(message);
-    const response = await result.response;
-    const text = response.text();
-    
-    res.json({ reply: text });
+    while (attempt < maxAttempts) {
+      modelIndex = attempt % FREE_MODELS.length;
+      const model = FREE_MODELS[modelIndex];
+      const delay = Math.pow(2, Math.floor(attempt / FREE_MODELS.length)) * 2000;
+
+      if (attempt > 0) {
+        console.log(`Waiting ${delay}ms before attempt ${attempt + 1}...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
+      console.log(`Trying model: ${model} (attempt ${attempt + 1})`);
+      response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'HTTP-Referer': 'https://vetocare.app',
+          'X-Title': 'VetoCare'
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: messages
+        })
+      });
+
+      if (response.ok) {
+        console.log(`Success with model: ${model}`);
+        break;
+      } else {
+        const errorText = await response.text();
+        lastError = errorText;
+        console.log(`Model ${model} failed:`, errorText);
+        attempt++;
+      }
+    }
+
+    if (!response.ok) {
+      let errorMessage = 'All models failed';
+      try {
+        const errorData = JSON.parse(lastError);
+        errorMessage = errorData.error?.message || errorData.message || lastError;
+      } catch {
+        errorMessage = lastError;
+      }
+      console.error('AI API error response:', lastError);
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    const reply = data.choices[0].message.content;
+
+    conversation.push({ role: 'user', content: message });
+    conversation.push({ role: 'assistant', content: reply });
+
+    res.json({ reply, usedModel: FREE_MODELS[modelIndex] });
   } catch (error) {
     console.error('AI Error:', error);
     res.status(500).json({ error: "Erreur lors de la communication avec l'assistant IA.", details: error.message });
@@ -222,8 +291,3 @@ app.post('/api/chat', async (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`VetoCare Server running on http://localhost:${PORT}`);
 });
-
-
-// Trigger Restart
-
-// Trigger Restart 2
