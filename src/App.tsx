@@ -11,14 +11,19 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthProvider';
 import { I18nProvider } from './context/I18nContext';
-import { AISymptomChecker } from './components/dashboard/AISymptomChecker';
+import { useEffect } from 'react';
+import '@n8n/chat/style.css';
+import { createChat } from '@n8n/chat';
 
 function Home() {
+
+ 
   return (
     <main>
       <Hero />
       <WhyRelyOnUs />
       <Services />
+      
     </main>
   );
 }
@@ -27,6 +32,31 @@ function AppContent() {
   const location = useLocation();
   const hideNavbar = ['/login', '/dashboard'].includes(location.pathname);
 
+  useEffect(() => {
+    const el = document.querySelector('#n8n-chat');
+    if (el) {
+      createChat({
+        webhookUrl: 'https://malakisthebest.app.n8n.cloud/webhook/5c4900e3-0c7a-4516-8882-5a2a7b5769f4/chat',
+        target: '#n8n-chat',
+        initialMessages: [
+          'Azul da bubul, Ansuf yskent',
+          'Ismiw Aya! Dachu tevghed?'
+        ],
+        i18n: {
+          en: {
+            title: 'VetoCare AI',
+            subtitle: 'Online',
+            placeholder: 'Type a message...',
+            inputPlaceholder: 'Type a message...',
+            sendButtonTooltip: 'Send',
+            footer: '',
+            getStarted: 'New Conversation',
+            closeButtonTooltip: 'Close',
+          }
+        }
+      });
+    }
+  }, []);
   return (
     <div className="min-h-screen bg-veto-blue-gray font-outfit">
       <Toaster position="top-right" />
@@ -45,9 +75,7 @@ function AppContent() {
         />
       </Routes>
       {!hideNavbar && <Footer />}
-      {location.pathname === '/' && (
-        <AISymptomChecker onBookAppointment={() => window.location.href = '/login'} />
-      )}
+      {<div id="n8n-chat" className="fixed bottom-4 right-4 z-50" /> }
     </div>
   );
 }

@@ -9,11 +9,11 @@
 ## ✨ Points Forts du Projet
 
 - **Système Double Dashboard** : Interfaces distinctes et sécurisées pour les Vétérinaires (Gestion clinique) et les Propriétaires (Suivi & Réservation).
-- **Architecture Serverless** : Déploiement sur **Vercel** (frontend) avec backend **Supabase** (PostgreSQL, Auth, Storage) et serveur **Node.js/Express** pour l'IA.
-- **Assistant IA Gemini** : Agent conversationnel intégré propulsé par **Google Gemini 2.5 Flash** — diagnostique les symptômes et guide l'utilisateur à travers le site.
-- **Multilingue Complet (i18n)** : Bascule instantanée Français ↔ Anglais sur l'ensemble du site via un contexte React dédié (`I18nContext`).
+- **Architecture Cloud Native** : Déploiement sur **Vercel** (frontend) avec backend **Supabase** (PostgreSQL, Auth, Storage) et automation **n8n** pour l'IA.
+- **Assistant IA n8n** : Agent conversationnel intelligent intégré propulsé par **n8n AI** — diagnostique les symptômes et guide l'utilisateur avec une expérience premium.
+- **Multilingue Complet (i18n)** : Bascule instantanée Français ↔ Anglais ↔ Kabyle sur l'ensemble du site.
 - **Sécurité RLS (Row Level Security)** : Isolation totale des données patients et accès granulaire pour le personnel médical.
-- **UI Premium** : Design moderne sans dégradé, animations Framer Motion, logo IA généré par Imagen avec fond transparent.
+- **UI Premium** : Design moderne avec Glassmorphism, animations fluides, et intégration soignée de l'assistant IA.
 - **PWA Ready** : Application installable sur mobile et bureau.
 
 ---
@@ -24,8 +24,8 @@
 graph TD
     User((Utilisateur)) -- "HTTPS (Vercel)" --> Frontend[Vite + React App]
     Frontend -- "Auth / SQL / Storage" --> Supabase[Supabase BaaS]
-    Frontend -- "POST /api/chat" --> Backend[Node.js / Express API]
-    Backend -- "generateContent()" --> Gemini[Google Gemini 2.5 Flash]
+    Frontend -- "Webhook / Agent AI" --> n8n[n8n Automation Platform]
+    n8n -- "Llama / Gemini / OpenAI" --> LLM[Large Language Models]
 
     subgraph "Cloud Layer (Vercel)"
         Frontend
@@ -52,31 +52,30 @@ graph TD
 | **Gestion Médicale** | Patients & Dossiers | `public.patients` / `public.medical_documents` |
 | **Agenda Temps Réel** | RDV & Absences | `public.rendez_vous` / `public.indisponibilites_vet` |
 | **Fichiers Lourds** | Carnets de santé | Bucket `health-records` (S3 Supabase) |
-| **Intelligence Artificielle** | Symptômes & Navigation | Google Gemini 2.5 Flash via `@google/generative-ai` |
-| **Internationalisation** | FR / EN | `I18nContext.tsx` — 120+ clés de traduction |
+| **Intelligence Artificielle** | Assistant n8n | n8n Agent + LangChain + Tools |
+| **Internationalisation** | FR / EN / KAB | `I18nContext.tsx` — 120+ clés de traduction |
 
 ---
 
-## 🤖 Assistant IA (Gemini)
+## 🤖 Assistant IA (n8n Agent)
 
-L'assistant est accessible via le bouton flottant (logo patte de robot) en bas à droite de chaque page.
+L'assistant est accessible via le bouton flottant (logo patte de robot) en bas à droite.
 
 **Capacités :**
-1. **Pré-diagnostic Vétérinaire** : Évalue les symptômes décrits et recommande une consultation.
-2. **Guide du Site** : Explique comment créer un compte, ajouter un animal, réserver via le calendrier.
+1. **Pré-diagnostic Vétérinaire** : Évalue les symptômes et recommande des actions.
+2. **Guide du Site** : Aide à la navigation et à l'utilisation des fonctionnalités.
+3. **Workflow Automation** : Connecté directement aux flux n8n pour des réponses dynamiques.
 
 **Stack :**
-- Backend : `server/index.js` — Node.js + Express + `@google/generative-ai`
-- Frontend : `AISymptomChecker.tsx` — Widget chat React avec logo IA généré par Imagen (fond supprimé via Python/Pillow)
-- Modèle : `gemini-2.5-flash`
-
-> ⚠️ La clé API `GEMINI_API_KEY` doit être configurée dans les variables d'environnement du service backend hébergé (Render/Railway).
+- Automation : **n8n.cloud**
+- Frontend : `@n8n/chat` — Widget personnalisé avec Glassmorphism et logo VetoCare.
+- UI : Overrides CSS premium pour une intégration parfaite.
 
 ---
 
 ## 🌐 Internationalisation (i18n)
 
-La bascule de langue est disponible dans la **Navbar** (bouton FR / EN).
+La bascule de langue est disponible dans la **Navbar** (bouton FR / EN / KAB).
 
 - **Fichier central** : `src/context/I18nContext.tsx`
 - **Couverture** : Navbar, Hero, Services, Pourquoi nous choisir, Footer, Login, À Propos, Dashboard, Assistant IA
@@ -104,40 +103,30 @@ erDiagram
 Lancer **Veto-Care** avec un modèle **OPEX** (Vercel + Supabase) permet une réduction drastique du **CAPEX**. Pas d'investissement initial en serveurs. Le coût est indexé sur la croissance réelle de la clinique (Pay-as-you-go).
 
 #### 2. Scalabilité & Disponibilité
-L'utilisation de **Vercel Edge Functions** et de la scalabilité horizontale de **Supabase** garantit que la plateforme reste fluide même lors des pics de prises de rendez-vous (ex: campagnes de vaccination). L'API IA est isolée dans un microservice Node.js indépendant.
+L'utilisation de **Vercel Edge Functions** et de la scalabilité horizontale de **Supabase** garantit que la plateforme reste fluide même lors des pics de prises de rendez-vous (ex: campagnes de vaccination). L'IA est gérée par des webhooks n8n scalables.
 
 #### 3. Sécurité & Intégrité
-L'intégrité des données est gérée par **PostgreSQL** (Contraintes FK), tandis que la confidentialité est assurée par des **Politiques RLS** strictes : un propriétaire ne peut voir que ses propres animaux, tandis qu'un vétérinaire a une vue globale. La clé Gemini n'est jamais exposée au client.
+L'intégrité des données est gérée par **PostgreSQL** (Contraintes FK), tandis que la confidentialité est assurée par des **Politiques RLS** strictes : un propriétaire ne peut voir que ses propres animaux, tandis qu'un vétérinaire a une vue globale.
 
 ---
 
 ## 🚀 Accès & Test
 
-- **URL de Production** : [https://veto-care-ten.vercel.app](https://veto-care-murex.vercel.app/)
-- **Comptes de Test** :
+- **URL de Production** : [https://veto-care-ten.vercel.app](https://veto-care-ten.vercel.app)
 
 ---
 
 ## 🛠️ Installation Locale
 
 ```bash
-# 1. Installer les dépendances frontend
+# 1. Installer les dépendances
 npm install
 
-# 2. Installer les dépendances backend
-cd server && npm install && cd ..
-
-# 3. Configurer les variables d'environnement
-# Créer un fichier .env à la racine avec vos clés Supabase
-# Créer un fichier server/.env avec votre clé Gemini :
-#   GEMINI_API_KEY=your_key_here
-#   PORT=5001
-
-# 4. Initialiser la base de données
+# 2. Initialiser la base de données
 # Exécuter unified_vetocare_schema.sql dans le SQL Editor de Supabase
 
-# 5. Lancer le projet (frontend + backend en parallèle)
-npm run dev:all
+# 3. Lancer le projet
+npm run dev
 ```
 
 ---
@@ -147,15 +136,12 @@ npm run dev:all
 ```
 ├── src/
 │   ├── components/
-│   │   ├── dashboard/        # AISymptomChecker, BookingCalendar, OwnerDashboard...
+│   │   ├── dashboard/        # BookingCalendar, OwnerDashboard, HealthRecord...
 │   │   ├── layout/           # Navbar, Footer, Sidebar
 │   │   └── sections/         # Hero, Services, WhyRelyOnUs
 │   ├── context/
 │   │   ├── AuthContext.ts
-│   │   └── I18nContext.tsx   # Système i18n FR/EN
+│   │   └── I18nContext.tsx   # Système i18n
 │   └── pages/                # Login, About, Dashboard
-├── server/
-│   ├── index.js              # API Express + Gemini AI
-│   └── .env                  # GEMINI_API_KEY (non versionné)
 └── unified_vetocare_schema.sql
 ```

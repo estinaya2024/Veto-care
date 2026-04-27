@@ -11,7 +11,6 @@ import {
   PlusCircle,
   X
 } from 'lucide-react';
-import { AISymptomChecker } from './AISymptomChecker';
 import { BookingCalendar } from './BookingCalendar';
 import { HealthRecord } from './HealthRecord';
 import { supabase } from '../../lib/supabase';
@@ -374,8 +373,6 @@ export function OwnerDashboard() {
         </div>
       )}
 
-      {/* AI Symptom Checker Floating Widget */}
-      <AISymptomChecker onBookAppointment={() => setShowBooking(true)} />
     </div>
   );
 }

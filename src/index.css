@@ -30,6 +30,64 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --n8n-chat-primary-color: #FFD500;
+  --n8n-chat-button-background: #FFD500;
+  --n8n-chat-button-icon-color: #111111;
+  --n8n-chat-font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --n8n-chat-background-color: #ffffff;
+  --n8n-chat-text-color: #111111;
+  --n8n-chat-secondary-color: #f3f4f6;
+}
+
+/* Premium n8n Chat Overrides */
+div#n8n-chat .n8n-chat-button {
+  background-image: url('./assets/ai_paw.png') !important;
+  background-size: 80% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-color: var(--n8n-chat-primary-color) !important;
+  border: 3px solid white !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
+  width: 64px !important;
+  height: 64px !important;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+div#n8n-chat .n8n-chat-button:hover {
+  transform: scale(1.1) rotate(5deg) !important;
+}
+
+div#n8n-chat .n8n-chat-button svg {
+  display: none !important; /* Hide the default SVG icon */
+}
+
+div#n8n-chat .n8n-chat-window {
+  border-radius: 2.5rem !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.15) !important;
+  bottom: 90px !important;
+  right: 0 !important;
+}
+
+div#n8n-chat .n8n-chat-header {
+  background: var(--color-veto-black) !important;
+  color: white !important;
+  padding: 1.5rem !important;
+}
+
+div#n8n-chat .n8n-chat-input-area {
+  padding: 1rem !important;
+  border-top: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+div#n8n-chat .n8n-chat-input {
+  border-radius: 1.5rem !important;
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
 }
 
 body {
