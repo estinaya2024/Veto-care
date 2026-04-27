@@ -66,6 +66,26 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
   useEffect(() => {
     fetchData();
     fetchPets();
+
+    // Realtime subscriptions for instant availability updates
+    const aptSubscription = supabase
+      .channel('public:rendez_vous')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rendez_vous' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    const blockSubscription = supabase
+      .channel('public:indisponibilites_vet')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'indisponibilites_vet' }, () => {
+        fetchData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(aptSubscription);
+      supabase.removeChannel(blockSubscription);
+    };
   }, [maitreId]);
 
   const fetchPets = async () => {

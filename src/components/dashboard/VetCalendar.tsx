@@ -69,7 +69,29 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   };
 
   useEffect(() => {
-    if (vetId) fetchData();
+    if (vetId) {
+      fetchData();
+
+      // Realtime subscriptions for instant agenda updates
+      const aptSubscription = supabase
+        .channel('public:rendez_vous_vet')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'rendez_vous' }, () => {
+          fetchData();
+        })
+        .subscribe();
+
+      const blockSubscription = supabase
+        .channel('public:indisponibilites_vet_vet')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'indisponibilites_vet' }, () => {
+          fetchData();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(aptSubscription);
+        supabase.removeChannel(blockSubscription);
+      };
+    }
   }, [vetId]);
 
   const fetchData = async () => {
