@@ -40,8 +40,6 @@ export function OwnerDashboard() {
   const [newBreed, setNewBreed] = useState('');
   const [newWeight, setNewWeight] = useState('');
   const [addingPet, setAddingPet] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [processingImage, setProcessingImage] = useState(false);
   
   const { user } = useAuth();
   const { t } = useI18n();
@@ -111,23 +109,7 @@ export function OwnerDashboard() {
     setAddingPet(true);
 
     try {
-      let finalImageUrl = null;
-      
-      if (selectedFile) {
-        setProcessingImage(true);
-        // 1. Remove background via AI server
-        const cleanedBlob = await api.removeBackground(selectedFile);
-        
-        // 2. Upload cleaned image to Supabase
-        const fileName = `avatars/${user.id}/${Date.now()}.png`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('health-records')
-          .upload(fileName, cleanedBlob, { contentType: 'image/png' });
-          
-        if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from('health-records').getPublicUrl(uploadData.path);
-        finalImageUrl = publicUrl;
-      }
+
 
       const { error } = await supabase.from('patients').insert([{
         maitre_id: user.id,
@@ -135,7 +117,6 @@ export function OwnerDashboard() {
         species: newSpecies,
         breed: newBreed,
         weight: newWeight,
-        image_url: finalImageUrl,
         status: 'En bonne santé'
       }]);
 
@@ -145,7 +126,6 @@ export function OwnerDashboard() {
       setNewPetName('');
       setNewBreed('');
       setNewWeight('');
-      setSelectedFile(null);
       setNewSpecies('Chien');
       setShowAddPet(false);
       fetchDashboardData();
@@ -153,7 +133,6 @@ export function OwnerDashboard() {
       toast.error(err.message || t('common.error'));
     } finally {
       setAddingPet(false);
-      setProcessingImage(false);
     }
   };
 
@@ -221,43 +200,10 @@ export function OwnerDashboard() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2">Photo de l'animal (AI Studio)</label>
-                <div className="relative group">
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-                  />
-                  <div className={cn(
-                    "w-full px-5 py-6 bg-gray-50 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-2 transition-all",
-                    selectedFile ? "border-veto-yellow bg-veto-yellow/5" : "border-gray-100 group-hover:border-gray-200"
-                  )}>
-                    {selectedFile ? (
-                      <div className="flex flex-col items-center gap-2">
-                        <img 
-                          src={URL.createObjectURL(selectedFile)} 
-                          alt="Preview" 
-                          className="w-16 h-16 object-cover rounded-xl shadow-sm" 
-                        />
-                        <p className="text-[10px] font-black text-veto-black truncate max-w-[200px]">{selectedFile.name}</p>
-                      </div>
-                    ) : (
-                      <>
-                        <PlusCircle size={24} className="text-gray-300" />
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
-                          Cliquez pour ajouter une photo<br/>
-                          <span className="text-[8px] text-veto-yellow">L'IA supprimera le fond automatiquement</span>
-                        </p>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
 
-              <Button type="submit" className="w-full py-4 mt-6 rounded-2xl" variant="black" disabled={addingPet || processingImage}>
-                 {processingImage ? "L'IA nettoie la photo..." : (addingPet ? t('owner.saving_pet') : t('owner.save_pet'))}
+
+              <Button type="submit" className="w-full py-4 mt-6 rounded-2xl" variant="black" disabled={addingPet}>
+                 {addingPet ? t('owner.saving_pet') : t('owner.save_pet')}
               </Button>
             </form>
           </div>

@@ -3,15 +3,13 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import multer from 'multer';
-import { exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const upload = multer({ dest: 'uploads/' });
+
 
 dotenv.config();
 
@@ -31,42 +29,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'VetoCare API is clinical and ready.' });
 });
 
-/**
- * AI BACKGROUND REMOVAL
- * Uses the rembg.py script to remove backgrounds from pet photos
- */
-app.post('/api/remove-bg', upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No image provided' });
 
-  const inputPath = req.file.path;
-  const outputPath = `${inputPath}_out.png`;
-  const scriptPath = path.join(__dirname, '..', 'remove_bg.py');
-
-  // Ensure absolute paths for safety
-  const absInput = path.resolve(inputPath);
-  const absOutput = path.resolve(outputPath);
-
-  console.log(`AI Processing started for: ${absInput}`);
-
-  exec(`python "${scriptPath}" "${absInput}" "${absOutput}"`, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`AI Background Removal EXEC Error: ${error.message}`);
-      console.error(`AI Background Removal STDERR: ${stderr}`);
-      if (fs.existsSync(absInput)) fs.unlinkSync(absInput);
-      return res.status(500).json({ 
-        error: 'Failed to process image background',
-        details: stderr || error.message 
-      });
-    }
-    
-    console.log(`AI Processing success: ${absOutput}`);
-    res.sendFile(absOutput, () => {
-      // Cleanup temp files after sending
-      if (fs.existsSync(absInput)) fs.unlinkSync(absInput);
-      if (fs.existsSync(absOutput)) fs.unlinkSync(absOutput);
-    });
-  });
-});
 
 /**
  * GET PRIMARY VET
@@ -192,7 +155,7 @@ app.post('/api/chat', async (req, res) => {
   if (!message) return res.status(400).json({ error: 'Message is required' });
 
   try {
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: 'gemini-flash-latest',
       systemInstruction: "Vous êtes l'assistant IA de VetoCare. Aidez avec les symptômes animaux et guidez sur le site (carnet, rdv, dashboard). Soyez concis."
     });
@@ -211,7 +174,7 @@ app.post('/api/chat', async (req, res) => {
     const result = await chat.sendMessage(message);
     const response = await result.response;
     const text = response.text();
-    
+
     res.json({ reply: text });
   } catch (error) {
     console.error('AI Error:', error);
