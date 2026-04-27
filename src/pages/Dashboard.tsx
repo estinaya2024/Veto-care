@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { OwnerDashboard } from '../components/dashboard/OwnerDashboard';
 import { VetDashboard } from '../components/dashboard/VetDashboard';
+import { VetAppointments } from '../components/dashboard/VetAppointments';
+import { HealthRecord } from '../components/dashboard/HealthRecord';
 import { Settings } from '../components/dashboard/Settings';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -12,6 +14,7 @@ type DashboardTab = 'dashboard' | 'owner' | 'vet' | 'appointments' | 'settings';
 export function Dashboard() {
   const { signOut, role } = useAuth();
   const navigate = useNavigate();
+  const [selectedPet, setSelectedPet] = useState<any | null>(null);
   
   // Use a derived initial state to avoid useEffect + setState
   // Initialize with correct tab based on role
@@ -44,10 +47,18 @@ export function Dashboard() {
 
       <main className="flex-1 p-4 md:p-12 lg:p-16 overflow-y-auto h-screen">
         <div className="max-w-6xl mx-auto">
-          {activeTab === 'dashboard' && <OwnerDashboard />}
-          {activeTab === 'owner' && <OwnerDashboard />}
-          {activeTab === 'vet' && <VetDashboard />}
-          {activeTab === 'settings' && <Settings />}
+          {selectedPet ? (
+            <HealthRecord pet={selectedPet} onBack={() => setSelectedPet(null)} />
+          ) : (
+            <>
+              {(activeTab === 'dashboard' || activeTab === 'owner') && <OwnerDashboard />}
+              {activeTab === 'vet' && <VetDashboard onSelectPatient={setSelectedPet} />}
+              {activeTab === 'appointments' && role === 'vet' && (
+                <VetAppointments onSelectPatient={setSelectedPet} />
+              )}
+              {activeTab === 'settings' && <Settings />}
+            </>
+          )}
         </div>
       </main>
 

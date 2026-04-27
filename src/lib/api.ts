@@ -148,6 +148,15 @@ export const api = {
     return data || [];
   },
 
+  async getAllAppointments() {
+    const { data, error } = await supabase
+      .from('rendez_vous')
+      .select('*, patients(*), maitres(*), veterinaires(name)')
+      .order('date_rdv', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+
   async getAllPatients() {
     const { data, error } = await supabase
       .from('patients')

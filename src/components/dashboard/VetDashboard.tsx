@@ -25,8 +25,11 @@ import { fr } from 'date-fns/locale';
 import { toast } from 'react-hot-toast';
 import { ConsultationModal } from './ConsultationModal';
 
-export function VetDashboard() {
-  const [selectedPet, setSelectedPet] = useState<any | null>(null);
+interface VetDashboardProps {
+  onSelectPatient: (patient: any) => void;
+}
+
+export function VetDashboard({ onSelectPatient }: VetDashboardProps) {
   const [consultingApt, setConsultingApt] = useState<any | null>(null);
   const [patients, setPatients] = useState<any[]>([]);
   const [todayAppointments, setTodayAppointments] = useState<any[]>([]);
@@ -121,10 +124,6 @@ export function VetDashboard() {
     pending: pendingApprovals.length
   };
 
-  if (selectedPet) {
-    return <HealthRecord pet={selectedPet} onBack={() => setSelectedPet(null)} />;
-  }
-
   return (
     <div className="space-y-6 pb-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -197,7 +196,7 @@ export function VetDashboard() {
       </div>
 
       {activeTab === 'agenda' ? (
-        <VetCalendar vetId={user?.id || ''} onSelectPatient={(patient) => setSelectedPet(patient)} />
+        <VetCalendar vetId={user?.id || ''} onSelectPatient={(patient) => onSelectPatient(patient)} />
       ) : activeTab === 'waiting' ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <h3 className="text-lg font-bold mb-6">Salle d'Attente Active</h3>
@@ -215,7 +214,7 @@ export function VetDashboard() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button onClick={() => setSelectedPet({ id: item.patient_id, name: item.patient_name, species: item.species })} variant="outline" size="sm">Ouvrir Dossier</Button>
+                    <Button onClick={() => onSelectPatient({ id: item.patient_id, name: item.patient_name, species: item.species })} variant="outline" size="sm">Ouvrir Dossier</Button>
                     <Button onClick={() => setConsultingApt(item)} variant="black" size="sm">Terminer</Button>
                   </div>
                 </div>
@@ -280,7 +279,7 @@ export function VetDashboard() {
                   {loading ? (
                     <tr><td colSpan={5} className="px-6 py-10"><TableRowSkeleton /></td></tr>
                   ) : filteredPatients.map((p) => (
-                    <tr key={p.id} onClick={() => setSelectedPet(p)} className="hover:bg-gray-50 cursor-pointer transition-all">
+                    <tr key={p.id} onClick={() => onSelectPatient(p)} className="hover:bg-gray-50 cursor-pointer transition-all">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <PetAvatar species={p.species} name={p.name} size="sm" />
