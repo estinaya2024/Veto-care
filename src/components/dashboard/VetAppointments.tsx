@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
-import { Search, Calendar, Clock, ChevronRight, Filter } from 'lucide-react';
+import { Search, Clock, ChevronRight, Filter } from 'lucide-react';
 import { api } from '../../lib/api';
 import { TableRowSkeleton } from '../ui/Skeleton';
 import { PetAvatar } from './PetAvatar';
