@@ -76,15 +76,30 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
 
   useEffect(() => {
     fetchPetData();
-  }, [pet.id]);
+    // Sync edit values with current pet data
+    setEditValues({
+      weight: pet.weight || '',
+      next_vax: pet.next_vax || '',
+      allergies: pet.allergies || '',
+      breed: pet.breed || '',
+      species: pet.species || ''
+    });
+  }, [pet.id, pet.weight, pet.next_vax, pet.allergies, pet.breed, pet.species]);
 
   const handleUpdatePet = async () => {
     try {
-      await api.updatePatient(pet.id, editValues);
+      // Clean up values: if next_vax is an empty string, set it to null
+      const updatedValues = {
+        ...editValues,
+        next_vax: editValues.next_vax === '' ? null : editValues.next_vax
+      };
+
+      await api.updatePatient(pet.id, updatedValues);
       toast.success('Dossier mis à jour');
       setIsEditing(false);
       fetchPetData();
-    } catch {
+    } catch (err) {
+      console.error('Update Patient Error:', err);
       toast.error('Erreur lors de la mise à jour');
     }
   };
