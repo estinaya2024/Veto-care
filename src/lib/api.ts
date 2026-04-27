@@ -108,6 +108,29 @@ export const api = {
     return data || [];
   },
 
+  async createPatient(data: Record<string, any>) {
+    const { data: result, error } = await supabase
+      .from('patients')
+      .insert([data])
+      .select()
+      .single();
+    if (error) throw error;
+    return result;
+  },
+
+  async removeBackground(imageFile: File): Promise<Blob> {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    const response = await fetch(`${API_URL}/remove-bg`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error('Background removal failed');
+    return response.blob();
+  },
+
   async updatePatient(patientId: string, updates: Record<string, any>) {
     const { data, error } = await supabase
       .from('patients')

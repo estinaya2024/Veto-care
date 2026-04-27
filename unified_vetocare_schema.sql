@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS public.patients (
     internal_id TEXT UNIQUE,
     allergies TEXT,
     chronic_conditions TEXT,
+    image_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

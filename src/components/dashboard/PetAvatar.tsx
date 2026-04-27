@@ -6,9 +6,10 @@ interface PetAvatarProps {
   name: string;
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  imageUrl?: string;
 }
 
-export function PetAvatar({ species, name, className, size = 'md' }: PetAvatarProps) {
+export function PetAvatar({ species, name, imageUrl, className, size = 'md' }: PetAvatarProps) {
   const s = species.toLowerCase();
   
   let Icon = HeartPulse;
@@ -61,8 +62,12 @@ export function PetAvatar({ species, name, className, size = 'md' }: PetAvatarPr
   };
 
   return (
-    <div className={cn('flex items-center justify-center border relative shadow-sm', bgClass, dimensions[size], className)} title={`${name} (${species})`}>
-      <Icon size={iconSizes[size]} className={cn('opacity-80', iconClass)} />
+    <div className={cn('flex items-center justify-center border relative shadow-sm overflow-hidden', bgClass, dimensions[size], className)} title={`${name} (${species})`}>
+      {imageUrl ? (
+        <img src={imageUrl} alt={name} className="w-full h-full object-cover animate-fadeIn" />
+      ) : (
+        <Icon size={iconSizes[size]} className={cn('opacity-80', iconClass)} />
+      )}
       {/* Small letter overlay at bottom right for uniqueness */}
       {size !== 'sm' && (
         <span className="absolute -bottom-1 -right-1 bg-white shadow-sm border border-black/5 w-6 h-6 flex items-center justify-center rounded-full text-[10px] font-black text-veto-black uppercase">
