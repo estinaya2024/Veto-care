@@ -8,13 +8,15 @@ import {
   LayoutDashboard,
   LogOut,
   X,
-  Menu
+  Menu,
+  Home
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
 import logo from '../../assets/images/logo-icon-only.png';
 import { useI18n } from '../../context/I18nContext';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
   role: 'owner' | 'vet' | null;
@@ -30,8 +32,10 @@ interface SidebarContentProps {
   setActiveTab: (tab: any) => void;
   filteredItems: any[];
   onLogout: () => void;
+  onGoHome: () => void;
   setIsMobileOpen: (open: boolean) => void;
   logoutLabel: string;
+  homeLabel: string;
 }
 
 const SidebarContent = ({ 
@@ -40,8 +44,10 @@ const SidebarContent = ({
   setActiveTab, 
   filteredItems, 
   onLogout, 
+  onGoHome,
   setIsMobileOpen,
-  logoutLabel
+  logoutLabel,
+  homeLabel
 }: SidebarContentProps) => (
   <div className="flex flex-col h-full py-8">
     {/* Logo Section */}
@@ -63,6 +69,28 @@ const SidebarContent = ({
 
     {/* Navigation */}
     <nav className="flex-1 px-4 space-y-2">
+      {/* Home Link */}
+      <button
+        onClick={onGoHome}
+        className={cn(
+          "w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all group relative text-gray-500 hover:bg-gray-50 hover:text-black mb-4",
+          isCollapsed && "justify-center"
+        )}
+      >
+        <Home size={20} className="transition-transform group-hover:scale-105" />
+        {!isCollapsed && (
+          <motion.span
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="font-bold text-sm tracking-tight whitespace-nowrap"
+          >
+            {homeLabel}
+          </motion.span>
+        )}
+      </button>
+
+      <div className="h-[1px] bg-gray-100 mb-6 mx-2" />
+
       {filteredItems.map((item) => (
         <button
           key={item.id}
@@ -123,6 +151,11 @@ export function Sidebar({ role, onLogout, activeTab, setActiveTab }: SidebarProp
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { t } = useI18n();
+  const navigate = useNavigate();
+
+  const handleGoHome = () => {
+    navigate('/');
+  };
 
   const menuItems = [
     { id: 'dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard, roles: ['owner', 'vet'] },
@@ -166,6 +199,8 @@ export function Sidebar({ role, onLogout, activeTab, setActiveTab }: SidebarProp
           onLogout={onLogout}
           setIsMobileOpen={setIsMobileOpen}
           logoutLabel={t('sidebar.logout')}
+          homeLabel={t('sidebar.back_home')}
+          onGoHome={handleGoHome}
         />
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -202,6 +237,8 @@ export function Sidebar({ role, onLogout, activeTab, setActiveTab }: SidebarProp
                 onLogout={onLogout}
                 setIsMobileOpen={setIsMobileOpen}
                 logoutLabel={t('sidebar.logout')}
+                homeLabel={t('sidebar.back_home')}
+                onGoHome={handleGoHome}
               />
               <button 
                 onClick={() => setIsMobileOpen(false)}

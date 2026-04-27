@@ -165,6 +165,7 @@ const translations = {
     'sidebar.appointments': 'Rendez-vous',
     'sidebar.settings': 'Mon Compte',
     'sidebar.logout': 'Se Déconnecter',
+    'sidebar.back_home': 'Retour au site',
 
     // ── Settings ──
     'settings.title': 'Paramètres',
@@ -357,6 +358,7 @@ const translations = {
     'sidebar.appointments': 'Appointments',
     'sidebar.settings': 'My Account',
     'sidebar.logout': 'Log Out',
+    'sidebar.back_home': 'Back to Site',
 
     // ── Settings ──
     'settings.title': 'Settings',
