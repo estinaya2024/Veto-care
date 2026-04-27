@@ -7,6 +7,7 @@ import {
   Activity, 
   HeartPulse, 
   UserPlus,
+  ChevronRight,
   Clock,
   CheckCircle2,
   XCircle
