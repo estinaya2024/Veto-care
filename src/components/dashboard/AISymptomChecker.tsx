@@ -49,12 +49,22 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
       text: inputText.trim(),
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
     setInputText('');
     setIsTyping(true);
 
     try {
-      const response = await api.chatSymptom(userMsg.text);
+      // Convert messages to Gemini history format (excluding welcome message if needed)
+      const history = messages
+        .filter(m => m.id !== 'welcome')
+        .slice(-10) // Only send the last 10 messages to stay within quota/stability
+        .map(m => ({
+          role: m.sender === 'user' ? 'user' : 'model',
+          parts: [{ text: m.text }]
+        }));
+
+      const response = await api.chatSymptom(userMsg.text, history);
 
       const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -123,7 +133,32 @@ export function AISymptomChecker({ onBookAppointment }: AISymptomCheckerProps) {
                       : "bg-white border border-gray-100 text-gray-700 rounded-bl-sm"
                   )}
                 >
-                  <p>{msg.text}</p>
+                  <div className="whitespace-pre-wrap">
+                    {msg.text.split('**').map((part, i) => 
+                      i % 2 === 1 ? <strong key={i} className="font-bold text-veto-black">{part}</strong> : part
+                    )}
+                  </div>
+
+                  {msg.id === 'welcome' && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {[
+                        "Mon chien vomit",
+                        "Urgence vétérinaire ?",
+                        "Comment prendre rdv ?",
+                        "Voir carnet de santé"
+                      ].map((hint) => (
+                        <button
+                          key={hint}
+                          onClick={() => {
+                            setInputText(hint);
+                          }}
+                          className="text-[10px] bg-gray-50 border border-gray-200 px-2 py-1 rounded-full hover:bg-veto-yellow hover:border-veto-yellow transition-colors"
+                        >
+                          {hint}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   {msg.showAction && (
                     <div className="mt-3 pt-3 border-t border-gray-100">

@@ -1,4 +1,4 @@
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace(/\/+$/, '');
+const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 import { supabase } from './supabase';
 
 export const api = {
@@ -337,7 +337,7 @@ export const api = {
     return data;
   },
 
-  async chatSymptom(message: string) {
-    return this.post('/chat', { message });
+  async chatSymptom(message: string, history: any[] = []) {
+    return this.post('/chat', { message, history });
   }
 };

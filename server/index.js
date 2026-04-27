@@ -142,16 +142,27 @@ app.post('/api/appointments/check-conflict', async (req, res) => {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 app.post('/api/chat', async (req, res) => {
-  const { message } = req.body;
+  const { message, history } = req.body;
   if (!message) return res.status(400).json({ error: 'Message is required' });
 
   try {
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.5-flash',
-      systemInstruction: "Vous êtes l'assistant IA officiel de la clinique VetoCare. Vous avez deux rôles principaux : 1) Assistant Santé : Rassurez les propriétaires sur les symptômes de leurs animaux, donnez de brefs conseils de premiers secours, et conseillez TOUJOURS de prendre rendez-vous pour un diagnostic médical. 2) Guide du Site Web : Aidez les utilisateurs à utiliser la plateforme. Informez-les qu'ils peuvent créer un compte, se connecter, ajouter leurs animaux dans leur 'Tableau de bord', consulter les carnets de santé numériques et utiliser le calendrier interactif pour prendre rendez-vous avec le Dr. Akarou. Soyez toujours professionnel, empathique, très chaleureux et concis."
+      model: 'gemini-flash-latest',
+      systemInstruction: "Vous êtes l'assistant IA de VetoCare. Aidez avec les symptômes animaux et guidez sur le site (carnet, rdv, dashboard). Soyez concis."
     });
 
-    const result = await model.generateContent(message);
+    // Format history for Gemini SDK
+    // Gemini expects: { role: 'user'|'model', parts: [{ text: '...' }] }
+    const formattedHistory = (history || []).map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.parts[0].text }]
+    }));
+
+    const chat = model.startChat({
+      history: formattedHistory,
+    });
+
+    const result = await chat.sendMessage(message);
     const response = await result.response;
     const text = response.text();
     
