@@ -31,14 +31,7 @@ export function Hero() {
             {t('hero.title')}
           </Heading>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 md:gap-5">
-            <Button variant="black" className="w-full sm:w-auto px-12 py-5 rounded-full hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest shadow-xl" onClick={() => window.location.href = '#services'}>
-              {t('nav.about')}
-            </Button>
-            <Button variant="yellow" className="w-full sm:w-auto px-12 py-5 rounded-full shadow-[0_10px_30px_rgba(255,213,0,0.4)] hover:scale-105 transition-transform font-black text-sm uppercase tracking-widest" onClick={() => window.location.href = '/login'}>
-              {t('hero.cta')}
-            </Button>
-          </div>
+
         </div>
       </div>
 
