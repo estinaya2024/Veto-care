@@ -57,6 +57,31 @@ function AppContent() {
       });
     }
   }, []);
+
+  // Bridge to allow n8n chatbot links to trigger React app functions
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const link = target.closest('a');
+      
+      if (link && link.getAttribute('href') === '#book-appointment') {
+        e.preventDefault();
+        
+        // 1. Dispatch custom event for OwnerDashboard to catch
+        window.dispatchEvent(new CustomEvent('openBookingModal'));
+        
+        // 2. Automatically close the n8n chat window
+        const closeBtn = document.querySelector('.chat-close-button') as HTMLButtonElement | null;
+        if (closeBtn) {
+          closeBtn.click();
+        }
+      }
+    };
+
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
+  }, []);
+
   return (
     <div className="min-h-screen bg-veto-blue-gray font-outfit">
       <Toaster position="top-right" />

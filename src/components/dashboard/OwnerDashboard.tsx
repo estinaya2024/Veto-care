@@ -80,6 +80,12 @@ export function OwnerDashboard() {
     };
   }, [user]);
 
+  useEffect(() => {
+    const handleOpenBooking = () => setShowBooking(true);
+    window.addEventListener('openBookingModal', handleOpenBooking);
+    return () => window.removeEventListener('openBookingModal', handleOpenBooking);
+  }, []);
+
   const handleDeletePet = async (id: string, name: string) => {
     if (!confirm(`Supprimer le dossier de ${name} ?`)) return;
     try {
