@@ -40,6 +40,8 @@
   --chat--message--bot--color: #374151 !important;
   --chat--message--bot--border: 1px solid #f3f4f6 !important;
   --chat--message--border-radius: 1rem !important;
+  --chat--message--font-size: 0.875rem !important;
+  --chat--message--padding: 0.75rem 1rem !important;
   --chat--font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   --n8n-chat-primary-color: #FFD500;
 }
@@ -124,6 +126,10 @@ div#n8n-chat .chat-message.chat-message-from-bot,
   border-radius: 1rem !important;
   border-bottom-left-radius: 0.125rem !important; /* rounded-bl-sm */
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+#n8n-chat .chat-message-markdown * {
+  font-size: 0.875rem !important;
 }
 
 .chat-inputs {
