@@ -102,17 +102,22 @@
 }
 
 /* User Messages */
-.chat-message.chat-message-from-user:not(.chat-message-transparent) {
+#n8n-chat .chat-message.chat-message-from-user:not(.chat-message-transparent),
+div#n8n-chat .chat-message.chat-message-from-user,
+.chat-window-wrapper .chat-message.chat-message-from-user {
   background-color: var(--color-veto-yellow) !important;
   color: var(--color-veto-black) !important;
   border-radius: 1rem !important;
   border-bottom-right-radius: 0.125rem !important; /* rounded-br-sm */
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
   font-weight: 500 !important;
+  border: none !important;
 }
 
 /* Bot Messages */
-.chat-message.chat-message-from-bot:not(.chat-message-transparent) {
+#n8n-chat .chat-message.chat-message-from-bot:not(.chat-message-transparent),
+div#n8n-chat .chat-message.chat-message-from-bot,
+.chat-window-wrapper .chat-message.chat-message-from-bot {
   background-color: white !important;
   color: #374151 !important; /* text-gray-700 */
   border: 1px solid rgba(243, 244, 246, 1) !important; /* border-gray-100 */

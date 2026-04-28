@@ -39,8 +39,7 @@ function AppContent() {
         webhookUrl: 'https://malakisthebest.app.n8n.cloud/webhook/5c4900e3-0c7a-4516-8882-5a2a7b5769f4/chat',
         target: '#n8n-chat',
         initialMessages: [
-          'Azul da bubul, Ansuf yskent',
-          'Ismiw Aya! Dachu tevghed?'
+          'Azul da bubul, Ansuf yskent!\n\nIsmiw Aya! Dachu tevghe?\n\n* [Mon chien vomit](#)\n* [Urgence vétérinaire ?](#)\n* [Comment prendre rdv ?](#)\n* [Voir carnet de santé](#)'
         ],
         i18n: {
           en: {
