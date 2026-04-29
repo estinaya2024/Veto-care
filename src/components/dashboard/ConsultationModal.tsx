@@ -27,7 +27,7 @@ export function ConsultationModal({ appointment, onClose, onSuccess }: Consultat
       // 1. Create Consultation
       await api.createConsultation({
         patient_id: appointment.patient_id,
-        veterinaire_id: appointment.vet_id,
+        veterinaire_id: appointment.vet_id || appointment.veterinaire_id,
         symptoms: formData.symptoms,
         diagnosis: formData.diagnosis,
         treatment: formData.treatment,
@@ -36,12 +36,12 @@ export function ConsultationModal({ appointment, onClose, onSuccess }: Consultat
       });
 
       // 2. Update Appointment Status
-      await api.updateAppointmentStatus(appointment.appointment_id, 'terminé');
+      await api.updateAppointmentStatus(appointment.id, 'terminé');
 
       toast.success('Consultation enregistrée !');
       onSuccess();
     } catch (err) {
-      console.error(err);
+      console.error('Save Consultation Error:', err);
       toast.error('Erreur lors de l\'enregistrement');
     } finally {
       setLoading(false);
