@@ -17,13 +17,13 @@ import { createChat } from '@n8n/chat';
 
 function Home() {
 
- 
+
   return (
     <main>
       <Hero />
       <WhyRelyOnUs />
       <Services />
-      
+
     </main>
   );
 }
@@ -33,24 +33,25 @@ function AppContent() {
   const hideNavbar = ['/login', '/dashboard'].includes(location.pathname);
 
   useEffect(() => {
-    const el = document.querySelector('#n8n-chat');
-    if (el) {
+    const el = document.querySelector('#n8n-chat-final');
+    // Only initialize if element exists and is empty
+    if (el && el.childNodes.length === 0) {
       createChat({
         webhookUrl: 'https://malakisthebest.app.n8n.cloud/webhook/5c4900e3-0c7a-4516-8882-5a2a7b5769f4/chat',
-        target: '#n8n-chat',
+        target: '#n8n-chat-final',
         initialMessages: [
-          'Bonjour et bienvenue chez VetoCare ! Je suis votre assistant virtuel. Comment puis-je vous aider aujourd\'hui ?\n\n* [Mon chien vomit](#)\n* [Urgence vétérinaire ?](#)\n* [Comment prendre rdv ?](#)\n* [Voir carnet de santé](#)'
+          'Bonjour ! Je suis l\'assistant IA de VetoCare. Je peux évaluer les symptômes de votre animal ou vous guider sur notre site. Comment puis-je vous aider aujourd\'hui ?\n\n* [Mon chien vomit](#)\n* [Urgence vétérinaire ?](#)\n* [Comment prendre rdv ?](#)\n* [Voir carnet de santé](#)'
         ],
         i18n: {
           en: {
             title: 'VetoCare AI',
-            subtitle: 'Online',
-            placeholder: 'Type a message...',
-            inputPlaceholder: 'Type a message...',
-            sendButtonTooltip: 'Send',
+            subtitle: 'En ligne',
+            placeholder: 'Décrivez les symptômes...',
+            inputPlaceholder: 'Posez votre question ici...',
+            sendButtonTooltip: 'Envoyer',
             footer: '',
-            getStarted: 'New Conversation',
-            closeButtonTooltip: 'Close',
+            getStarted: 'Nouvelle Conversation',
+            closeButtonTooltip: 'Fermer',
           }
         }
       });
@@ -62,13 +63,13 @@ function AppContent() {
     const handleGlobalClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const link = target.closest('a');
-      
+
       if (link && link.getAttribute('href') === '#book-appointment') {
         e.preventDefault();
-        
+
         // 1. Dispatch custom event for OwnerDashboard to catch
         window.dispatchEvent(new CustomEvent('openBookingModal'));
-        
+
         // 2. Automatically close the n8n chat window
         const closeBtn = document.querySelector('.chat-close-button') as HTMLButtonElement | null;
         if (closeBtn) {
@@ -89,17 +90,17 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-          } 
+          }
         />
       </Routes>
       {!hideNavbar && <Footer />}
-      {<div id="n8n-chat" className="fixed bottom-4 right-4 z-50" /> }
+      {<div id="n8n-chat-final" className="fixed bottom-4 right-4 z-50" /> }
     </div>
   );
 }
