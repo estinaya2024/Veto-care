@@ -20,7 +20,7 @@ export function Login() {
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [user, navigate]);
 
@@ -49,7 +49,7 @@ export function Login() {
         if (loginError) throw loginError;
       }
 
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       const message = err instanceof Error ? err.message : t('login.error_generic');
       setError(message);
@@ -145,7 +145,7 @@ export function Login() {
               const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                  redirectTo: window.location.origin + '/'
+                  redirectTo: window.location.origin + '/dashboard'
                 }
               });
               if (error) setError(error.message);
