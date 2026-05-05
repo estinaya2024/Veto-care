@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Heading } from '../ui/Heading';
 import { Button } from '../ui/Button';
-import { 
-  ChevronLeft, 
-  Plus, 
-  Calendar, 
-  Activity, 
+import {
+  ChevronLeft,
+  Plus,
+  Calendar,
+  Activity,
   Image as ImageIcon,
   Clock,
   FileCheck,
@@ -137,7 +137,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
               <Heading level={2} className="text-4xl font-bold text-gray-900">{pet.name}</Heading>
               <span className="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-green-100">Dossier Actif</span>
               {isVet && (
-                <button 
+                <button
                   onClick={() => setIsEditing(!isEditing)}
                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
                 >
@@ -147,17 +147,17 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
             </div>
             {isEditing ? (
               <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  value={editValues.species} 
-                  onChange={(e) => setEditValues({...editValues, species: e.target.value})}
+                <input
+                  type="text"
+                  value={editValues.species}
+                  onChange={(e) => setEditValues({ ...editValues, species: e.target.value })}
                   className="px-3 py-1 text-xs border rounded-lg w-24"
                   placeholder="Espèce"
                 />
-                <input 
-                  type="text" 
-                  value={editValues.breed} 
-                  onChange={(e) => setEditValues({...editValues, breed: e.target.value})}
+                <input
+                  type="text"
+                  value={editValues.breed}
+                  onChange={(e) => setEditValues({ ...editValues, breed: e.target.value })}
                   className="px-3 py-1 text-xs border rounded-lg w-32"
                   placeholder="Race"
                 />
@@ -197,10 +197,10 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Dernier Poids</p>
                 {isEditing ? (
                   <div className="flex items-center gap-2">
-                    <input 
-                      type="text" 
-                      value={editValues.weight} 
-                      onChange={(e) => setEditValues({...editValues, weight: e.target.value})}
+                    <input
+                      type="text"
+                      value={editValues.weight}
+                      onChange={(e) => setEditValues({ ...editValues, weight: e.target.value })}
                       className="px-3 py-1 border rounded-lg w-20"
                     />
                     <span className="text-sm font-bold">kg</span>
@@ -212,10 +212,10 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
               <div>
                 <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Prochain Vaccin</p>
                 {isEditing ? (
-                  <input 
-                    type="date" 
-                    value={editValues.next_vax?.split('T')[0]} 
-                    onChange={(e) => setEditValues({...editValues, next_vax: e.target.value})}
+                  <input
+                    type="date"
+                    value={editValues.next_vax?.split('T')[0]}
+                    onChange={(e) => setEditValues({ ...editValues, next_vax: e.target.value })}
                     className="px-3 py-1 border rounded-lg w-full text-xs"
                   />
                 ) : (
@@ -229,9 +229,9 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                   <AlertCircle size={10} /> Allergies
                 </p>
                 {isEditing ? (
-                  <textarea 
-                    value={editValues.allergies} 
-                    onChange={(e) => setEditValues({...editValues, allergies: e.target.value})}
+                  <textarea
+                    value={editValues.allergies}
+                    onChange={(e) => setEditValues({ ...editValues, allergies: e.target.value })}
                     className="w-full bg-transparent border-b border-red-200 text-sm focus:outline-none"
                     rows={2}
                   />
@@ -241,12 +241,12 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white border border-gray-100 rounded-3xl p-2 shadow-sm">
             <button onClick={() => setActiveTab('history')} className={cn("w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all", activeTab === 'history' ? "bg-gray-900 text-white shadow-lg" : "text-gray-500 hover:bg-gray-50")}>
               <Calendar size={18} /> Historique RDV
             </button>
-            <button onClick onClick={() => setActiveTab('consultations')} className={cn("w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all mt-1", activeTab === 'consultations' ? "bg-gray-900 text-white shadow-lg" : "text-gray-500 hover:bg-gray-50")}>
+            <button onClick={() => setActiveTab('consultations')} className={cn("w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all mt-1", activeTab === 'consultations' ? "bg-gray-900 text-white shadow-lg" : "text-gray-500 hover:bg-gray-50")}>
               <Stethoscope size={18} /> Consultations
             </button>
             <button onClick={() => setActiveTab('imaging')} className={cn("w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold transition-all mt-1", activeTab === 'imaging' ? "bg-gray-900 text-white shadow-lg" : "text-gray-500 hover:bg-gray-50")}>
@@ -289,7 +289,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                       </div>
                       <div className="flex items-center gap-4">
                         {record.health_record_url && (
-                          <button 
+                          <button
                             onClick={() => setSelectedDoc({ url: record.health_record_url, name: `Compte-rendu - ${format(new Date(record.date_rdv), 'dd/MM/yyyy')}` })}
                             className="flex items-center gap-2 px-3 py-1 bg-veto-yellow/10 text-veto-black text-[10px] font-black uppercase tracking-widest rounded-lg border border-veto-yellow/20 hover:bg-veto-yellow transition-all"
                           >
@@ -313,15 +313,15 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                           <p className="text-xl font-bold">{format(new Date(c.date_consultation), 'dd MMMM yyyy', { locale: fr })}</p>
                         </div>
                         <div className="flex flex-col items-end gap-2">
-                           <p className="text-xs font-bold bg-gray-100 px-4 py-2 rounded-xl">Dr. {c.veterinaires?.name}</p>
-                           {c.price > 0 && (
-                             <button 
-                               onClick={() => setSelectedInvoice(c)}
-                               className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:underline"
-                             >
-                               Voir la facture ({c.price} DA)
-                             </button>
-                           )}
+                          <p className="text-xs font-bold bg-gray-100 px-4 py-2 rounded-xl">Dr. {c.veterinaires?.name}</p>
+                          {c.price > 0 && (
+                            <button
+                              onClick={() => setSelectedInvoice(c)}
+                              className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:underline"
+                            >
+                              Voir la facture ({c.price} DA)
+                            </button>
+                          )}
                         </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -348,10 +348,10 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                       <div key={doc.id} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 group flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-100">
-                             {doc.file_url.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? 
-                               <img src={doc.file_url} className="w-full h-full object-cover rounded-lg" alt="" /> : 
-                               <ImageIcon className="text-gray-400" />
-                             }
+                            {doc.file_url.match(/\.(jpg|jpeg|png|webp|gif)$/i) ?
+                              <img src={doc.file_url} className="w-full h-full object-cover rounded-lg" alt="" /> :
+                              <ImageIcon className="text-gray-400" />
+                            }
                           </div>
                           <div>
                             <p className="text-sm font-bold text-gray-900 truncate max-w-[150px]">{doc.name}</p>
@@ -359,7 +359,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                           </div>
                         </div>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                          <button 
+                          <button
                             onClick={() => setSelectedDoc({ url: doc.file_url, name: doc.name })}
                             className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-blue-600 shadow-sm"
                           >
@@ -387,7 +387,7 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
                           </div>
                         </div>
                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                          <button 
+                          <button
                             onClick={() => setSelectedDoc({ url: doc.file_url, name: doc.name })}
                             className="p-2 bg-white border border-gray-100 rounded-lg text-gray-500 hover:text-blue-600 shadow-sm"
                           >
@@ -406,10 +406,10 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
         </div>
       </div>
       {selectedInvoice && (
-        <InvoiceViewer 
-          consultation={selectedInvoice} 
-          petName={pet.name} 
-          onClose={() => setSelectedInvoice(null)} 
+        <InvoiceViewer
+          consultation={selectedInvoice}
+          petName={pet.name}
+          onClose={() => setSelectedInvoice(null)}
         />
       )}
       {selectedDoc && (

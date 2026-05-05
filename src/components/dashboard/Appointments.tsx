@@ -49,7 +49,7 @@ export function Appointments() {
   const fetchData = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    
+
     // Fetch Appointments with Vet and Patient data
     const { data: aptData, error: aptError } = await supabase
       .from('rendez_vous')
@@ -106,7 +106,7 @@ export function Appointments() {
         }]);
 
       if (insertError) throw insertError;
-      
+
       toast.success('Rendez-vous réservé !');
       setShowModal(false);
       resetForm();
@@ -133,8 +133,8 @@ export function Appointments() {
           <Heading level={2} className="text-2xl sm:text-3xl">Prise de Rendez-vous</Heading>
           <p className="text-veto-gray font-medium tracking-tight">Gérez vos consultations vétérinaires à venir.</p>
         </div>
-        <Button 
-          variant="yellow" 
+        <Button
+          variant="yellow"
           className="font-extrabold shadow-sm hover:shadow-md transition-shadow"
           onClick={() => setShowModal(true)}
         >
@@ -149,11 +149,11 @@ export function Appointments() {
               <X size={24} />
             </button>
             <h3 className="text-2xl font-black mb-6">Réserver une consultation</h3>
-            
+
             <form onSubmit={handleCreateAppointment} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-bold ml-2">Quel animal ?</label>
-                <select 
+                <select
                   className="w-full p-4 bg-gray-50 border rounded-2xl font-medium focus:ring-2 focus:ring-veto-yellow outline-none"
                   value={selectedPatient}
                   onChange={(e) => setSelectedPatient(e.target.value)}
@@ -166,7 +166,7 @@ export function Appointments() {
 
               <div className="space-y-2">
                 <label className="text-sm font-bold ml-2">Vétérinaire</label>
-                <select 
+                <select
                   className="w-full p-4 bg-gray-50 border rounded-2xl font-medium focus:ring-2 focus:ring-veto-yellow outline-none"
                   value={selectedVet}
                   onChange={(e) => setSelectedVet(e.target.value)}
@@ -191,13 +191,13 @@ export function Appointments() {
               <div className="space-y-2">
                 <label className="text-sm font-bold ml-2">Upload Carnet de santé (Fichier)</label>
                 <div className="relative">
-                  <input 
-                    type="file" 
+                  <input
+                    type="file"
                     onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    className="hidden" 
-                    id="health-record-upload" 
+                    className="hidden"
+                    id="health-record-upload"
                   />
-                  <label 
+                  <label
                     htmlFor="health-record-upload"
                     className="w-full p-4 bg-veto-blue-gray/50 border-2 border-dashed border-gray-200 rounded-2xl flex items-center justify-center gap-2 cursor-pointer hover:bg-veto-blue-gray transition-colors"
                   >
@@ -220,7 +220,7 @@ export function Appointments() {
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <h3 className="font-extrabold text-xl mb-4">Prochains Rendez-vous</h3>
-          
+
           {loading ? (
             <div className="p-12 text-center text-veto-gray font-bold">Chargement de vos rendez-vous...</div>
           ) : appointments.length === 0 ? (
@@ -271,63 +271,37 @@ export function Appointments() {
                     </div>
                   </div>
                 </div>
-                
-                  <div className="mt-6 flex flex-wrap justify-end gap-3">
-                    {apt.health_record_url && (
-                      <a href={apt.health_record_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-xs font-bold hover:bg-gray-200 transition-colors">
-                        <FileText size={14} /> Voir Carnet
-                      </a>
-                    )}
-                    
-                    {/* Check-in Button */}
-                    {apt.status === 'confirmé' && (
-                      <Button 
-                        variant="yellow" 
-                        size="sm" 
-                        className="font-bold shadow-sm"
-                        onClick={async () => {
-                          try {
-                            const { error } = await supabase.rpc('check_in_patient', { appointment_id: apt.id });
-                            if (error) throw error;
-                            toast.success("Vous êtes maintenant en salle d'attente !");
-                            fetchData();
-                          } catch (err) {
-                            toast.error('Erreur lors du check-in');
-                          }
-                        }}
-                      >
-                        Marquer comme Arrivé
-                      </Button>
-                    )}
-                    
-                    {/* Cancel Button */}
-                    {apt.status === 'en_attente' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="font-bold border-red-200 text-red-500 hover:bg-red-50"
-                        onClick={async () => {
-                          if (window.confirm('Voulez-vous vraiment annuler ce rendez-vous ?')) {
-                            try {
-                              const { error } = await supabase
-                                .from('rendez_vous')
-                                .update({ status: 'annulé' })
-                                .eq('id', apt.id);
-                              if (error) throw error;
-                              toast.success('Rendez-vous annulé');
-                              fetchData();
-                            } catch (err) {
-                              toast.error('Erreur lors de l\'annulation');
-                            }
-                          }
-                        }}
-                      >
-                        Annuler
-                      </Button>
-                    )}
-                    
-                    <Button variant="black" size="sm" className="font-bold group-hover:scale-105 transition-transform">Détails</Button>
-                  </div>
+
+                <div className="mt-6 flex flex-wrap justify-end gap-3">
+                  {apt.health_record_url && (
+                    <a href={apt.health_record_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-xs font-bold hover:bg-gray-200 transition-colors">
+                      <FileText size={14} /> Voir Carnet
+                    </a>
+                  )}
+
+                  {/* Check-in Button */}
+                  {apt.status === 'confirmé' && (
+                    <Button
+                      variant="yellow"
+                      size="sm"
+                      className="font-bold shadow-sm"
+                      onClick={async () => {
+                        try {
+                          const { error } = await supabase.rpc('check_in_patient', { appointment_id: apt.id });
+                          if (error) throw error;
+                          toast.success("Vous êtes maintenant en salle d'attente !");
+                          fetchData();
+                        } catch (err) {
+                          toast.error('Erreur lors du check-in');
+                        }
+                      }}
+                    >
+                      Marquer comme Arrivé
+                    </Button>
+                  )}
+
+                  <Button variant="black" size="sm" className="font-bold group-hover:scale-105 transition-transform">Détails</Button>
+                </div>
               </div>
             ))
           )}
@@ -338,7 +312,7 @@ export function Appointments() {
           <div className="bg-veto-yellow/10 p-8 rounded-[2.5rem] border border-veto-yellow/20">
             <h3 className="font-extrabold text-xl mb-2">Horaires d'Ouverture</h3>
             <p className="text-veto-gray text-sm mb-6">Clinique principale Veto-Care</p>
-            
+
             <ul className="space-y-3 text-sm">
               <li className="flex justify-between border-b border-black/5 pb-2">
                 <span className="font-medium text-veto-gray">Lun - Ven</span>
@@ -353,7 +327,7 @@ export function Appointments() {
                 <span className="font-bold">Urgences 24/7</span>
               </li>
             </ul>
-            
+
             <Button variant="outline" className="w-full mt-8 justify-between group bg-white hover:bg-white">
               <span className="font-bold">Appeler les Urgences</span>
               <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
