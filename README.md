@@ -1,7 +1,7 @@
 # 🐾 Veto-Care : Clinique Vétérinaire Cloud-Native
 > **Extranet métier moderne construit avec la philosophie "Vibe Coding"**
 
-[![Vercel Deployment](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://veto-care-2f5d.vercel.app)
+[![Vercel Deployment](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://veto-care-2f5d.vercel.app/)
 [![Supabase Stack](https://img.shields.io/badge/Stack-Supabase--React-blue?style=for-the-badge&logo=supabase)](https://supabase.com)
 
 **Lien de Production :** [https://veto-care-2f5d.vercel.app/](https://veto-care-2f5d.vercel.app/)
@@ -19,44 +19,59 @@
 
 ---
 
-## 📐 Schémas Techniques
+## 📐 Architecture & Modélisation
 
-### 1. Architecture Cloud (Serverless)
+### 1. Modèle de Données (ERD)
+```mermaid
+erDiagram
+    MAITRES ||--o{ PATIENTS : "possède"
+    VETERINAIRES ||--o{ RENDEZ_VOUS : "reçoit"
+    PATIENTS ||--o{ RENDEZ_VOUS : "concerne"
+    PATIENTS ||--o{ CONSULTATIONS : "historique"
+    RENDEZ_VOUS ||--|| CONSULTATIONS : "génère"
+    MAITRES {
+        uuid id PK
+        string full_name
+        string email
+        string phone
+    }
+    PATIENTS {
+        uuid id PK
+        uuid maitre_id FK
+        string name
+        string species
+        string weight
+        text allergies
+    }
+    RENDEZ_VOUS {
+        uuid id PK
+        uuid patient_id FK
+        timestamp date_rdv
+        string status
+    }
+```
+
+### 2. Flux de l'Application (User Flow)
+```mermaid
+graph LR
+    A[Inscription/Login] --> B{Rôle?}
+    B -->|Maître| C[Tableau de Bord Client]
+    B -->|Vétérinaire| D[Tableau de Bord Médical]
+    C --> E[Prendre RDV + Upload PDF]
+    D --> F[Salle d'Attente]
+    F --> G[Rapport de Consultation]
+    G --> H[Facture + Historique]
+```
+
+### 3. Architecture Cloud Serverless
 ```mermaid
 graph TD
-    A[Client: Browser/Mobile] -->|HTTPS| B[Vercel: Edge Network]
-    B -->|Frontend: React/Vite| A
-    A -->|Auth Request| C[Supabase Auth]
-    A -->|SQL Queries + RLS| D[Supabase Database: PostgreSQL]
-    A -->|File Upload| E[Supabase Storage: health-records]
-    D ---|RLS Policies| C
+    User((Utilisateur)) -->|Vite/React| Vercel[Hébergement Vercel Edge]
+    Vercel -->|Auth| Auth[Supabase Auth]
+    Vercel -->|SQL/RLS| DB[PostgreSQL Database]
+    Vercel -->|Blobs| Store[Supabase Storage]
+    DB ---|Sécurité| Auth
 ```
-
-### 2. Logique de Prise de Rendez-vous
-```mermaid
-sequenceDiagram
-    participant P as Maître (Table A)
-    participant V as Vercel (Frontend)
-    participant S as Supabase (Backend)
-    
-    P->>V: Remplit formulaire RDV + Upload Carnet
-    V->>S: Upload fichier vers Storage
-    S-->>V: Retourne Public URL
-    V->>S: Insert Row dans Table C (Rendez-vous)
-    S-->>V: Confirmation (201 Created)
-    V-->>P: Affiche succès sur Dashboard
-```
-
----
-
----
-
-## ✨ Fonctionnalités Clés
-- 🔐 **Authentification Multi-Rôle** : Espaces dédiés pour Maîtres et Docteurs.
-- 📅 **Calendrier Interactif** : Prise de RDV en temps réel avec gestion des indisponibilités.
-- 🏥 **Dossier de Santé** : Suivi médical (poids, allergies, vaccins) et imagerie.
-- ⏳ **Salle d'Attente** : Système de check-in dynamique pour la clinique.
-- 📂 **Coffre-fort Médical** : Upload et consultation sécurisée des carnets de santé.
 
 ---
 
@@ -64,24 +79,30 @@ sequenceDiagram
 
 ### 📈 Rentabilité : CAPEX vs OPEX
 L'utilisation de **Vercel + Supabase** transforme l'investissement initial :
-*   **CAPEX (0$)** : Aucun achat de matériel physique ou de licences logicielles coûteuses.
-*   **OPEX** : Coût opérationnel basé sur la consommation réelle. C'est le modèle idéal pour une startup vétérinaire qui souhaite monter en charge sans risque financier massif.
+*   **CAPEX (0$)** : Aucun achat de matériel physique ou de serveurs.
+*   **OPEX** : Coût opérationnel basé sur la consommation réelle. C'est le modèle "Pay-as-you-go", idéal pour une clinique agile.
 
-### 🌐 Scalabilité Serverless
-Contrairement à un serveur classique limité par ses ressources physiques, notre architecture est **élastique** :
-*   **Auto-scaling** : Les fonctions API et le frontend s'adaptent instantanément au nombre de patients connectés.
-*   **Zéro Maintenance** : Pas de gestion de climatisation, de racks ou de sécurité physique du Data Center ; tout est géré par les fournisseurs Cloud.
+### 🌐 Scalabilité et DevOps
+*   **Auto-scaling** : Notre application gère 10 ou 1000 patients sans intervention humaine grâce aux fonctions Serverless.
+*   **CI/CD** : Chaque `git push` déclenche un déploiement automatisé sur Vercel, garantissant une mise en production rapide et sécurisée.
 
 ### 💾 Données Structurées vs Non-structurées
-*   **Structurées (PostgreSQL)** : Toutes les données tabulaires (noms, dates de RDV, diagnostics).
-*   **Non-structurées (Storage)** : Fichiers binaires tels que les scans de carnets de santé et les clichés d'imagerie médicale.
+*   **Structurées (PostgreSQL)** : Données tabulaires relationnelles (RDV, Diagnostics, Prix).
+*   **Non-structurées (Storage)** : Fichiers binaires (PDF des carnets de santé, imagerie).
 
 ---
 
-## 🚀 Installation & Test
-1. **Clonez le dépôt** : `git clone`
-2. **Installation** : `npm install`
-3. **Lancement** : `npm run dev`
+## ✨ Fonctionnalités Implémentées
+- 🔐 **RLS (Row Level Security)** : Isolation totale des données. Un patient ne voit jamais les données d'un autre.
+- 📅 **Agenda Dynamique** : Gestion des créneaux et des indisponibilités vétérinaires.
+- 🏥 **Dossier Médical Partagé** : Historique complet des consultations et ordonnances.
+- ⏳ **Check-in Temps Réel** : Système de salle d'attente automatisé.
+
+---
+
+## 🚀 Installation
+1. `npm install`
+2. `npm run dev`
 
 **Identifiants de Test :**
 *   **Email** : `test@example.com`
