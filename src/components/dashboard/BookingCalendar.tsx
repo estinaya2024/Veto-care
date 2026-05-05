@@ -120,11 +120,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
         .select('*');
 
       const formattedApts: BookingEvent[] = (allApts || [])
-        .filter((apt: any) => {
-          // Hide cancelled appointments if they don't belong to me
-          if (apt.status === 'annulé' && apt.maitre_id !== maitreId) return false;
-          return true;
-        })
+        .filter((apt: any) => apt.status !== 'annulé')
         .map((apt: any) => {
           const isMine = apt.maitre_id === maitreId;
           const petName = apt.patients?.name || 'Animal';
