@@ -171,3 +171,38 @@ CREATE POLICY "Permissive Storage All" ON storage.objects FOR ALL USING (bucket_
 
 DROP PUBLICATION IF EXISTS supabase_realtime;
 CREATE PUBLICATION supabase_realtime FOR ALL TABLES;
+-- 7. CANCELLATION RPC
+CREATE OR REPLACE FUNCTION public.cancel_appointment_by_patient(appointment_id UUID)
+RETURNS VOID AS $$
+DECLARE
+    apt_record RECORD;
+BEGIN
+    -- 1. Verify ownership and get details
+    SELECT * INTO apt_record FROM public.rendez_vous 
+    WHERE id = appointment_id AND maitre_id = auth.uid();
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Rendez-vous non trouvé ou accès refusé.';
+    END IF;
+
+    -- 2. Update status
+    UPDATE public.rendez_vous SET status = 'annulé' WHERE id = appointment_id;
+
+    -- 3. Record in consultation history
+    INSERT INTO public.consultations (
+        patient_id, 
+        veterinaire_id, 
+        date_consultation, 
+        diagnosis, 
+        notes, 
+        price
+    ) VALUES (
+        apt_record.patient_id,
+        apt_record.veterinaire_id,
+        apt_record.date_rdv,
+        'ANNULATION (Patient)',
+        'Rendez-vous annulé par le patient.',
+        0
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

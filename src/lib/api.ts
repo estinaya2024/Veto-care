@@ -365,44 +365,12 @@ export const api = {
   },
 
   async cancelAppointmentByPatient(id: string) {
-    console.log('Attempting to cancel appointment:', id);
-    
-    // First, update the status
-    const { data, error } = await supabase
-      .from('rendez_vous')
-      .update({ status: 'annulé' })
-      .eq('id', id)
-      .select(); // Get the updated row
-    
+    const { data, error } = await supabase.rpc('cancel_appointment_by_patient', { appointment_id: id });
     if (error) {
-      console.error('Error updating appointment status:', error);
-      throw error;
+      console.error('RPC Error (cancel_appointment_by_patient):', error);
+      throw new Error(error.message || 'Impossible d\'annuler le rendez-vous.');
     }
-
-    if (!data || data.length === 0) {
-      console.error('No appointment found or access denied for ID:', id);
-      throw new Error('Rendez-vous non trouvé ou accès refusé.');
-    }
-
-    const apt = data[0];
-    console.log('Appointment cancelled successfully:', apt);
-
-    // Record in consultation history
-    // Note: If this fails due to RLS, we catch it and continue
-    const { error: historyErr } = await supabase.from('consultations').insert([{
-      patient_id: apt.patient_id,
-      veterinaire_id: apt.veterinaire_id,
-      date_consultation: apt.date_rdv,
-      diagnosis: 'ANNULATION (Patient)',
-      notes: 'Rendez-vous annulé par le patient.',
-      price: 0
-    }]);
-
-    if (historyErr) {
-      console.warn('Failed to record cancellation in history (likely RLS):', historyErr);
-    }
-
-    return apt;
+    return data;
   },
 
   async checkInPatient(id: string) {
