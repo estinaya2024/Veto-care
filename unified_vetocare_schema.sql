@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS public.patients (
     status TEXT DEFAULT 'En bonne santé',
     primary_vet_id UUID REFERENCES public.veterinaires(id),
     internal_id TEXT UNIQUE,
+    is_archived BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
@@ -156,6 +157,9 @@ CREATE POLICY "Owner: My Pets" ON public.patients FOR ALL TO authenticated USING
 
 DROP POLICY IF EXISTS "Owner: My Bookings" ON public.rendez_vous;
 CREATE POLICY "Owner: My Bookings" ON public.rendez_vous FOR ALL TO authenticated USING (auth.uid() = maitre_id);
+
+DROP POLICY IF EXISTS "Owner: View Consults" ON public.consultations;
+CREATE POLICY "Owner: View Consults" ON public.consultations FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.patients p WHERE p.id = patient_id AND p.maitre_id = auth.uid()));
 
 DROP POLICY IF EXISTS "Owner: My Docs" ON public.medical_documents;
 CREATE POLICY "Owner: My Docs" ON public.medical_documents FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.patients p WHERE p.id = patient_id AND p.maitre_id = auth.uid()));

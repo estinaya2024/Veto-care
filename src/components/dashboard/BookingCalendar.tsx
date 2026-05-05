@@ -253,7 +253,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
       setAppointmentToCancel(null);
       fetchData();
     } catch (err: any) {
-      toast.error("Erreur lors de l'annulation.");
+      toast.error(err.message || "Erreur lors de l'annulation.");
     } finally {
       setLoading(false);
     }
