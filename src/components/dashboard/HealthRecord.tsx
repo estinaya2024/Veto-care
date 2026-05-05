@@ -106,9 +106,9 @@ export function HealthRecord({ pet, onBack }: HealthRecordProps) {
       await api.uploadPetDocument(pet.id, user.id, file, file.name, type);
       toast.success('Document ajouté avec succès');
       fetchPetData();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Upload error:', err);
-      toast.error('Erreur lors de l\'envoi du document');
+      toast.error(err.message || "Erreur lors de l'envoi du document");
     } finally {
       setUploading(false);
     }

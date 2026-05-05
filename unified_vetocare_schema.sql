@@ -77,6 +77,24 @@ CREATE TABLE IF NOT EXISTS public.medical_documents (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS public.prescriptions (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    consultation_id UUID REFERENCES public.consultations(id) ON DELETE CASCADE NOT NULL,
+    medication TEXT NOT NULL,
+    dosage TEXT,
+    duration TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.indisponibilites_vet (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    veterinaire_id UUID REFERENCES public.veterinaires(id) ON DELETE CASCADE NOT NULL,
+    start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+    motif TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
+);
+
 -- 2. VIEWS
 CREATE OR REPLACE VIEW public.waiting_room AS
 SELECT r.id, r.date_rdv, r.checkin_at, p.name as patient_name, p.species, p.id as patient_id, v.name as vet_name, v.id as vet_id
@@ -137,6 +155,8 @@ ALTER TABLE public.veterinaires ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.rendez_vous ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.consultations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.medical_documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.prescriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.indisponibilites_vet ENABLE ROW LEVEL SECURITY;
 
 -- Vets: Full Access
 DROP POLICY IF EXISTS "Vet: Full Access" ON public.patients;
@@ -147,6 +167,12 @@ CREATE POLICY "Vet: Manage Bookings" ON public.rendez_vous FOR ALL TO authentica
 
 DROP POLICY IF EXISTS "Vet: Manage Consults" ON public.consultations;
 CREATE POLICY "Vet: Manage Consults" ON public.consultations FOR ALL TO authenticated USING (is_vet());
+
+DROP POLICY IF EXISTS "Vet: Manage Prescriptions" ON public.prescriptions;
+CREATE POLICY "Vet: Manage Prescriptions" ON public.prescriptions FOR ALL TO authenticated USING (is_vet());
+
+DROP POLICY IF EXISTS "Vet: Manage Unavail" ON public.indisponibilites_vet;
+CREATE POLICY "Vet: Manage Unavail" ON public.indisponibilites_vet FOR ALL TO authenticated USING (is_vet());
 
 DROP POLICY IF EXISTS "Public: View Vets" ON public.veterinaires;
 CREATE POLICY "Public: View Vets" ON public.veterinaires FOR SELECT USING (true);
@@ -163,6 +189,12 @@ CREATE POLICY "Owner: My Bookings" ON public.rendez_vous FOR ALL TO authenticate
 
 DROP POLICY IF EXISTS "Owner: View Consults" ON public.consultations;
 CREATE POLICY "Owner: View Consults" ON public.consultations FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.patients p WHERE p.id = patient_id AND p.maitre_id = auth.uid()));
+
+DROP POLICY IF EXISTS "Owner: View Prescriptions" ON public.prescriptions;
+CREATE POLICY "Owner: View Prescriptions" ON public.prescriptions FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.consultations c JOIN public.patients p ON c.patient_id = p.id WHERE c.id = consultation_id AND p.maitre_id = auth.uid()));
+
+DROP POLICY IF EXISTS "Public: View Unavail" ON public.indisponibilites_vet;
+CREATE POLICY "Public: View Unavail" ON public.indisponibilites_vet FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Owner: My Docs" ON public.medical_documents;
 CREATE POLICY "Owner: My Docs" ON public.medical_documents FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM public.patients p WHERE p.id = patient_id AND p.maitre_id = auth.uid()));
@@ -207,5 +239,43 @@ BEGIN
         'Rendez-vous annulé par le patient.',
         0
     );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 8. BOOK APPOINTMENT RPC
+CREATE OR REPLACE FUNCTION public.book_appointment(
+  p_maitre_id UUID,
+  p_patient_id UUID,
+  p_veterinaire_id UUID,
+  p_date_rdv TIMESTAMP WITH TIME ZONE,
+  p_health_record_url TEXT DEFAULT NULL
+) RETURNS JSON AS $$
+DECLARE
+  conflict BOOLEAN;
+BEGIN
+  -- Check conflict
+  SELECT public.check_conflict(p_veterinaire_id, p_date_rdv) INTO conflict;
+  
+  IF conflict THEN
+    RETURN json_build_object('success', false, 'message', 'Ce créneau est déjà réservé.');
+  END IF;
+
+  INSERT INTO public.rendez_vous (
+    maitre_id,
+    patient_id,
+    veterinaire_id,
+    date_rdv,
+    health_record_url,
+    status
+  ) VALUES (
+    p_maitre_id,
+    p_patient_id,
+    p_veterinaire_id,
+    p_date_rdv,
+    p_health_record_url,
+    'planifié'
+  );
+
+  RETURN json_build_object('success', true);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
