@@ -272,14 +272,36 @@ export function Appointments() {
                   </div>
                 </div>
                 
-                <div className="mt-6 flex justify-end gap-3">
-                  {apt.health_record_url && (
-                    <a href={apt.health_record_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-xs font-bold hover:bg-gray-200 transition-colors">
-                      <FileText size={14} /> Voir Carnet
-                    </a>
-                  )}
-                  <Button variant="black" size="sm" className="font-bold group-hover:scale-105 transition-transform">Détails</Button>
-                </div>
+                  <div className="mt-6 flex flex-wrap justify-end gap-3">
+                    {apt.health_record_url && (
+                      <a href={apt.health_record_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-full text-xs font-bold hover:bg-gray-200 transition-colors">
+                        <FileText size={14} /> Voir Carnet
+                      </a>
+                    )}
+                    
+                    {/* Check-in Button */}
+                    {apt.status === 'confirmé' && (
+                      <Button 
+                        variant="yellow" 
+                        size="sm" 
+                        className="font-bold shadow-sm"
+                        onClick={async () => {
+                          try {
+                            const { error } = await supabase.rpc('check_in_patient', { appointment_id: apt.id });
+                            if (error) throw error;
+                            toast.success("Vous êtes maintenant en salle d'attente !");
+                            fetchData();
+                          } catch (err) {
+                            toast.error('Erreur lors du check-in');
+                          }
+                        }}
+                      >
+                        Marquer comme Arrivé
+                      </Button>
+                    )}
+                    
+                    <Button variant="black" size="sm" className="font-bold group-hover:scale-105 transition-transform">Détails</Button>
+                  </div>
               </div>
             ))
           )}
