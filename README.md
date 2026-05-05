@@ -118,7 +118,7 @@ Our application manages two distinct types of data to provide a full clinical ex
 
 | Field | Detail |
 | :--- | :--- |
-| **Team Members** | [NAMES HERE] |
+| **Team Members** | Karou Aya Malak, Yasser Boucherir, Bourenane Soundous Hanine |
 | **Theme** | VetoCare - Veterinary Clinic |
 | **Production URL** | [https://veto-care-2f5d.vercel.app/](https://veto-care-2f5d.vercel.app/) |
 | **GitHub Repository** | [https://github.com/estinaya2024/Veto-care](https://github.com/estinaya2024/Veto-care) |
