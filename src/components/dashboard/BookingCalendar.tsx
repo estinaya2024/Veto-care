@@ -248,11 +248,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
     if (!appointmentToCancel) return;
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('rendez_vous')
-        .update({ status: 'annulé' })
-        .eq('id', appointmentToCancel.id);
-      if (error) throw error;
+      await api.cancelAppointmentByPatient(appointmentToCancel.id);
       toast.success('Rendez-vous annulé.');
       setAppointmentToCancel(null);
       fetchData();

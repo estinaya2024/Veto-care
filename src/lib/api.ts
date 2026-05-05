@@ -333,7 +333,7 @@ export const api = {
   },
 
   async rejectAppointment(id: string, reason: string) {
-    const { data, error } = await supabase
+    const { data: apt, error } = await supabase
       .from('rendez_vous')
       .update({ 
         status: 'annulé', 
@@ -343,8 +343,52 @@ export const api = {
       .eq('id', id)
       .select()
       .single();
+    
     if (error) throw error;
-    return data;
+
+    // Record in consultation history
+    try {
+      await supabase.from('consultations').insert([{
+        patient_id: apt.patient_id,
+        veterinaire_id: apt.veterinaire_id,
+        date_consultation: apt.date_rdv,
+        diagnosis: 'ANNULATION (Refusé)',
+        notes: `Motif du refus : ${reason}`,
+        price: 0
+      }]);
+    } catch (historyErr) {
+      console.error('Failed to record cancellation in history:', historyErr);
+      // We don't throw here to avoid failing the main operation if history recording fails
+    }
+
+    return apt;
+  },
+
+  async cancelAppointmentByPatient(id: string) {
+    const { data: apt, error } = await supabase
+      .from('rendez_vous')
+      .update({ status: 'annulé' })
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+
+    // Record in consultation history
+    try {
+      await supabase.from('consultations').insert([{
+        patient_id: apt.patient_id,
+        veterinaire_id: apt.veterinaire_id,
+        date_consultation: apt.date_rdv,
+        diagnosis: 'ANNULATION (Patient)',
+        notes: 'Rendez-vous annulé par le patient.',
+        price: 0
+      }]);
+    } catch (historyErr) {
+      console.error('Failed to record cancellation in history:', historyErr);
+    }
+
+    return apt;
   },
 
   async checkInPatient(id: string) {
