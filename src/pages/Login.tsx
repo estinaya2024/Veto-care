@@ -130,32 +130,6 @@ export function Login() {
             {loading ? t('login.loading') : mode === 'login' ? t('login.submit_login') : t('login.submit_signup')}
           </Button>
 
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-100"></div>
-            </div>
-            <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold">
-              <span className="bg-white px-2 text-gray-400">{t('login.or')}</span>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={async () => {
-              const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                  redirectTo: window.location.origin + '/dashboard'
-                }
-              });
-              if (error) setError(error.message);
-            }}
-            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white border border-gray-100 rounded-xl hover:bg-gray-50 transition-all font-bold text-sm"
-          >
-            <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
-            Google
-          </button>
-
           <button
             type="button"
             onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
@@ -163,6 +137,7 @@ export function Login() {
           >
             {mode === 'login' ? t('login.no_account') : t('login.has_account')}
           </button>
+
         </form>
       </div>
     </div>
