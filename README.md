@@ -5,13 +5,17 @@
 
 ## Mission 4 : Architect Report
 
+---
+
 ### 1. Theme Mapping
 The VetoCare platform is a specialized management system for veterinary clinics. It facilitates the workflow between animal owners and medical professionals.
 
-*   **Table A (Main Entity):** `public.maitres` (Animal owners / Users)
-*   **Table B (Resource):** `public.veterinaires` (Veterinary doctors and specialists)
-*   **Table C (Interaction):** `public.rendez_vous` (Appointment scheduling and clinical sessions)
-*   **File (Storage):** `health-records` bucket (Storage for medical imaging, X-rays, and PDF records)
+| Component | Entity | Role in System |
+| :--- | :--- | :--- |
+| **Table A** | `public.maitres` | Main Entity: Animal owners and system users. |
+| **Table B** | `public.veterinaires` | Resource: Veterinary doctors and specialists. |
+| **Table C** | `public.rendez_vous` | Interaction: Appointment scheduling and clinical history. |
+| **File** | `health-records` | Storage: Medical imaging, X-rays, and PDF records. |
 
 ---
 
@@ -45,6 +49,8 @@ erDiagram
     }
 ```
 
+---
+
 #### Application User Flow
 ```mermaid
 graph LR
@@ -57,6 +63,8 @@ graph LR
     G --> H[Record Consultation]
     H --> I[History Updated]
 ```
+
+---
 
 #### Cloud Infrastructure
 ```mermaid
@@ -73,28 +81,49 @@ graph TD
 ### 3. Architecture Analysis
 
 #### Financial Logic: Vercel + Supabase (OPEX vs CAPEX)
-Launching VetoCare on a Vercel + Supabase stack is strategically superior to traditional hosting because it shifts the financial burden from **CAPEX** (Capital Expenditure) to **OPEX** (Operating Expenses). 
+Launching VetoCare on a Vercel + Supabase stack is strategically superior to traditional hosting because it shifts the financial burden from capital investment to operational agility.
 
-A traditional server setup requires significant CAPEX: purchasing physical hardware, servers, networking switches, and backup power units before the platform can go live. In contrast, our Cloud-Native stack requires zero upfront investment. By using Serverless technology, we only incur OPEX (operational costs) based on actual usage. This "Pay-as-you-go" model minimizes financial risk and allows the clinic to scale its budget in direct proportion to its growth, making it the most logical choice for a new project.
+| Concept | Traditional Server | Vercel + Supabase |
+| :--- | :--- | :--- |
+| **Investment Type** | **CAPEX** (Large upfront costs) | **OPEX** (Pay-as-you-go) |
+| **Hardware** | Purchasing physical servers/racks. | Zero hardware ownership. |
+| **Risk** | High risk if the project fails. | Minimal risk; cost scales with usage. |
 
-#### Scalability: Vercel vs Physical Data Centers
-In a **local physical Data Center**, scalability is a manual and expensive process. Increasing capacity requires physically installing more server racks, upgrading **climatization** systems to manage increased heat output, and managing physical floor space. 
+A traditional setup requires significant CAPEX before writing code. In contrast, our Cloud-Native stack requires zero upfront investment. The "Pay-as-you-go" model minimizes financial risk and allows the clinic to scale its budget in direct proportion to its growth.
 
-**Vercel** eliminates these constraints through automated **Serverless Scalability**. When traffic increases, Vercel dynamically allocates compute resources across its global infrastructure. There is no need for manual monitoring of hardware temperature or physical maintenance. The system scales instantly to thousands of concurrent users, providing a level of elasticity that is impossible to achieve with a local physical setup without massive over-provisioning of hardware.
+---
 
-#### Structured vs Unstructured Data
-*   **Structured Data**: This represents the core relational data of our application, stored within the PostgreSQL database (Supabase). This includes patient names, appointment timestamps, and medical diagnosis codes. These data points follow a strict schema, ensuring integrity and allowing for complex relational queries.
-*   **Unstructured Data**: This consists of the medical files and images uploaded by users (e.g., X-ray scans, PDF health records). These files do not have a predefined internal structure that a database can index directly. They are stored as binary objects (Blobs) in the **Storage Bucket**, with the application referencing them via unique URLs stored in the structured database.
+#### Gestion de la Scalabilité (Vercel vs Data Center Physique)
+In a local physical Data Center, scalability is a manual and expensive process.
+
+*   **Physical Constraints**: Increasing capacity requires adding more server racks and upgrading **climatization** systems to manage increased heat output.
+*   **Vercel Solution**: **Vercel** eliminates these constraints through automated **Serverless Scalability**. When traffic increases, Vercel dynamically allocates compute resources across its global infrastructure. There is no need for manual monitoring of hardware temperature or physical maintenance. The system scales instantly, providing elasticity impossible to achieve with a local physical setup.
+
+---
+
+#### Donnée Structurée vs Donnée Non-structurée
+Our application manages two distinct types of data to provide a full clinical experience.
+
+| Data Type | Example in VetoCare | Storage Method |
+| :--- | :--- | :--- |
+| **Structured** | Names, Dates, Diagnosis Codes. | PostgreSQL Relational Tables. |
+| **Unstructured** | X-Ray Images, PDF Scans, Photos. | Supabase Storage Buckets (Blobs). |
+
+*   **Structured Data**: Represents the core relational data. It follows a strict schema, ensuring integrity and allowing for complex relational queries.
+*   **Unstructured Data**: Consists of files that do not have a predefined internal structure. They are stored as objects, with the application referencing them via unique URLs stored in the structured database.
 
 ---
 
 ## Deliverables & Submission Info
 
-**Team Members:** [NAMES HERE]
-**Theme:** VetoCare - Veterinary Clinic
+| Field | Detail |
+| :--- | :--- |
+| **Team Members** | [NAMES HERE] |
+| **Theme** | VetoCare - Veterinary Clinic |
+| **Production URL** | [https://veto-care-2f5d.vercel.app/](https://veto-care-2f5d.vercel.app/) |
+| **GitHub Repository** | [https://github.com/estinaya2024/Veto-care](https://github.com/estinaya2024/Veto-care) |
 
-- **Production URL:** [https://veto-care-2f5d.vercel.app/](https://veto-care-2f5d.vercel.app/)
-- **GitHub Repository:** [https://github.com/estinaya2024/Veto-care](https://github.com/estinaya2024/Veto-care)
+---
 
 ### Test Credentials
 | Role | Email | Password |
@@ -103,4 +132,4 @@ In a **local physical Data Center**, scalability is a manual and expensive proce
 | **Pet Owner (Patient)** | `patient@vetocare.dz` | `password123` |
 
 ---
-*Developed for the "Build & Ship" Module - 2026*
+*Developed for the Build & Ship Module - 2026*
