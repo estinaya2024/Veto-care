@@ -322,7 +322,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             );
           }}
           eventClick={(info: any) => {
-            const { type, patients, id } = info.event.extendedProps;
+            const { type } = info.event.extendedProps;
             if (type === 'unavailability') handleDeleteEvent(info.event.id);
             if (type === 'appointment') {
               setAppointmentToCancel(info.event.extendedProps);
