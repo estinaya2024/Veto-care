@@ -245,6 +245,16 @@ export const api = {
     return data;
   },
 
+  async getConsultationsByOwner(ownerId: string) {
+    const { data, error } = await supabase
+      .from('consultations')
+      .select('*, patients!inner(name, maitre_id), veterinaires(name)')
+      .eq('patients.maitre_id', ownerId)
+      .order('date_consultation', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+
   async getPetDocuments(petId: string) {
     const { data, error } = await supabase
       .from('medical_documents')

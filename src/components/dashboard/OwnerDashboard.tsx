@@ -29,6 +29,7 @@ export function OwnerDashboard() {
   const [loading, setLoading] = useState(true);
   const [showBooking, setShowBooking] = useState(false);
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [allConsultations, setAllConsultations] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'appointments' | 'history'>('overview');
   const [selectedPet, setSelectedPet] = useState<any | null>(null);
   
@@ -47,12 +48,14 @@ export function OwnerDashboard() {
     if (!user) return;
     setLoading(true);
     try {
-      const [petsData, aptsData] = await Promise.all([
+      const [petsData, aptsData, consultsData] = await Promise.all([
         api.getPatientsByOwner(user.id),
-        api.getAppointmentsByOwner(user.id)
+        api.getAppointmentsByOwner(user.id),
+        api.getConsultationsByOwner(user.id)
       ]);
       setPets(petsData);
       setAppointments(aptsData);
+      setAllConsultations(consultsData);
     } catch (err) {
       console.error('Error fetching dashboard:', err);
     } finally {
@@ -339,42 +342,77 @@ export function OwnerDashboard() {
       )}
 
       {activeTab === 'history' && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-8 border-b border-gray-50">
-            <h3 className="text-2xl font-bold text-gray-900">{t('owner.global_history')}</h3>
+        <div className="space-y-8">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="p-8 border-b border-gray-50 flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">Journal des Consultations</h3>
+                <p className="text-sm text-gray-500">Historique médical détaillé de vos compagnons</p>
+              </div>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {allConsultations.length === 0 ? (
+                <div className="p-12 text-center text-gray-400">Aucune note de consultation enregistrée.</div>
+              ) : allConsultations.map((c) => (
+                <div key={c.id} className="p-8 hover:bg-gray-50 transition-all">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <span className="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-2 inline-block">Consultation Médicale</span>
+                      <h4 className="text-xl font-bold text-gray-900">{c.patients?.name}</h4>
+                      <p className="text-sm text-gray-500">{format(new Date(c.date_consultation), 'dd MMMM yyyy', { locale: fr })} • Dr. {c.veterinaires?.name}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Diagnostic</p>
+                      <p className="text-sm font-medium text-gray-900">{c.diagnosis || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Traitement</p>
+                      <p className="text-sm font-medium text-gray-900">{c.treatment || '—'}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr>
-                  <th className="px-8 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">{t('owner.col.date')}</th>
-                  <th className="px-8 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">{t('owner.col.animal')}</th>
-                  <th className="px-8 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">{t('owner.col.type')}</th>
-                  <th className="px-8 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">{t('owner.col.status')}</th>
-                  <th className="px-8 py-4 text-xs font-black text-gray-500 uppercase tracking-widest"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {pastAppointments.length === 0 ? (
-                  <tr><td colSpan={5} className="px-8 py-20 text-center text-gray-400">{t('owner.no_history')}</td></tr>
-                ) : pastAppointments.map((apt) => (
-                  <tr key={apt.id} className="hover:bg-gray-50 transition-all cursor-pointer group">
-                    <td className="px-8 py-4 text-sm font-bold text-gray-900">{format(new Date(apt.date_rdv), 'dd MMMM yyyy', { locale: fr })}</td>
-                    <td className="px-8 py-4 text-sm font-medium">{apt.patients?.name}</td>
-                    <td className="px-8 py-4 text-sm text-gray-500">{t('owner.consultation')}</td>
-                    <td className="px-8 py-4">
-                      <span className={cn(
-                        "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
-                        apt.status === 'terminé' ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
-                      )}>
-                        {apt.status}
-                      </span>
-                    </td>
-                    <td className="px-8 py-4 text-right"><ChevronRight size={18} className="text-gray-300 group-hover:text-gray-900 transition-colors" /></td>
+
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="p-8 border-b border-gray-50">
+              <h3 className="text-2xl font-bold text-gray-900">{t('owner.global_history')}</h3>
+              <p className="text-sm text-gray-500">Chronologie des rendez-vous passés et annulés</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-gray-50 border-b border-gray-100">
+                  <tr>
+                    <th className="px-8 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">{t('owner.col.date')}</th>
+                    <th className="px-8 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">{t('owner.col.animal')}</th>
+                    <th className="px-8 py-4 text-xs font-black text-gray-500 uppercase tracking-widest">{t('owner.col.status')}</th>
+                    <th className="px-8 py-4 text-xs font-black text-gray-500 uppercase tracking-widest"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {pastAppointments.length === 0 ? (
+                    <tr><td colSpan={4} className="px-8 py-20 text-center text-gray-400">{t('owner.no_history')}</td></tr>
+                  ) : pastAppointments.map((apt) => (
+                    <tr key={apt.id} className="hover:bg-gray-50 transition-all cursor-pointer group">
+                      <td className="px-8 py-4 text-sm font-bold text-gray-900">{format(new Date(apt.date_rdv), 'dd MMMM yyyy', { locale: fr })}</td>
+                      <td className="px-8 py-4 text-sm font-medium">{apt.patients?.name}</td>
+                      <td className="px-8 py-4">
+                        <span className={cn(
+                          "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
+                          apt.status === 'terminé' ? "bg-green-100 text-green-600" : (apt.status === 'annulé' ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-600")
+                        )}>
+                          {apt.status}
+                        </span>
+                      </td>
+                      <td className="px-8 py-4 text-right"><ChevronRight size={18} className="text-gray-300 group-hover:text-gray-900 transition-colors" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

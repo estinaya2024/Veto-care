@@ -1,6 +1,9 @@
 -- ========================================================
 -- VETOCARE: THE ONE & ONLY MASTER SCHEMA (RE-RUNNABLE)
 -- ========================================================
+-- NOTE FOR TEACHERS / DEVELOPERS:
+-- This schema includes Row Level Security (RLS) and custom functions (RPCs).
+-- Make sure to run the CANCELLATION RPC (Section 7) to enable patient cancellations.
 
 -- 1. BASE TABLES
 CREATE TABLE IF NOT EXISTS public.maitres (
