@@ -166,7 +166,7 @@ export const api = {
     return data || [];
   },
 
-  async getTodayAppointments(vetId: string) {
+  async getTodayAppointments(_vetId?: string) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -175,7 +175,6 @@ export const api = {
     const { data, error } = await supabase
       .from('rendez_vous')
       .select('*, patients(*), maitres(full_name)')
-      .eq('veterinaire_id', vetId)
       .neq('status', 'annulé')
       .neq('status', 'terminé')
       .gte('date_rdv', today.toISOString())
@@ -308,20 +307,18 @@ export const api = {
 
   // --- NEW PROFESSIONAL CLINIC METHODS ---
 
-  async getWaitingRoom(vetId: string) {
+  async getWaitingRoom(_vetId?: string) {
     const { data, error } = await supabase
       .from('waiting_room')
-      .select('*')
-      .eq('vet_id', vetId);
+      .select('*');
     if (error) throw error;
     return data || [];
   },
 
-  async getPendingAppointments(vetId: string) {
+  async getPendingAppointments(_vetId?: string) {
     const { data, error } = await supabase
       .from('rendez_vous')
       .select('*, patients(*), maitres(*)')
-      .eq('veterinaire_id', vetId)
       .eq('status', 'planifié')
       .is('approved_at', null)
       .order('date_rdv', { ascending: true });
