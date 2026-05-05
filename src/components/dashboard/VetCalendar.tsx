@@ -100,10 +100,11 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
       const { data: aptData } = await supabase
         .from('rendez_vous')
         .select('*, patients(*)')
-        .eq('veterinaire_id', vetId)
         .neq('status', 'annulé');
 
-      const unavailData = await api.getUnavailability(vetId);
+      const { data: unavailData } = await supabase
+        .from('indisponibilites_vet')
+        .select('*');
 
       const formattedApts = (aptData || []).map((apt: any) => ({
         id: `apt-${apt.id}`,
