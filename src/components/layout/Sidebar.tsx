@@ -49,20 +49,23 @@ const SidebarContent = ({
   logoutLabel,
   homeLabel
 }: SidebarContentProps) => (
-  <div className="flex flex-col h-full py-10">
+  <div className="flex flex-col h-full pt-4 pb-10">
     {/* Logo Section */}
     <div className={cn(
-      "flex items-center gap-4 px-8 mb-16 transition-all duration-300",
+      "flex items-center px-4 mb-10 transition-all duration-300",
       isCollapsed ? "justify-center" : ""
     )}>
-      <img src={logo} alt="Logo" className="w-12 h-12 min-w-[48px] drop-shadow-xl" />
+      <img src={logo} alt="Logo" className={cn(
+        "h-16 w-auto object-contain transition-transform",
+        !isCollapsed && "-translate-y-2"
+      )} />
       {!isCollapsed && (
         <motion.span 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="font-black text-3xl tracking-tighter text-veto-black"
+          className="-ml-3 font-heading font-black text-2xl tracking-tighter uppercase text-veto-black"
         >
-          Veto-Care
+          VetoCare
         </motion.span>
       )}
     </div>
