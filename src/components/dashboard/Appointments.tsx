@@ -300,6 +300,32 @@ export function Appointments() {
                       </Button>
                     )}
                     
+                    {/* Cancel Button */}
+                    {apt.status === 'en_attente' && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="font-bold border-red-200 text-red-500 hover:bg-red-50"
+                        onClick={async () => {
+                          if (window.confirm('Voulez-vous vraiment annuler ce rendez-vous ?')) {
+                            try {
+                              const { error } = await supabase
+                                .from('rendez_vous')
+                                .update({ status: 'annulé' })
+                                .eq('id', apt.id);
+                              if (error) throw error;
+                              toast.success('Rendez-vous annulé');
+                              fetchData();
+                            } catch (err) {
+                              toast.error('Erreur lors de l\'annulation');
+                            }
+                          }
+                        }}
+                      >
+                        Annuler
+                      </Button>
+                    )}
+                    
                     <Button variant="black" size="sm" className="font-bold group-hover:scale-105 transition-transform">Détails</Button>
                   </div>
               </div>
