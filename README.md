@@ -105,8 +105,11 @@ L'utilisation de **Vercel + Supabase** transforme l'investissement initial :
 2. `npm run dev`
 
 **Identifiants de Test :**
-*   **Email** : `test@example.com`
-*   **MDP** : `password123`
+
+| Rôle | Email | Mot de Passe |
+| :--- | :--- | :--- |
+| **Vétérinaire** | `doctor@vetocare.dz` | `password123` |
+| **Patient** | `patient@vetocare.dz` | `password123` |
 
 ---
 *Projet réalisé dans le cadre du module "Build & Ship" - 2026*
