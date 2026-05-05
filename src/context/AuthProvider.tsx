@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
   };
 
-  const VET_EMAILS = ['a_karou@estin.dz', 'yboucherir@gmail.com'];
+  const VET_EMAILS = ['a_karou@estin.dz', 'yboucherir@gmail.com', 'doctor@vetocare.dz'];
 
   const value = {
     user,
