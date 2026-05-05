@@ -444,7 +444,6 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
           </div>
         )}
       </AnimatePresence>
-      </AnimatePresence>
 
       <style>{`
         .vet-calendar-theme .fc-timegrid-slot { height: 5rem !important; }

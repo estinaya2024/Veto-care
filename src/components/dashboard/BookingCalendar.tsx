@@ -87,7 +87,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
       .subscribe();
 
     return () => {
-      supabase.removeChannel(aptSubscription);
+      supabase.removeChannel(channel);
       supabase.removeChannel(blockSubscription);
     };
   }, [maitreId]);
