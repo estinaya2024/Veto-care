@@ -250,8 +250,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
       const { error } = await supabase
         .from('rendez_vous')
         .update({ status: 'annulé' })
-        .eq('id', appointmentToCancel.id)
-        .eq('maitre_id', maitreId);
+        .eq('id', appointmentToCancel.id);
       if (error) throw error;
       toast.success('Rendez-vous annulé.');
       setAppointmentToCancel(null);
