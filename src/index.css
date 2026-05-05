@@ -119,27 +119,8 @@
   align-items: center !important;
   letter-spacing: -0.02em !important;
   margin-top: 5px !important;
-  transform: translateX(50px) !important; /* Pushed 50px to the right */
 }
 
-/* Re-apply the Icon to the Title Container */
-.chat-layout .chat-header h2::before,
-.chat-layout .chat-header-title::before,
-[class*="chat-header-title"]::before,
-.chat-layout .chat-header div:first-child::before {
-  content: '';
-  display: inline-block !important;
-  width: 32px !important;
-  height: 32px !important;
-  background-color: #FFD500 !important;
-  background-image: url('./assets/ai_paw.png') !important;
-  background-size: 60% !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  border-radius: 50% !important;
-  margin-right: 0px !important; /* Gap completely removed */
-  flex-shrink: 0 !important;
-}
 
 .chat-layout .chat-header-subtitle,
 [class*="chat-header-subtitle"] {
@@ -153,9 +134,7 @@
   display: flex !important;
   align-items: center !important;
   gap: 4px !important;
-  margin-left: 32px !important; /* Exactly 32px (icon width) */
   margin-top: -2px !important;
-  transform: translateX(50px) !important; /* Match title shift */
 }
 
 .chat-layout .chat-header-subtitle::before {
