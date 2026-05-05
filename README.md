@@ -1,115 +1,52 @@
 # 🐾 Veto-Care : Clinique Vétérinaire Cloud-Native
-> **Extranet métier moderne construit avec la philosophie "Vibe Coding"**
+> **Extranet métier moderne construit pour la gestion clinique simplifiée**
 
 [![Vercel Deployment](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://veto-care-2f5d.vercel.app/)
 [![Supabase Stack](https://img.shields.io/badge/Stack-Supabase--React-blue?style=for-the-badge&logo=supabase)](https://supabase.com)
 
-**Lien de Production :** [https://veto-care-2f5d.vercel.app/](https://veto-care-2f5d.vercel.app/)
+---
+
+## 🏗️ Mission 4 : Le README "Architecte"
+
+### 1. Mapping du Thème
+**Thème :** Plateforme de gestion pour clinique vétérinaire (VetoCare), permettant la prise de rendez-vous, le suivi médical des animaux et la gestion des consultations par les vétérinaires.
+
+*   **Table A (Entité Principale) :** `public.patients` (Les animaux de compagnie)
+*   **Table B (Ressource) :** `public.rendez_vous` (Le planning et l'agenda des soins)
+*   **Table C (Interaction) :** `public.consultations` (L'historique clinique et les diagnostics)
+*   **Fichier (Storage) :** `health-records` bucket (Imagerie médicale, PDFs de carnet de santé)
 
 ---
 
-## 🎯 Mapping du Thème (Mission 1)
+### 2. L'Analyse d'Architecture
 
-| Composant | Entité Métier | Table Supabase |
-| :--- | :--- | :--- |
-| **Table A (Utilisateurs)** | Maîtres d'animaux | `public.maitres` |
-| **Table B (Ressources)** | Vétérinaires | `public.veterinaires` |
-| **Table C (Interactions)** | Rendez-vous | `public.rendez_vous` |
-| **Storage (Fichier)** | Carnet de santé | `health-records` bucket |
+#### Pourquoi Vercel + Supabase (OPEX vs CAPEX) ?
+Le choix de cette stack est financièrement plus logique qu’un serveur classique car il remplace des dépenses en **CAPEX** (Capital Expenditure) par de l'**OPEX** (Operating Expenses). 
+Lancer un serveur classique exigerait un investissement initial lourd : achat de serveurs physiques, routeurs, onduleurs, et stockage (CAPEX). Pour ce projet, nous démarrons avec **zéro investissement matériel**. Grâce au modèle "Pay-as-you-go" de Vercel et Supabase, les coûts sont purement opérationnels (OPEX) : nous ne payons que pour les ressources consommées. Cela permet d'éliminer le risque financier lié à l'infrastructure avant même d'avoir un utilisateur actif.
 
----
+#### Gestion de la Scalabilité (Vercel vs Data Center Physique)
+Dans un **Data Center physique local**, la scalabilité est un défi logistique majeur. Si le trafic explose, il faut physiquement ajouter des serveurs rack, augmenter la capacité de **climatisation** pour éviter la surchauffe des machines, et gérer l'alimentation électrique. 
+**Vercel** gère cela de manière totalement abstraite via le **Serverless**. Lorsqu'un pic de trafic survient, Vercel provisionne instantanément des fonctions de calcul supplémentaires sur son réseau mondial (Edge). Nous n'avons aucune climatisation à surveiller ni de câblage physique à modifier ; l'infrastructure s'adapte automatiquement à la charge logicielle en quelques millisecondes.
 
-## 📐 Architecture & Modélisation
-
-### 1. Modèle de Données (ERD)
-```mermaid
-erDiagram
-    MAITRES ||--o{ PATIENTS : "possède"
-    VETERINAIRES ||--o{ RENDEZ_VOUS : "reçoit"
-    PATIENTS ||--o{ RENDEZ_VOUS : "concerne"
-    PATIENTS ||--o{ CONSULTATIONS : "historique"
-    RENDEZ_VOUS ||--|| CONSULTATIONS : "génère"
-    MAITRES {
-        uuid id PK
-        string full_name
-        string email
-        string phone
-    }
-    PATIENTS {
-        uuid id PK
-        uuid maitre_id FK
-        string name
-        string species
-        string weight
-        text allergies
-    }
-    RENDEZ_VOUS {
-        uuid id PK
-        uuid patient_id FK
-        timestamp date_rdv
-        string status
-    }
-```
-
-### 2. Flux de l'Application (User Flow)
-```mermaid
-graph LR
-    A[Inscription/Login] --> B{Rôle?}
-    B -->|Maître| C[Tableau de Bord Client]
-    B -->|Vétérinaire| D[Tableau de Bord Médical]
-    C --> E[Prendre RDV + Upload PDF]
-    D --> F[Salle d'Attente]
-    F --> G[Rapport de Consultation]
-    G --> H[Facture + Historique]
-```
-
-### 3. Architecture Cloud Serverless
-```mermaid
-graph TD
-    User((Utilisateur)) -->|Vite/React| Vercel[Hébergement Vercel Edge]
-    Vercel -->|Auth| Auth[Supabase Auth]
-    Vercel -->|SQL/RLS| DB[PostgreSQL Database]
-    Vercel -->|Blobs| Store[Supabase Storage]
-    DB ---|Sécurité| Auth
-```
+#### Donnée Structurée vs Donnée Non-structurée
+*   **Donnée Structurée :** Ce sont toutes les informations organisées dans notre base PostgreSQL (Supabase). Par exemple, les noms des animaux, les dates de rendez-vous et les montants des consultations. Ces données suivent un schéma strict (colonnes, types UUID, relations FK) permettant des requêtes SQL complexes.
+*   **Donnée Non-structurée :** Ce sont les **fichiers binaires** (images JPG d'examens, scans PDF) stockés dans notre bucket Storage. Ces données n'ont pas de format interne que la base de données peut analyser directement. Elles sont stockées en tant qu'objets (Blobs), et nous ne gardons que leur "lien" (URL) dans nos tables structurées.
 
 ---
 
-## 🏗️ Analyse d'Architecture (Mission 4)
+## 📦 Livrables & Informations de Rendu
 
-### 📈 Rentabilité : CAPEX vs OPEX
-L'utilisation de **Vercel + Supabase** transforme l'investissement initial :
-*   **CAPEX (0$)** : Aucun achat de matériel physique ou de serveurs.
-*   **OPEX** : Coût opérationnel basé sur la consommation réelle. C'est le modèle "Pay-as-you-go", idéal pour une clinique agile.
+**Binôme :** [VOS NOMS ICI]
+**Thème :** Clinique Vétérinaire (VetoCare)
 
-### 🌐 Scalabilité et DevOps
-*   **Auto-scaling** : Notre application gère 10 ou 1000 patients sans intervention humaine grâce aux fonctions Serverless.
-*   **CI/CD** : Chaque `git push` déclenche un déploiement automatisé sur Vercel, garantissant une mise en production rapide et sécurisée.
+- **URL de production :** [https://veto-care-2f5d.vercel.app/](https://veto-care-2f5d.vercel.app/)
+- **Dépôt GitHub :** [https://github.com/estinaya2024/Veto-care](https://github.com/estinaya2024/Veto-care)
 
-### 💾 Données Structurées vs Non-structurées
-*   **Structurées (PostgreSQL)** : Données tabulaires relationnelles (RDV, Diagnostics, Prix).
-*   **Non-structurées (Storage)** : Fichiers binaires (PDF des carnets de santé, imagerie).
-
----
-
-## ✨ Fonctionnalités Implémentées
-- 🔐 **RLS (Row Level Security)** : Isolation totale des données. Un patient ne voit jamais les données d'un autre.
-- 📅 **Agenda Dynamique** : Gestion des créneaux et des indisponibilités vétérinaires.
-- 🏥 **Dossier Médical Partagé** : Historique complet des consultations et ordonnances.
-- ⏳ **Check-in Temps Réel** : Système de salle d'attente automatisé.
-
----
-
-## 🚀 Installation
-1. `npm install`
-2. `npm run dev`
-
-**Identifiants de Test :**
-
+### 🔑 Identifiants de Test
 | Rôle | Email | Mot de Passe |
 | :--- | :--- | :--- |
 | **Vétérinaire** | `doctor@vetocare.dz` | `password123` |
-| **Patient** | `patient@vetocare.dz` | `password123` |
+| **Patient (Maître)** | `patient@vetocare.dz` | `password123` |
 
 ---
 *Projet réalisé dans le cadre du module "Build & Ship" - 2026*
