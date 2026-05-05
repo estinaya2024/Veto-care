@@ -67,10 +67,14 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
     fetchData();
     fetchPets();
 
-    // Realtime subscriptions for instant availability updates
-    const aptSubscription = supabase
-      .channel('public:rendez_vous')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'rendez_vous' }, () => {
+    // Subscribe to changes
+    const channel = supabase
+      .channel('calendar_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'rendez_vous' 
+      }, () => {
         fetchData();
       })
       .subscribe();
@@ -244,7 +248,7 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
     try {
       const { error } = await supabase
         .from('rendez_vous')
-        .delete()
+        .update({ status: 'annulé' })
         .eq('id', appointmentToCancel.id)
         .eq('maitre_id', maitreId);
       if (error) throw error;
