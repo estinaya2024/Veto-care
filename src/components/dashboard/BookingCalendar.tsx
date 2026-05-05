@@ -127,7 +127,8 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
       const formattedApts: BookingEvent[] = (allApts || [])
         .filter((apt: any) => apt.status !== 'annulé')
         .map((apt: any) => {
-          const isMine = apt.maitre_id === maitreId;
+          // Robust ID comparison (handling potential string/uuid variations)
+          const isMine = String(apt.maitre_id).toLowerCase() === String(maitreId).toLowerCase();
           const petName = apt.patients?.name || 'Animal';
           const isCancelled = apt.status === 'annulé';
           return {
