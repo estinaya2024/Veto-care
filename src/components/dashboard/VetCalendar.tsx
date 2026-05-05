@@ -39,6 +39,7 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
   const [loading, setLoading] = useState(false);
   console.log('VetCalendar sync state:', loading);
   const [selectedRange, setSelectedRange] = useState<{ start: string; end: string } | null>(null);
+  const [appointmentToCancel, setAppointmentToCancel] = useState<any | null>(null);
   const [reason, setReason] = useState('');
   const calendarRef = useRef<FullCalendar>(null);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -321,9 +322,11 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             );
           }}
           eventClick={(info: any) => {
-            const { type, patients } = info.event.extendedProps;
+            const { type, patients, id } = info.event.extendedProps;
             if (type === 'unavailability') handleDeleteEvent(info.event.id);
-            if (type === 'appointment' && onSelectPatient) onSelectPatient(patients);
+            if (type === 'appointment') {
+              setAppointmentToCancel(info.event.extendedProps);
+            }
           }}
           eventContent={(arg: any) => {
             const type = arg.event.extendedProps.type;
@@ -378,11 +381,11 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
                 <div className="p-6 bg-gray-50 rounded-[2rem] border border-gray-100 space-y-4 shadow-inner">
                   <div className="flex items-center gap-4 text-black font-black">
                     <div className="p-2 bg-white rounded-xl shadow-sm"><CalendarIcon size={18} className="text-veto-yellow" /></div>
-                    <span className="text-sm">{format(new Date(selectedRange!.start), 'EEEE d MMMM', { locale: fr })}</span>
+                    <span className="text-sm">{selectedRange && format(new Date(selectedRange.start), 'EEEE d MMMM', { locale: fr })}</span>
                   </div>
                   <div className="flex items-center gap-4 text-black font-black">
                     <div className="p-2 bg-white rounded-xl shadow-sm"><Clock size={18} className="text-veto-yellow" /></div>
-                    <span className="text-sm">De {format(new Date(selectedRange!.start), 'HH:mm')} à {format(new Date(selectedRange!.end), 'HH:mm')}</span>
+                    <span className="text-sm">De {selectedRange && format(new Date(selectedRange.start), 'HH:mm')} à {selectedRange && format(new Date(selectedRange.end), 'HH:mm')}</span>
                   </div>
                 </div>
 
@@ -404,6 +407,43 @@ export function VetCalendar({ vetId, onSelectPatient }: VetCalendarProps) {
             </motion.div>
           </div>
         )}
+
+        {appointmentToCancel && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setAppointmentToCancel(null)} className="absolute inset-0 bg-black/40 backdrop-blur-xl" />
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="bg-white w-full max-w-sm rounded-[3.5rem] p-10 shadow-2xl relative border border-gray-100" >
+              <button onClick={() => setAppointmentToCancel(null)} className="absolute top-8 right-8 p-3 hover:bg-gray-100 rounded-2xl text-gray-400">
+                <X size={24} />
+              </button>
+              <div className="mb-10 text-center">
+                <h3 className="text-2xl font-black tracking-tighter mb-2 text-black">Gérer le RDV</h3>
+                <p className="font-black text-gray-400 uppercase text-[9px] tracking-[0.2em]">{appointmentToCancel.patients?.name}</p>
+              </div>
+
+              <div className="space-y-4">
+                <Button onClick={() => { onSelectPatient?.(appointmentToCancel.patients); setAppointmentToCancel(null); }} className="w-full py-4 text-[10px] font-black uppercase tracking-widest rounded-2xl" variant="black">
+                  Ouvrir le Dossier
+                </Button>
+                <div className="h-px bg-gray-100 my-4" />
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center mb-4">Actions Administratives</p>
+                <Button 
+                  onClick={async () => {
+                    if (confirm('Annuler ce rendez-vous ?')) {
+                      await api.rejectAppointment(appointmentToCancel.id, 'Annulation Docteur');
+                      setAppointmentToCancel(null);
+                      fetchData();
+                    }
+                  }} 
+                  className="w-full py-4 text-[10px] font-black uppercase tracking-widest rounded-2xl text-red-600 hover:bg-red-50 border-red-100" 
+                  variant="outline"
+                >
+                  Annuler le RDV
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       </AnimatePresence>
 
       <style>{`
