@@ -114,12 +114,27 @@ Our application manages two distinct types of data to provide a full clinical ex
 
 ---
 
-#### 4. Advanced Automation (AI Chatbot)
-The platform integrates a fully functional **AI Assistant** powered by **n8n**.
+### 4. Key Platform Features
 
-*   **Technology**: n8n Workflow Automation.
-*   **Role**: Provides instant clinical guidance, triage (symptom evaluation), and direct navigation to the booking system.
-*   **Workflow**: The chatbot uses a secure webhook to communicate with an n8n automation engine, allowing for a dynamic and interactive patient experience.
+The VetoCare ecosystem provides a complete set of tools for modern veterinary management.
+
+#### For Pet Owners (Table A)
+*   **Intelligent Booking**: Real-time calendar integration with automatic conflict detection and multi-vet selection.
+*   **Digital Health Vault**: Secure access to all past consultations, vaccination records, and uploaded medical documents.
+*   **Self-Service Cancellation**: Ability to cancel appointments directly, with automatic recording into the clinical history.
+*   **Animal Profile Management**: Track multiple pets, their specific species, weight, and health status.
+
+#### For Veterinary Professionals (Table B)
+*   **Clinical Queue Management**: A live "Waiting Room" view to track patients as they arrive and check-in.
+*   **Electronic Medical Records (EMR)**: Rapid entry for diagnosis, symptoms, and treatments during consultations.
+*   **Availability Controls**: Manage "Indisponibilités" (unavailability slots) that reflect instantly on the public booking calendar.
+*   **Comprehensive Patient Insights**: Instant access to a pet's full medical timeline before starting a session.
+
+#### Advanced Automation (AI Chatbot)
+The platform integrates a fully functional **AI Assistant** powered by **n8n**.
+*   **Symptom Triage**: Guided evaluation of animal symptoms using AI logic.
+*   **Navigation Bridge**: The bot can directly trigger application actions (like opening the booking modal) via custom events.
+*   **24/7 Support**: Instant answers to common clinic questions and emergency guidance.
 
 ---
 
