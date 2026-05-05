@@ -114,6 +114,15 @@ Our application manages two distinct types of data to provide a full clinical ex
 
 ---
 
+#### 4. Advanced Automation (AI Chatbot)
+The platform integrates a fully functional **AI Assistant** powered by **n8n**.
+
+*   **Technology**: n8n Workflow Automation.
+*   **Role**: Provides instant clinical guidance, triage (symptom evaluation), and direct navigation to the booking system.
+*   **Workflow**: The chatbot uses a secure webhook to communicate with an n8n automation engine, allowing for a dynamic and interactive patient experience.
+
+---
+
 ## Deliverables & Submission Info
 
 | Field | Detail |
