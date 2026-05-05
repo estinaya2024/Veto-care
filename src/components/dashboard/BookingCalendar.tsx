@@ -117,7 +117,8 @@ export function BookingCalendar({ maitreId, onBookingComplete }: BookingCalendar
 
       const { data: allApts } = await supabase
         .from('rendez_vous')
-        .select('*, patients(name)');
+        .select('*, patients(name)')
+        .neq('status', 'annulé');
 
       const { data: blocks } = await supabase
         .from('indisponibilites_vet')
