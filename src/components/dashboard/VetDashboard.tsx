@@ -282,11 +282,16 @@ export function VetDashboard({ onSelectPatient }: VetDashboardProps) {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <PetAvatar species={p.species} name={p.name} size="sm" />
-                          <p className="font-bold text-gray-900">{p.name}</p>
+                          <div>
+                            <p className="font-bold text-gray-900">{p.name}</p>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase">{p.species}</p>
+                          </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{p.maitres?.full_name}</td>
-                      <td className="px-6 py-4"><span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium">{p.species}</span></td>
+                      <td className="px-6 py-4">
+                        <p className="font-bold text-gray-900 text-sm">{p.maitres?.full_name}</p>
+                        <p className="text-[10px] text-gray-400 font-medium">{p.maitres?.email || 'Pas d\'email'}</p>
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-500">{p.last_visit ? format(new Date(p.last_visit), 'dd MMM yyyy') : '—'}</td>
                       <td className="px-6 py-4 text-right"><ChevronRight size={18} className="text-gray-300" /></td>
                     </tr>
