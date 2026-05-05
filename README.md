@@ -17,6 +17,38 @@
 
 ---
 
+## 📐 Schémas Techniques
+
+### 1. Architecture Cloud (Serverless)
+```mermaid
+graph TD
+    A[Client: Browser/Mobile] -->|HTTPS| B[Vercel: Edge Network]
+    B -->|Frontend: React/Vite| A
+    A -->|Auth Request| C[Supabase Auth]
+    A -->|SQL Queries + RLS| D[Supabase Database: PostgreSQL]
+    A -->|File Upload| E[Supabase Storage: health-records]
+    D ---|RLS Policies| C
+```
+
+### 2. Logique de Prise de Rendez-vous
+```mermaid
+sequenceDiagram
+    participant P as Maître (Table A)
+    participant V as Vercel (Frontend)
+    participant S as Supabase (Backend)
+    
+    P->>V: Remplit formulaire RDV + Upload Carnet
+    V->>S: Upload fichier vers Storage
+    S-->>V: Retourne Public URL
+    V->>S: Insert Row dans Table C (Rendez-vous)
+    S-->>V: Confirmation (201 Created)
+    V-->>P: Affiche succès sur Dashboard
+```
+
+---
+
+---
+
 ## ✨ Fonctionnalités Clés
 - 🔐 **Authentification Multi-Rôle** : Espaces dédiés pour Maîtres et Docteurs.
 - 📅 **Calendrier Interactif** : Prise de RDV en temps réel avec gestion des indisponibilités.
